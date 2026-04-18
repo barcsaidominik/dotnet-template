@@ -1,8 +1,11 @@
-using System.Reflection;
 using FluentValidation;
 using Mediator;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using Template.Application.Common.Behaviors;
+using Template.Application.Common.Interfaces;
+using Template.Application.Products.Guards;
+using Template.Domain.Entities;
 
 namespace Template.Application;
 
@@ -18,6 +21,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped<IQueryGuard<Product>, FacilityProductGuard>();
 
         return services;
     }

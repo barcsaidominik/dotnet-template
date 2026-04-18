@@ -1,30 +1,35 @@
 using ErrorOr;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Template.Api.Extensions;
 
 public static class ErrorOrExtensions
 {
-    public static IResult ToApiResult<T>(this ErrorOr<T> result)
+    public static IActionResult ToActionResult<T>(this ErrorOr<T> result)
     {
-        return result.Match(
-            value => Results.Ok(value),
-            errors => errors.First().Type switch
-            {
-                ErrorType.NotFound => Results.NotFound(new { errors[0].Description }),
-                ErrorType.Validation => Results.BadRequest(new { Errors = errors.Select(e => e.Description) }),
-                ErrorType.Conflict => Results.Conflict(new { errors[0].Description }),
-                _ => Results.Problem(errors[0].Description)
-            });
+        return result.Match<IActionResult>(
+            value => new OkObjectResult(value),
+            errors => MapErrors(errors));
     }
 
-    public static IResult ToCreatedResult<T>(this ErrorOr<T> result, string routeName, object routeValues)
+    public static IActionResult ToActionResult<T>(this ErrorOr<T> result, Func<T, IActionResult> onValue)
     {
         return result.Match(
-            value => Results.CreatedAtRoute(routeName, routeValues, value),
-            errors => errors.First().Type switch
-            {
-                ErrorType.Validation => Results.BadRequest(new { Errors = errors.Select(e => e.Description) }),
-                _ => Results.Problem(errors[0].Description)
-            });
+            onValue,
+            errors => MapErrors(errors));
+    }
+
+    private static IActionResult MapErrors(List<Error> errors)
+    {
+        var first = errors[0];
+        return first.Type switch
+        {
+            ErrorType.NotFound => new NotFoundObjectResult(new { first.Description }),
+            ErrorType.Validation => new BadRequestObjectResult(new { Errors = errors.Select(e => e.Description) }),
+            ErrorType.Conflict => new ConflictObjectResult(new { first.Description }),
+            ErrorType.Unauthorized => new UnauthorizedObjectResult(new { first.Description }),
+            ErrorType.Forbidden => new ObjectResult(new { first.Description }) { StatusCode = StatusCodes.Status403Forbidden },
+            _ => new ObjectResult(new { first.Description }) { StatusCode = StatusCodes.Status500InternalServerError }
+        };
     }
 }

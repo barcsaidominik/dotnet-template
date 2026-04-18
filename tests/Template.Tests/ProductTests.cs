@@ -6,6 +6,8 @@ namespace Template.Tests;
 
 public class ProductTests
 {
+    private readonly Guid _facilityId = Guid.NewGuid();
+
     [Fact]
     public void Create_WithValidInputs_ReturnsProduct()
     {
@@ -14,12 +16,13 @@ public class ProductTests
         var price = 99.99m;
 
         // Act
-        var result = Product.Create(name, price);
+        var result = Product.Create(name, price, _facilityId);
 
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Name.Should().Be(name);
         result.Value.Price.Should().Be(price);
+        result.Value.FacilityId.Should().Be(_facilityId);
         result.Value.Id.Should().NotBeEmpty();
         result.Value.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
     }
@@ -34,7 +37,7 @@ public class ProductTests
         var price = 99.99m;
 
         // Act
-        var result = Product.Create(name!, price);
+        var result = Product.Create(name!, price, _facilityId);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -51,10 +54,25 @@ public class ProductTests
         var name = "Test Product";
 
         // Act
-        var result = Product.Create(name, price);
+        var result = Product.Create(name, price, _facilityId);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ProductErrors.InvalidPrice);
+    }
+
+    [Fact]
+    public void Create_WithEmptyFacilityId_ReturnsError()
+    {
+        // Arrange
+        var name = "Test Product";
+        var price = 99.99m;
+
+        // Act
+        var result = Product.Create(name, price, Guid.Empty);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(ProductErrors.InvalidFacility);
     }
 }

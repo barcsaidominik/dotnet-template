@@ -9,13 +9,17 @@ namespace Template.Tests;
 
 public class CreateProductCommandHandlerTests
 {
-    private readonly IProductRepository _repository;
+    private readonly IEntityStore<Product> _store;
+    private readonly ICurrentUserService _currentUserService;
     private readonly CreateProductCommandHandler _handler;
+    private readonly Guid _facilityId = Guid.NewGuid();
 
     public CreateProductCommandHandlerTests()
     {
-        _repository = Substitute.For<IProductRepository>();
-        _handler = new CreateProductCommandHandler(_repository);
+        _store = Substitute.For<IEntityStore<Product>>();
+        _currentUserService = Substitute.For<ICurrentUserService>();
+        _currentUserService.FacilityId.Returns(_facilityId);
+        _handler = new CreateProductCommandHandler(_store, _currentUserService);
     }
 
     [Fact]
@@ -31,9 +35,9 @@ public class CreateProductCommandHandlerTests
         result.IsError.Should().BeFalse();
         result.Value.Should().NotBeEmpty();
 
-        await _repository.Received(1).AddAsync(Arg.Is<Product>(p =>
-            p.Name == command.Name && p.Price == command.Price), Arg.Any<CancellationToken>());
-        await _repository.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _store.Received(1).AddAsync(Arg.Is<Product>(p =>
+            p.Name == command.Name && p.Price == command.Price && p.FacilityId == _facilityId), Arg.Any<CancellationToken>());
+        await _store.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -49,8 +53,8 @@ public class CreateProductCommandHandlerTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ProductErrors.InvalidName);
 
-        await _repository.DidNotReceive().AddAsync(Arg.Any<Product>(), Arg.Any<CancellationToken>());
-        await _repository.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().AddAsync(Arg.Any<Product>(), Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -66,7 +70,26 @@ public class CreateProductCommandHandlerTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ProductErrors.InvalidPrice);
 
-        await _repository.DidNotReceive().AddAsync(Arg.Any<Product>(), Arg.Any<CancellationToken>());
-        await _repository.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().AddAsync(Arg.Any<Product>(), Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task Handle_WithNoFacility_ReturnsForbiddenError()
+    {
+        // Arrange
+        var command = new CreateProductCommand("Test Product", 50.00m);
+        _currentUserService.FacilityId.Returns((Guid?)null);
+        var handlerWithNoFacility = new CreateProductCommandHandler(_store, _currentUserService);
+
+        // Act
+        var result = await handlerWithNoFacility.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Code.Should().Be("Product.NoFacility");
+
+        await _store.DidNotReceive().AddAsync(Arg.Any<Product>(), Arg.Any<CancellationToken>());
+        await _store.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 }
