@@ -13,13 +13,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
-import { AdminService } from '../../../core/services/admin.service';
+import { from } from 'rxjs';
+import { AdminService } from '../../../generated/client/services/admin.service';
+import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
 import { User } from '../../../core/models/user.model';
 import { Facility } from '../../../core/models/facility.model';
 
-// Approve dialog component
 @NgComponent({
-  selector: 'app-approve-user-dialog',
+  selector: 'app-user-approve-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -28,36 +29,11 @@ import { Facility } from '../../../core/models/facility.model';
     MatSelectModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Approve User</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form">
-        <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-          <mat-label>Facility</mat-label>
-          <mat-select formControlName="facilityId">
-            @for (f of data.facilities; track f.id) {
-              <mat-option [value]="f.id">{{ f.name }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Role</mat-label>
-          <mat-select formControlName="role">
-            <mat-option value="FacilityAdmin">Facility Admin</mat-option>
-            <mat-option value="FacilityEditor">Facility Editor</mat-option>
-            <mat-option value="FacilityViewer">Facility Viewer</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Approve</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './user-approve-dialog.component.html',
+  styleUrls: ['./user-approve-dialog.component.scss']
 })
-export class ApproveUserDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<ApproveUserDialogComponent>);
+export class UserApproveDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<UserApproveDialogComponent>);
   readonly data = ngInject<{ facilities: Facility[] }>(MAT_DIALOG_DATA);
   private readonly fb = ngInject(FormBuilder);
 
@@ -70,6 +46,64 @@ export class ApproveUserDialogComponent {
     if (this.form.valid) {
       this.dialogRef.close(this.form.getRawValue());
     }
+  }
+}
+
+@NgComponent({
+  selector: 'app-create-facility-user-dialog',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+  ],
+  templateUrl: './create-facility-user-dialog.component.html',
+  styleUrls: ['./create-facility-user-dialog.component.scss']
+})
+export class CreateFacilityUserDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<CreateFacilityUserDialogComponent>);
+  readonly data = ngInject<{ facilities: Facility[] }>(MAT_DIALOG_DATA);
+  private readonly fb = ngInject(FormBuilder);
+
+  readonly facilityRoles = [
+    { value: 'FacilityAdmin', label: 'Facility Admin' },
+    { value: 'FacilityEditor', label: 'Facility Editor' },
+    { value: 'FacilityViewer', label: 'Facility Viewer' },
+  ];
+
+  readonly form = this.fb.nonNullable.group({
+    email: ['', [Validators.required, Validators.email]],
+    facilityId: ['', Validators.required],
+    role: ['FacilityViewer', Validators.required],
+  });
+
+  confirm(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.getRawValue());
+    }
+  }
+}
+
+@NgComponent({
+  selector: 'app-admin-token-setup-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule, MatIconModule],
+  templateUrl: './token-setup-dialog.component.html',
+  styleUrls: ['./token-setup-dialog.component.scss']
+})
+export class AdminTokenSetupDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<AdminTokenSetupDialogComponent>);
+  private readonly snackBar = ngInject(MatSnackBar);
+
+  setupLink = '';
+
+  copyLink(): void {
+    navigator.clipboard.writeText(this.setupLink).then(() => {
+      this.snackBar.open('Link copied to clipboard', 'Close', { duration: 2000 });
+    });
   }
 }
 
@@ -87,96 +121,12 @@ export class ApproveUserDialogComponent {
     MatCardModule,
     MatTooltipModule,
   ],
-  styles: [`
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .spinner-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
-    table {
-      width: 100%;
-    }
-    .approved-chip {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-    .pending-chip {
-      background: #fff3e0;
-      color: #e65100;
-    }
-  `],
-  template: `
-    <div class="header-row">
-      <h2>Users</h2>
-    </div>
-
-    @if (isLoading()) {
-      <div class="spinner-wrap">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-    } @else {
-      <mat-card>
-        <mat-card-content>
-          <table mat-table [dataSource]="users()">
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>Role</th>
-              <td mat-cell *matCellDef="let user">{{ user.role ?? '-' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="isApproved">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let user">
-                @if (user.isApproved) {
-                  <mat-chip class="approved-chip">Approved</mat-chip>
-                } @else {
-                  <mat-chip class="pending-chip">Pending</mat-chip>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="facilityId">
-              <th mat-header-cell *matHeaderCellDef>Facility ID</th>
-              <td mat-cell *matCellDef="let user">{{ user.facilityId ?? '-' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let user">
-                @if (!user.isApproved) {
-                  <button mat-icon-button color="primary" matTooltip="Approve" (click)="openApproveDialog(user)">
-                    <mat-icon>check_circle</mat-icon>
-                  </button>
-                }
-                <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteUser(user)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-          @if (users().length === 0) {
-            <p style="text-align:center; color:#666; padding:24px;">No users found.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  `
+  templateUrl: './admin-users.component.html',
+  styleUrls: ['./admin-users.component.scss']
 })
-export class AdminUsersComponent implements OnInit {
-  private readonly adminService = inject(AdminService);
+export class AdminUsersPageComponent implements OnInit {
+  private readonly adminApi = inject(AdminService);
+  private readonly facilityUsersApi = inject(FacilityUsersService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -192,7 +142,7 @@ export class AdminUsersComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading.set(true);
-    this.adminService.getUsers().subscribe({
+    from(this.adminApi.apiAdminUsersGet$Json()).subscribe({
       next: users => {
         this.users.set(users);
         this.isLoading.set(false);
@@ -202,20 +152,26 @@ export class AdminUsersComponent implements OnInit {
         this.snackBar.open('Failed to load users', 'Close', { duration: 4000 });
       }
     });
-    this.adminService.getFacilities().subscribe({
+    from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
       next: facilities => this.facilities.set(facilities)
     });
   }
 
   openApproveDialog(user: User): void {
-    const ref = this.dialog.open(ApproveUserDialogComponent, {
+    const ref = this.dialog.open(UserApproveDialogComponent, {
       width: '360px',
       data: { facilities: this.facilities() }
     });
 
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.adminService.approveUser(user.id, result.facilityId, result.role).subscribe({
+      from(this.adminApi.apiAdminUsersUserIdApprovePost({
+        userId: user.id,
+        body: {
+          facilityId: result.facilityId,
+          role: result.role
+        }
+      })).subscribe({
         next: () => {
           this.snackBar.open('User approved', 'Close', { duration: 3000 });
           this.loadData();
@@ -225,14 +181,43 @@ export class AdminUsersComponent implements OnInit {
     });
   }
 
+  openCreateUserDialog(): void {
+    const ref = this.dialog.open(CreateFacilityUserDialogComponent, {
+      width: '400px',
+      data: { facilities: this.facilities() }
+    });
+
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
+        facilityId: result.facilityId,
+        body: {
+          email: result.email,
+          role: result.role
+        }
+      })).subscribe({
+        next: response => {
+          this.loadData();
+          const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
+          const tokenDialog = this.dialog.open(AdminTokenSetupDialogComponent, { width: '480px' });
+          tokenDialog.componentInstance.setupLink = setupLink;
+        },
+        error: () => this.snackBar.open('Failed to create user', 'Close', { duration: 4000 })
+      });
+    });
+  }
+
   deleteUser(user: User): void {
     if (!confirm(`Delete user ${user.email}?`)) return;
-    this.adminService.deleteUser(user.id).subscribe({
+    from(this.adminApi.apiAdminUsersUserIdDelete({ userId: user.id })).subscribe({
       next: () => {
         this.snackBar.open('User deleted', 'Close', { duration: 3000 });
         this.users.update(list => list.filter(u => u.id !== user.id));
       },
-      error: () => this.snackBar.open('Failed to delete user', 'Close', { duration: 4000 })
+      error: (err) => {
+        const msg = err?.error?.detail ?? 'Failed to delete user';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
+      }
     });
   }
 }

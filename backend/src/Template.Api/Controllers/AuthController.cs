@@ -28,7 +28,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
 
     [HttpPost("login")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(LoginResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {
@@ -39,12 +39,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
         }
 
         SetRefreshTokenCookie(result.Value.RefreshToken);
-        return Ok(new
-        {
-            Token = result.Value.Token,
-            ExpiresAt = result.Value.ExpiresAt,
-            Role = result.Value.Role
-        });
+        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role));
     }
 
     [HttpPost("set-password")]
@@ -58,7 +53,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
 
     [HttpPost("refresh")]
     [AllowAnonymous]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(TokenResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Refresh()
     {
@@ -75,12 +70,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
         }
 
         SetRefreshTokenCookie(result.Value.RefreshToken);
-        return Ok(new
-        {
-            Token = result.Value.Token,
-            ExpiresAt = result.Value.ExpiresAt,
-            Role = result.Value.Role
-        });
+        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role));
     }
 
     [HttpPost("logout")]
@@ -94,7 +84,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
             await SendAsync(new LogoutCommand(refreshToken));
         }
 
-        Response.Cookies.Delete(REFRESH_TOKEN_COOKIE, new CookieOptions { Path = "/api/auth" });
+        Response.Cookies.Delete(REFRESH_TOKEN_COOKIE, new CookieOptions { Path = "/" });
         return Ok();
     }
 
@@ -106,7 +96,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
             SameSite = SameSiteMode.Strict,
             Secure = false,
             Expires = DateTimeOffset.UtcNow.AddDays(7),
-            Path = "/api/auth"
+            Path = "/"
         };
         Response.Cookies.Append(REFRESH_TOKEN_COOKIE, refreshToken, options);
     }

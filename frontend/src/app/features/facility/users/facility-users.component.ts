@@ -13,7 +13,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
-import { FacilityService } from '../../../core/services/facility.service';
+import { from } from 'rxjs';
+import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import { User } from '../../../core/models/user.model';
 
@@ -24,7 +25,7 @@ const FACILITY_ROLES = [
 ];
 
 @NgComponent({
-  selector: 'app-create-facility-user-dialog',
+  selector: 'app-facility-user-create-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -34,38 +35,11 @@ const FACILITY_ROLES = [
     MatSelectModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Create User</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" (ngSubmit)="confirm()">
-        <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email">
-          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-            <mat-error>Email is required</mat-error>
-          }
-          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-            <mat-error>Invalid email</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Role</mat-label>
-          <mat-select formControlName="role">
-            @for (r of roles; track r.value) {
-              <mat-option [value]="r.value">{{ r.label }}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './facility-user-create-dialog.component.html',
+  styleUrls: ['./facility-user-create-dialog.component.scss']
 })
-export class CreateFacilityUserDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<CreateFacilityUserDialogComponent>);
+export class FacilityUserCreateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<FacilityUserCreateDialogComponent>);
   private readonly fb = ngInject(FormBuilder);
 
   readonly roles = FACILITY_ROLES;
@@ -83,27 +57,14 @@ export class CreateFacilityUserDialogComponent {
 }
 
 @NgComponent({
-  selector: 'app-setup-token-dialog',
+  selector: 'app-token-setup-dialog',
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
-  template: `
-    <h2 mat-dialog-title>User Created</h2>
-    <mat-dialog-content>
-      <p>Share this setup link with the user:</p>
-      <p style="word-break:break-all; background:#f5f5f5; padding:8px; border-radius:4px; font-family:monospace; font-size:13px;">
-        {{ setupLink }}
-      </p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="copyLink()">
-        <mat-icon>content_copy</mat-icon> Copy Link
-      </button>
-      <button mat-flat-button color="primary" mat-dialog-close>Close</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './token-setup-dialog.component.html',
+  styleUrls: ['./token-setup-dialog.component.scss']
 })
-export class SetupTokenDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<SetupTokenDialogComponent>);
+export class TokenSetupDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<TokenSetupDialogComponent>);
   private readonly snackBar = ngInject(MatSnackBar);
 
   setupLink = '';
@@ -131,98 +92,11 @@ export class SetupTokenDialogComponent {
     MatSelectModule,
     MatFormFieldModule,
   ],
-  styles: [`
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .spinner-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
-    table {
-      width: 100%;
-    }
-    .approved-chip {
-      background: #e8f5e9;
-      color: #2e7d32;
-    }
-    .pending-chip {
-      background: #fff3e0;
-      color: #e65100;
-    }
-    .role-select {
-      width: 160px;
-    }
-  `],
-  template: `
-    <div class="header-row">
-      <h2>Facility Users</h2>
-      <button mat-flat-button color="primary" (click)="openCreateDialog()">
-        <mat-icon>person_add</mat-icon> Create User
-      </button>
-    </div>
-
-    @if (isLoading()) {
-      <div class="spinner-wrap">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-    } @else {
-      <mat-card>
-        <mat-card-content>
-          <table mat-table [dataSource]="users()">
-            <ng-container matColumnDef="email">
-              <th mat-header-cell *matHeaderCellDef>Email</th>
-              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>Role</th>
-              <td mat-cell *matCellDef="let user">
-                <mat-select class="role-select" [value]="user.role" (selectionChange)="changeRole(user, $event.value)">
-                  @for (r of facilityRoles; track r.value) {
-                    <mat-option [value]="r.value">{{ r.label }}</mat-option>
-                  }
-                </mat-select>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="isApproved">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
-              <td mat-cell *matCellDef="let user">
-                @if (user.isApproved) {
-                  <mat-chip class="approved-chip">Approved</mat-chip>
-                } @else {
-                  <mat-chip class="pending-chip">Pending</mat-chip>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let user">
-                <button mat-icon-button color="warn" matTooltip="Remove" (click)="removeUser(user)">
-                  <mat-icon>person_remove</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-          @if (users().length === 0) {
-            <p style="text-align:center; color:#666; padding:24px;">No users in this facility.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  `
+  templateUrl: './facility-users.component.html',
+  styleUrls: ['./facility-users.component.scss']
 })
-export class FacilityUsersComponent implements OnInit {
-  private readonly facilityService = inject(FacilityService);
+export class FacilityUsersPageComponent implements OnInit {
+  private readonly facilityUsersApi = inject(FacilityUsersService);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
@@ -248,7 +122,7 @@ export class FacilityUsersComponent implements OnInit {
       return;
     }
     this.isLoading.set(true);
-    this.facilityService.getUsers(fid).subscribe({
+    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json({ facilityId: fid })).subscribe({
       next: users => {
         this.users.set(users);
         this.isLoading.set(false);
@@ -261,15 +135,21 @@ export class FacilityUsersComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    const ref = this.dialog.open(CreateFacilityUserDialogComponent, { width: '360px' });
+    const ref = this.dialog.open(FacilityUserCreateDialogComponent, { width: '360px' });
 
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.facilityService.createUser(this.facilityId, result.email, result.role).subscribe({
+      from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
+        facilityId: this.facilityId,
+        body: {
+          email: result.email,
+          role: result.role
+        }
+      })).subscribe({
         next: response => {
           this.loadUsers();
           const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
-          const tokenDialog = this.dialog.open(SetupTokenDialogComponent, { width: '480px' });
+          const tokenDialog = this.dialog.open(TokenSetupDialogComponent, { width: '480px' });
           tokenDialog.componentInstance.setupLink = setupLink;
         },
         error: () => this.snackBar.open('Failed to create user', 'Close', { duration: 4000 })
@@ -278,7 +158,11 @@ export class FacilityUsersComponent implements OnInit {
   }
 
   changeRole(user: User, role: string): void {
-    this.facilityService.updateUserRole(this.facilityId, user.id, role).subscribe({
+    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdRolePut({
+      facilityId: this.facilityId,
+      userId: user.id,
+      body: { role }
+    })).subscribe({
       next: () => {
         this.snackBar.open('Role updated', 'Close', { duration: 3000 });
         this.users.update(list => list.map(u => u.id === user.id ? { ...u, role } : u));
@@ -292,7 +176,10 @@ export class FacilityUsersComponent implements OnInit {
 
   removeUser(user: User): void {
     if (!confirm(`Remove ${user.email} from this facility?`)) return;
-    this.facilityService.removeUser(this.facilityId, user.id).subscribe({
+    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdDelete({
+      facilityId: this.facilityId,
+      userId: user.id
+    })).subscribe({
       next: () => {
         this.snackBar.open('User removed', 'Close', { duration: 3000 });
         this.users.update(list => list.filter(u => u.id !== user.id));

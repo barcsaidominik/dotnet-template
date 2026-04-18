@@ -8,3 +8,5 @@ docker-compose*.yml
 Dockerfile
 .dockerignore
 job-logs.txt
+openapi.json
+Template.Api.json

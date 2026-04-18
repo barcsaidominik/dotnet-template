@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>User Created</h2>
+<mat-dialog-content>
+  <p>Share this setup link with the user:</p>
+  <p class="setup-link">{{ setupLink }}</p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="copyLink()">
+    <mat-icon>content_copy</mat-icon> Copy Link
+  </button>
+  <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+</mat-dialog-actions>

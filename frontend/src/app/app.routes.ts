@@ -7,22 +7,22 @@ export const routes: Routes = [
   {
     path: 'auth',
     children: [
-      { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent) },
-      { path: 'register', loadComponent: () => import('./features/auth/register/register.component').then(m => m.RegisterComponent) },
-      { path: 'set-password', loadComponent: () => import('./features/auth/set-password/set-password.component').then(m => m.SetPasswordComponent) },
+      { path: 'login', loadComponent: () => import('./features/auth/login/login.component').then(m => m.AuthLoginComponent) },
+      { path: 'register', loadComponent: () => import('./features/auth/register/register.component').then(m => m.AuthRegisterComponent) },
+      { path: 'set-password', loadComponent: () => import('./features/auth/set-password/set-password.component').then(m => m.AuthSetPasswordComponent) },
     ]
   },
   {
     path: '',
-    loadComponent: () => import('./shared/shell/shell.component').then(m => m.ShellComponent),
+    loadComponent: () => import('./shared/shell/shell.component').then(m => m.AppShellComponent),
     canActivate: [authGuard],
     children: [
       {
         path: 'admin',
         canActivate: [roleGuard(['SystemAdmin'])],
         children: [
-          { path: 'users', loadComponent: () => import('./features/admin/users/admin-users.component').then(m => m.AdminUsersComponent) },
-          { path: 'facilities', loadComponent: () => import('./features/admin/facilities/admin-facilities.component').then(m => m.AdminFacilitiesComponent) },
+          { path: 'users', loadComponent: () => import('./features/admin/users/admin-users.component').then(m => m.AdminUsersPageComponent) },
+          { path: 'facilities', loadComponent: () => import('./features/admin/facilities/admin-facilities.component').then(m => m.AdminFacilitiesPageComponent) },
           { path: '', redirectTo: 'users', pathMatch: 'full' }
         ]
       },
@@ -30,15 +30,15 @@ export const routes: Routes = [
         path: 'facility',
         canActivate: [roleGuard(['FacilityAdmin', 'SystemAdmin'])],
         children: [
-          { path: 'users', loadComponent: () => import('./features/facility/users/facility-users.component').then(m => m.FacilityUsersComponent) },
-          { path: 'products', loadComponent: () => import('./features/facility/products/facility-products.component').then(m => m.FacilityProductsComponent) },
+          { path: 'users', loadComponent: () => import('./features/facility/users/facility-users.component').then(m => m.FacilityUsersPageComponent) },
+          { path: 'products', loadComponent: () => import('./features/facility/products/facility-products.component').then(m => m.FacilityProductsPageComponent) },
           { path: '', redirectTo: 'users', pathMatch: 'full' }
         ]
       },
       {
         path: 'products',
-        canActivate: [roleGuard(['FacilityAdmin', 'FacilityEditor', 'FacilityViewer'])],
-        loadComponent: () => import('./features/products/products.component').then(m => m.ProductsComponent)
+        canActivate: [roleGuard(['SystemAdmin', 'FacilityAdmin', 'FacilityEditor', 'FacilityViewer'])],
+        loadComponent: () => import('./features/products/products.component').then(m => m.ProductsPageComponent)
       }
     ]
   },

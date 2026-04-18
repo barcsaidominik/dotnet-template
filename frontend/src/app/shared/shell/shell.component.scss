@@ -1,0 +1,32 @@
+.shell-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+mat-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.sidenav-container {
+  flex: 1;
+}
+
+mat-sidenav {
+  width: 220px;
+}
+
+.sidenav-content {
+  padding: 16px;
+}
+
+mat-nav-list a {
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+.active-link {
+  background-color: rgba(0, 0, 0, 0.08);
+}

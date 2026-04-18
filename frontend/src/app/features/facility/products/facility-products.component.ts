@@ -12,11 +12,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
-import { ProductService } from '../../../core/services/product.service';
+import { from } from 'rxjs';
+import { ProductsService } from '../../../generated/client/services/products.service';
 import { Product } from '../../../core/models/product.model';
 
 @NgComponent({
-  selector: 'app-create-product-dialog',
+  selector: 'app-product-create-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -25,37 +26,11 @@ import { Product } from '../../../core/models/product.model';
     MatInputModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Create Product</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" (ngSubmit)="confirm()">
-        <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name">
-          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-            <mat-error>Name is required</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Price</mat-label>
-          <input matInput type="number" formControlName="price" min="0" step="0.01">
-          @if (form.get('price')?.hasError('required') && form.get('price')?.touched) {
-            <mat-error>Price is required</mat-error>
-          }
-          @if (form.get('price')?.hasError('min') && form.get('price')?.touched) {
-            <mat-error>Price must be 0 or greater</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './product-create-dialog.component.html',
+  styleUrls: ['./product-create-dialog.component.scss']
 })
-export class CreateProductDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<CreateProductDialogComponent>);
+export class ProductCreateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<ProductCreateDialogComponent>);
   private readonly fb = ngInject(FormBuilder);
 
   readonly form = this.fb.nonNullable.group({
@@ -85,71 +60,11 @@ export class CreateProductDialogComponent {
     MatCardModule,
     MatTooltipModule,
   ],
-  styles: [`
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .spinner-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
-    table {
-      width: 100%;
-    }
-  `],
-  template: `
-    <div class="header-row">
-      <h2>Products</h2>
-      <button mat-flat-button color="primary" (click)="openCreateDialog()">
-        <mat-icon>add</mat-icon> Create Product
-      </button>
-    </div>
-
-    @if (isLoading()) {
-      <div class="spinner-wrap">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-    } @else {
-      <mat-card>
-        <mat-card-content>
-          <table mat-table [dataSource]="products()">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let product">{{ product.name }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="price">
-              <th mat-header-cell *matHeaderCellDef>Price</th>
-              <td mat-cell *matCellDef="let product">{{ product.price | number:'1.2-2' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="createdAt">
-              <th mat-header-cell *matHeaderCellDef>Created</th>
-              <td mat-cell *matCellDef="let product">{{ product.createdAt | date:'short' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let product">{{ product.id }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-          @if (products().length === 0) {
-            <p style="text-align:center; color:#666; padding:24px;">No products yet. Create one to get started.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  `
+  templateUrl: './facility-products.component.html',
+  styleUrls: ['./facility-products.component.scss']
 })
-export class FacilityProductsComponent implements OnInit {
-  private readonly productService = inject(ProductService);
+export class FacilityProductsPageComponent implements OnInit {
+  private readonly productsApi = inject(ProductsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -163,14 +78,19 @@ export class FacilityProductsComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    const ref = this.dialog.open(CreateProductDialogComponent, { width: '360px' });
+    const ref = this.dialog.open(ProductCreateDialogComponent, { width: '360px' });
 
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.productService.createProduct(result.name, result.price).subscribe({
-        next: response => {
+      from(this.productsApi.apiProductsPost$Json({
+        body: {
+          name: result.name,
+          price: result.price
+        }
+      })).subscribe({
+        next: id => {
           const newProduct: Product = {
-            id: response.id,
+            id,
             name: result.name,
             price: result.price,
             facilityId: '',

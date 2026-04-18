@@ -1,7 +1,11 @@
 using System.Text;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using Template.Api.OpenApi;
 using Template.Application;
 using Template.Infrastructure;
 using Template.Infrastructure.Persistence;
@@ -31,6 +35,28 @@ public class Program
 
         builder.Services.AddControllers();
 
+        builder.Services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, context, ct) =>
+            {
+                document.Info = new()
+                {
+                    Title = "Template API",
+                    Version = "v1",
+                    Description = "Template API documentation"
+                };
+                return Task.CompletedTask;
+            });
+
+            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+        });
+
+        builder.Services.AddHealthChecks()
+            .AddNpgSql(
+                builder.Configuration.GetConnectionString("DefaultConnection")!,
+                name: "database",
+                tags: ["ready"]);
+
         var jwtSettings = builder.Configuration.GetSection("JwtSettings");
         builder.Services
             .AddAuthentication(options =>
@@ -56,17 +82,46 @@ public class Program
 
         var app = builder.Build();
 
-        using (var scope = app.Services.CreateScope())
+        try
         {
-            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await context.Database.MigrateAsync();
-            await DbSeeder.SeedRolesAsync(scope.ServiceProvider);
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                await context.Database.MigrateAsync();
+                await DbSeeder.SeedRolesAsync(scope.ServiceProvider);
+                await DbSeeder.SeedSystemAdminAsync(scope.ServiceProvider);
+            }
+        }
+        catch (Exception ex)
+        {
+            var logger = app.Services.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning(ex, "Database initialization skipped - ensure database is available in production");
         }
 
         app.UseCors();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = _ => false,
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = check => check.Tags.Contains("ready"),
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
+
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
 
         await app.RunAsync();
     }

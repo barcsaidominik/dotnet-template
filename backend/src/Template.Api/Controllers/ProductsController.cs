@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Template.Api.Extensions;
 using Template.Application.Products.Commands.CreateProduct;
 using Template.Application.Products.Queries.GetProductById;
+using Template.Application.Products.Queries.GetProducts;
 using Template.Domain.Constants;
 using Template.Domain.Entities;
 
@@ -13,6 +14,13 @@ namespace Template.Api.Controllers;
 [Authorize(Roles = Roles.FACILITY_ADMIN + "," + Roles.FACILITY_EDITOR + "," + Roles.FACILITY_VIEWER)]
 public sealed class ProductsController(ISender sender) : ApiController(sender)
 {
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<Product>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
+    {
+        return await SendAsync(new GetProductsQuery()).ToActionResultAsync();
+    }
+
     [HttpPost]
     [Authorize(Roles = Roles.FACILITY_ADMIN + "," + Roles.FACILITY_EDITOR)]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]

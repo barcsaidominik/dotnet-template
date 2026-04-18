@@ -1,0 +1,26 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+table {
+  width: 100%;
+}
+
+.approved-chip {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.pending-chip {
+  background: #fff3e0;
+  color: #e65100;
+}

@@ -1,12 +1,12 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
-import { LoginResponse } from '../models/user.model';
+import { from, map, Observable, tap } from 'rxjs';
+import { AuthService as GeneratedAuthService } from '../../generated/client/services/auth.service';
+import { TokenResponse } from '../../generated/client/models/token-response';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly authApi = inject(GeneratedAuthService);
   private readonly router = inject(Router);
 
   private readonly _accessToken = signal<string | null>(null);
@@ -23,14 +23,15 @@ export class AuthService {
     ['FacilityAdmin', 'FacilityEditor'].includes(this._role() ?? ''));
   readonly accessToken = computed(() => this._accessToken());
 
-  login(email: string, password: string) {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`,
-      { email, password },
-      { withCredentials: true }
-    );
+  login(email: string, password: string): Observable<TokenResponse> {
+    return from(this.authApi.apiAuthLoginPost$Json({ body: { email, password } }));
   }
 
-  setSession(response: LoginResponse): void {
+  register(email: string, password: string) {
+    return from(this.authApi.apiAuthRegisterPost({ body: { email, password } }));
+  }
+
+  setSession(response: TokenResponse): void {
     this._accessToken.set(response.token);
     this._role.set(response.role);
     this._tokenExpiry.set(new Date(response.expiresAt));
@@ -43,17 +44,19 @@ export class AuthService {
     }
   }
 
-  refresh() {
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/refresh`,
-      {},
-      { withCredentials: true }
+  refresh(): Observable<void> {
+    return from(this.authApi.apiAuthRefreshPost$Json()).pipe(
+      tap(response => this.setSession(response)),
+      map(() => void 0)
     );
   }
 
+  setPassword(email: string, token: string, newPassword: string) {
+    return from(this.authApi.apiAuthSetPasswordPost({ body: { email, token, newPassword } }));
+  }
+
   logout(): void {
-    this.http.post(`${environment.apiUrl}/auth/logout`, {},
-      { withCredentials: true }
-    ).subscribe({
+    from(this.authApi.apiAuthLogoutPost()).subscribe({
       complete: () => {
         this._accessToken.set(null);
         this._role.set(null);

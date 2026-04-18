@@ -1,0 +1,23 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+}
+
+.placeholder {
+  text-align: center;
+  padding: 40px 24px;
+  color: #666;
+}
+
+.placeholder mat-icon {
+  font-size: 48px;
+  height: 48px;
+  width: 48px;
+  color: #bbb;
+}

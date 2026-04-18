@@ -11,12 +11,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
-import { ProductService } from '../../core/services/product.service';
+import { from } from 'rxjs';
+import { ProductsService } from '../../generated/client/services/products.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Product } from '../../core/models/product.model';
 
 @NgComponent({
-  selector: 'app-create-product-viewer-dialog',
+  selector: 'app-product-viewer-create-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -25,37 +26,11 @@ import { Product } from '../../core/models/product.model';
     MatInputModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Create Product</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" (ngSubmit)="confirm()">
-        <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name">
-          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-            <mat-error>Name is required</mat-error>
-          }
-        </mat-form-field>
-        <mat-form-field appearance="outline" style="width:100%">
-          <mat-label>Price</mat-label>
-          <input matInput type="number" formControlName="price" min="0" step="0.01">
-          @if (form.get('price')?.hasError('required') && form.get('price')?.touched) {
-            <mat-error>Price is required</mat-error>
-          }
-          @if (form.get('price')?.hasError('min') && form.get('price')?.touched) {
-            <mat-error>Price must be 0 or greater</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './product-viewer-create-dialog.component.html',
+  styleUrls: ['./product-viewer-create-dialog.component.scss']
 })
-export class CreateProductViewerDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<CreateProductViewerDialogComponent>);
+export class ProductViewerCreateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<ProductViewerCreateDialogComponent>);
   private readonly fb = ngInject(FormBuilder);
 
   readonly form = this.fb.nonNullable.group({
@@ -84,106 +59,56 @@ export class CreateProductViewerDialogComponent {
     MatDialogModule,
     MatCardModule,
   ],
-  styles: [`
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    table {
-      width: 100%;
-    }
-    .placeholder {
-      text-align: center;
-      padding: 40px 24px;
-      color: #666;
-    }
-    .placeholder mat-icon {
-      font-size: 48px;
-      height: 48px;
-      width: 48px;
-      color: #bbb;
-    }
-  `],
-  template: `
-    <div class="header-row">
-      <h2>Products</h2>
-      @if (auth.canEditProducts()) {
-        <button mat-flat-button color="primary" (click)="openCreateDialog()">
-          <mat-icon>add</mat-icon> Create Product
-        </button>
-      }
-    </div>
-
-    <mat-card>
-      <mat-card-content>
-        @if (products().length > 0) {
-          <table mat-table [dataSource]="products()">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let product">{{ product.name }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="price">
-              <th mat-header-cell *matHeaderCellDef>Price</th>
-              <td mat-cell *matCellDef="let product">{{ product.price | number:'1.2-2' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="createdAt">
-              <th mat-header-cell *matHeaderCellDef>Created</th>
-              <td mat-cell *matCellDef="let product">{{ product.createdAt | date:'short' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let product">{{ product.id }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-        } @else {
-          <div class="placeholder">
-            <mat-icon>inventory_2</mat-icon>
-            <p>Product list is coming soon.</p>
-            @if (auth.canEditProducts()) {
-              <p>Use the <strong>Create Product</strong> button above to add your first product.</p>
-            }
-          </div>
-        }
-      </mat-card-content>
-    </mat-card>
-  `
+  templateUrl: './products.component.html',
+  styleUrls: ['./products.component.scss']
 })
-export class ProductsComponent implements OnInit {
-  private readonly productService = inject(ProductService);
+export class ProductsPageComponent implements OnInit {
+  private readonly productsApi = inject(ProductsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   readonly auth = inject(AuthService);
 
   readonly products = signal<Product[]>([]);
+  readonly isLoading = signal(true);
   readonly displayedColumns = ['name', 'price', 'createdAt', 'id'];
 
   ngOnInit(): void {
-    // No list endpoint yet - products will appear after creation
+    this.loadProducts();
+  }
+
+  private loadProducts(): void {
+    this.isLoading.set(true);
+    from(this.productsApi.apiProductsGet$Json()).subscribe({
+      next: products => {
+        this.products.set(products.map(p => ({
+          id: p.id ?? '',
+          name: p.name ?? '',
+          price: typeof p.price === 'number' ? p.price : parseFloat(p.price ?? '0'),
+          facilityId: p.facilityId ?? '',
+          createdAt: p.createdAt ?? '',
+        })));
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.snackBar.open('Failed to load products', 'Close', { duration: 4000 });
+      }
+    });
   }
 
   openCreateDialog(): void {
-    const ref = this.dialog.open(CreateProductViewerDialogComponent, { width: '360px' });
+    const ref = this.dialog.open(ProductViewerCreateDialogComponent, { width: '360px' });
 
     ref.afterClosed().subscribe(result => {
       if (!result) return;
-      this.productService.createProduct(result.name, result.price).subscribe({
-        next: response => {
-          const newProduct: Product = {
-            id: response.id,
-            name: result.name,
-            price: result.price,
-            facilityId: this.auth.facilityId() ?? '',
-            createdAt: new Date().toISOString(),
-          };
-          this.products.update(list => [...list, newProduct]);
+      from(this.productsApi.apiProductsPost$Json({
+        body: {
+          name: result.name,
+          price: result.price
+        }
+      })).subscribe({
+        next: () => {
+          this.loadProducts();
           this.snackBar.open('Product created', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Failed to create product', 'Close', { duration: 4000 })

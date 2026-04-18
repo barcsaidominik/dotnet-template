@@ -11,11 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
-import { AdminService } from '../../../core/services/admin.service';
+import { from } from 'rxjs';
+import { AdminService } from '../../../generated/client/services/admin.service';
 import { Facility } from '../../../core/models/facility.model';
 
 @NgComponent({
-  selector: 'app-create-facility-dialog',
+  selector: 'app-facility-create-dialog',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -24,27 +25,11 @@ import { Facility } from '../../../core/models/facility.model';
     MatInputModule,
     MatButtonModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Create Facility</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" (ngSubmit)="confirm()">
-        <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-          <mat-label>Facility Name</mat-label>
-          <input matInput formControlName="name">
-          @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
-            <mat-error>Name is required</mat-error>
-          }
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
-    </mat-dialog-actions>
-  `
+  templateUrl: './facility-create-dialog.component.html',
+  styleUrls: ['./facility-create-dialog.component.scss']
 })
-export class CreateFacilityDialogComponent {
-  readonly dialogRef = ngInject(MatDialogRef<CreateFacilityDialogComponent>);
+export class FacilityCreateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<FacilityCreateDialogComponent>);
   private readonly fb = ngInject(FormBuilder);
 
   readonly form = this.fb.nonNullable.group({
@@ -71,70 +56,11 @@ export class CreateFacilityDialogComponent {
     MatCardModule,
     MatTooltipModule,
   ],
-  styles: [`
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .spinner-wrap {
-      display: flex;
-      justify-content: center;
-      padding: 32px;
-    }
-    table {
-      width: 100%;
-    }
-  `],
-  template: `
-    <div class="header-row">
-      <h2>Facilities</h2>
-      <button mat-flat-button color="primary" (click)="openCreateDialog()">
-        <mat-icon>add</mat-icon> Create Facility
-      </button>
-    </div>
-
-    @if (isLoading()) {
-      <div class="spinner-wrap">
-        <mat-spinner diameter="48"></mat-spinner>
-      </div>
-    } @else {
-      <mat-card>
-        <mat-card-content>
-          <table mat-table [dataSource]="facilities()">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>Name</th>
-              <td mat-cell *matCellDef="let facility">{{ facility.name }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>ID</th>
-              <td mat-cell *matCellDef="let facility">{{ facility.id }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let facility">
-                <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteFacility(facility)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
-          @if (facilities().length === 0) {
-            <p style="text-align:center; color:#666; padding:24px;">No facilities found.</p>
-          }
-        </mat-card-content>
-      </mat-card>
-    }
-  `
+  templateUrl: './admin-facilities.component.html',
+  styleUrls: ['./admin-facilities.component.scss']
 })
-export class AdminFacilitiesComponent implements OnInit {
-  private readonly adminService = inject(AdminService);
+export class AdminFacilitiesPageComponent implements OnInit {
+  private readonly adminApi = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -149,7 +75,7 @@ export class AdminFacilitiesComponent implements OnInit {
 
   private loadFacilities(): void {
     this.isLoading.set(true);
-    this.adminService.getFacilities().subscribe({
+    from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
       next: facilities => {
         this.facilities.set(facilities);
         this.isLoading.set(false);
@@ -162,11 +88,11 @@ export class AdminFacilitiesComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    const ref = this.dialog.open(CreateFacilityDialogComponent, { width: '360px' });
+    const ref = this.dialog.open(FacilityCreateDialogComponent, { width: '360px' });
 
     ref.afterClosed().subscribe(name => {
       if (!name) return;
-      this.adminService.createFacility(name).subscribe({
+      from(this.adminApi.apiAdminFacilitiesPost$Json({ body: { name } })).subscribe({
         next: () => {
           this.snackBar.open('Facility created', 'Close', { duration: 3000 });
           this.loadFacilities();
@@ -178,7 +104,7 @@ export class AdminFacilitiesComponent implements OnInit {
 
   deleteFacility(facility: Facility): void {
     if (!confirm(`Delete facility "${facility.name}"?`)) return;
-    this.adminService.deleteFacility(facility.id).subscribe({
+    from(this.adminApi.apiAdminFacilitiesFacilityIdDelete({ facilityId: facility.id })).subscribe({
       next: () => {
         this.snackBar.open('Facility deleted', 'Close', { duration: 3000 });
         this.facilities.update(list => list.filter(f => f.id !== facility.id));

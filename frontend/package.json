@@ -5,7 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development"
+    "watch": "ng build --watch --configuration development",
+    "generate:types": "openapi-typescript ../backend/src/Template.Api/Template.Api.json -o src/app/generated/api.types.ts",
+    "generate:client": "ng-openapi-gen --config ng-openapi-gen.json",
+    "generate:api": "npm run generate:types && npm run generate:client"
   },
   "dependencies": {
     "@angular/animations": "^19.0.0",
@@ -26,6 +29,8 @@
     "@angular-devkit/build-angular": "^19.0.0",
     "@angular/cli": "^19.0.0",
     "@angular/compiler-cli": "^19.0.0",
+    "ng-openapi-gen": "^1.0.5",
+    "openapi-typescript": "^7.13.0",
     "typescript": "~5.6.0"
   }
 }

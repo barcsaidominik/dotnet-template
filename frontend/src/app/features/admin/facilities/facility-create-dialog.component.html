@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Create Facility</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="confirm()">
+    <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
+      <mat-label>Facility Name</mat-label>
+      <input matInput formControlName="name">
+      @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <mat-error>Name is required</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
+</mat-dialog-actions>
