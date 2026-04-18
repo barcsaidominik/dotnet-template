@@ -1,10 +1,13 @@
-﻿name: Style Check
+name: Style Check
 
 on:
   pull_request:
   push:
     branches:
       - master
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   style:
@@ -20,7 +23,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore backend/dotnet-template.slnx
 
       - name: Verify formatting and code style
-        run: dotnet format --verify-no-changes --severity error --no-restore
+        run: dotnet format backend/dotnet-template.slnx --verify-no-changes --severity error --no-restore
