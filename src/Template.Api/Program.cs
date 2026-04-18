@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Template.Application;
 using Template.Infrastructure;
@@ -44,6 +45,8 @@ public class Program
 
         using (var scope = app.Services.CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await context.Database.MigrateAsync();
             await DbSeeder.SeedRolesAsync(scope.ServiceProvider);
         }
 
