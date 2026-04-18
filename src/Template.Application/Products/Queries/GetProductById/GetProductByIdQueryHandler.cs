@@ -7,17 +7,17 @@ using Template.Domain.Errors;
 
 namespace Template.Application.Products.Queries.GetProductById;
 
-public sealed class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, ErrorOr<Product>> {
-    private readonly IEntityStore<Product> _store;
+public sealed class GetProductByIdQueryHandler(IEntityStore<Product> store) : IRequestHandler<GetProductByIdQuery, ErrorOr<Product>>
+{
+    private readonly IEntityStore<Product> _store = store;
 
-    public GetProductByIdQueryHandler(IEntityStore<Product> store)
-        => _store = store;
-
-    public async ValueTask<ErrorOr<Product>> Handle(GetProductByIdQuery request, CancellationToken cancellationToken) {
+    public async ValueTask<ErrorOr<Product>> Handle(GetProductByIdQuery request, CancellationToken ct)
+    {
         var product = await _store.GetQuery()
-            .FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Id == request.Id, ct);
 
-        if (product is null) {
+        if (product is null)
+        {
             return ProductErrors.NotFound;
         }
 

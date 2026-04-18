@@ -14,49 +14,53 @@ using Template.Domain.Constants;
 
 namespace Template.Api.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
 [Authorize(Roles = Roles.SystemAdmin)]
-public sealed class AdminController(ISender sender) : ControllerBase {
-    private readonly ISender _sender = sender;
-
+public sealed class AdminController(ISender sender) : ApiController(sender)
+{
     [HttpGet("users")]
     [ProducesResponseType(typeof(IReadOnlyList<UserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsers(CancellationToken ct) {
-        return await _sender.Send(new GetAllUsersQuery(), ct).ToActionResultAsync();
+    public async Task<IActionResult> GetUsers()
+    {
+        return await SendAsync(new GetAllUsersQuery()).ToActionResultAsync();
     }
 
     [HttpPost("users/{userId:guid}/approve")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> ApproveUser(Guid userId, [FromBody] ApproveUserRequest request, CancellationToken ct) {
-        return await _sender.Send(new ApproveUserCommand(userId, request.FacilityId, request.Role), ct).ToActionResultAsync();
+    public async Task<IActionResult> ApproveUser(Guid userId, [FromBody] ApproveUserRequest request)
+    {
+        return await SendAsync(new ApproveUserCommand(userId, request.FacilityId, request.Role)).ToActionResultAsync();
     }
 
     [HttpDelete("users/{userId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteUser(Guid userId, CancellationToken ct) {
-        return await _sender.Send(new DeleteUserCommand(userId), ct).ToActionResultAsync();
+    public async Task<IActionResult> DeleteUser(Guid userId)
+    {
+        return await SendAsync(new DeleteUserCommand(userId)).ToActionResultAsync();
     }
 
     [HttpGet("facilities")]
     [ProducesResponseType(typeof(IReadOnlyList<FacilityDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFacilities(CancellationToken ct) {
-        return await _sender.Send(new GetAllFacilitiesQuery(), ct).ToActionResultAsync();
+    public async Task<IActionResult> GetFacilities()
+    {
+        return await SendAsync(new GetAllFacilitiesQuery()).ToActionResultAsync();
     }
 
     [HttpPost("facilities")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateFacility([FromBody] CreateFacilityCommand command, CancellationToken ct) {
-        return await _sender.Send(command, ct).ToActionResultAsync(id => CreatedAtAction(nameof(GetFacilities), new { id }, id));
+    public async Task<IActionResult> CreateFacility([FromBody] CreateFacilityCommand command)
+    {
+        return await SendAsync(command).ToActionResultAsync(id => CreatedAtAction(nameof(GetFacilities), new { id }, id));
     }
 
     [HttpDelete("facilities/{facilityId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteFacility(Guid facilityId, CancellationToken ct) {
-        return await _sender.Send(new DeleteFacilityCommand(facilityId), ct).ToActionResultAsync();
+    public async Task<IActionResult> DeleteFacility(Guid facilityId)
+    {
+        return await SendAsync(new DeleteFacilityCommand(facilityId)).ToActionResultAsync();
     }
 }

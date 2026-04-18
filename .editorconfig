@@ -1,5 +1,10 @@
 root = true
 
+[*]
+end_of_line = crlf
+charset = utf-8
+insert_final_newline = true
+
 [*.cs]
 
 # Namespace és using
@@ -35,11 +40,17 @@ dotnet_style_qualification_for_property = false:error
 dotnet_style_qualification_for_method = false:error
 dotnet_style_qualification_for_event = false:error
 
+# Primary constructor preferencia
+csharp_style_prefer_primary_constructors = true
+dotnet_diagnostic.IDE0290.severity = warning
+
 # Modifier sorrend
 csharp_preferred_modifier_order = public, private, protected, internal, file, static, extern, new, virtual, abstract, sealed, override, readonly, unsafe, required, volatile, async:error
 
 # Newline / indent / spacing
-csharp_new_line_before_open_brace = all:error
+csharp_new_line_before_open_brace = types, methods, properties, accessors, anonymous_methods, control_blocks, anonymous_types, object_collection_array_initializers, lambdas, local_functions
+csharp_preserve_single_line_blocks = false
+csharp_preserve_single_line_statements = false
 csharp_indent_block_contents = true
 csharp_indent_braces = false
 csharp_indent_case_contents = true

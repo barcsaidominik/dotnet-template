@@ -2,8 +2,10 @@ using FluentValidation;
 
 namespace Template.Application.Auth.Commands.SetPassword;
 
-public sealed class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand> {
-    public SetPasswordCommandValidator() {
+public sealed class SetPasswordCommandValidator : AbstractValidator<SetPasswordCommand>
+{
+    public SetPasswordCommandValidator()
+    {
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         RuleFor(x => x.Token).NotEmpty();
         RuleFor(x => x.NewPassword)

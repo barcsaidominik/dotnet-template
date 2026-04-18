@@ -7,17 +7,20 @@ using Template.Domain.Errors;
 
 namespace Template.Tests;
 
-public class LoginCommandHandlerTests {
+public class LoginCommandHandlerTests
+{
     private readonly IAuthService _authService;
     private readonly LoginCommandHandler _handler;
 
-    public LoginCommandHandlerTests() {
+    public LoginCommandHandlerTests()
+    {
         _authService = Substitute.For<IAuthService>();
         _handler = new LoginCommandHandler(_authService);
     }
 
     [Fact]
-    public async Task Handle_WithValidCredentials_ReturnsLoginResult() {
+    public async Task Handle_WithValidCredentials_ReturnsLoginResult()
+    {
         // Arrange
         var command = new LoginCommand("user@test.com", "Password123!");
         var expectedResult = new LoginResult("token", DateTime.UtcNow.AddHours(1), "FacilityAdmin");
@@ -33,7 +36,8 @@ public class LoginCommandHandlerTests {
     }
 
     [Fact]
-    public async Task Handle_WithInvalidCredentials_ReturnsError() {
+    public async Task Handle_WithInvalidCredentials_ReturnsError()
+    {
         // Arrange
         var command = new LoginCommand("user@test.com", "WrongPassword!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
@@ -48,7 +52,8 @@ public class LoginCommandHandlerTests {
     }
 
     [Fact]
-    public async Task Handle_WithNotApprovedUser_ReturnsNotApprovedError() {
+    public async Task Handle_WithNotApprovedUser_ReturnsNotApprovedError()
+    {
         // Arrange
         var command = new LoginCommand("user@test.com", "Password123!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
@@ -63,7 +68,8 @@ public class LoginCommandHandlerTests {
     }
 
     [Fact]
-    public async Task Handle_WithPasswordChangeRequired_ReturnsPasswordChangeRequiredError() {
+    public async Task Handle_WithPasswordChangeRequired_ReturnsPasswordChangeRequiredError()
+    {
         // Arrange
         var command = new LoginCommand("user@test.com", "Password123!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())

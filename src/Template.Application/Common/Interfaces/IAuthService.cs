@@ -3,7 +3,8 @@ using Template.Application.Common.Dtos;
 
 namespace Template.Application.Common.Interfaces;
 
-public interface IAuthService {
+public interface IAuthService
+{
     Task<ErrorOr<Success>> RegisterAsync(string email, string password, CancellationToken ct = default);
     Task<ErrorOr<LoginResult>> LoginAsync(string email, string password, CancellationToken ct = default);
     Task<ErrorOr<Success>> SetPasswordAsync(string email, string token, string newPassword, CancellationToken ct = default);

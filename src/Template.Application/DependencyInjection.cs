@@ -9,9 +9,12 @@ using Template.Domain.Entities;
 
 namespace Template.Application;
 
-public static class DependencyInjection {
-    public static IServiceCollection AddApplication(this IServiceCollection services) {
-        services.AddMediator(options => {
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddMediator(options =>
+        {
             options.ServiceLifetime = ServiceLifetime.Scoped;
         });
 

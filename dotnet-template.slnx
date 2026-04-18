@@ -1,4 +1,11 @@
-<Solution>
+﻿<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/Template.Api/Template.Api.csproj" />
     <Project Path="src/Template.Application/Template.Application.csproj" />
