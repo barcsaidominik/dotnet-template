@@ -3,10 +3,8 @@ using Template.Domain.Constants;
 
 namespace Template.Application.Admin.Commands.ApproveUser;
 
-public sealed class ApproveUserCommandValidator : AbstractValidator<ApproveUserCommand>
-{
-    public ApproveUserCommandValidator()
-    {
+public sealed class ApproveUserCommandValidator : AbstractValidator<ApproveUserCommand> {
+    public ApproveUserCommandValidator() {
         RuleFor(x => x.UserId).NotEmpty();
         RuleFor(x => x.FacilityId).NotEmpty();
         RuleFor(x => x.Role)

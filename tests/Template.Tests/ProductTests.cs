@@ -4,13 +4,11 @@ using Template.Domain.Errors;
 
 namespace Template.Tests;
 
-public class ProductTests
-{
+public class ProductTests {
     private readonly Guid _facilityId = Guid.NewGuid();
 
     [Fact]
-    public void Create_WithValidInputs_ReturnsProduct()
-    {
+    public void Create_WithValidInputs_ReturnsProduct() {
         // Arrange
         var name = "Test Product";
         var price = 99.99m;
@@ -31,8 +29,7 @@ public class ProductTests
     [InlineData(null)]
     [InlineData("")]
     [InlineData("   ")]
-    public void Create_WithInvalidName_ReturnsError(string? name)
-    {
+    public void Create_WithInvalidName_ReturnsError(string? name) {
         // Arrange
         var price = 99.99m;
 
@@ -48,8 +45,7 @@ public class ProductTests
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(-100.50)]
-    public void Create_WithInvalidPrice_ReturnsError(decimal price)
-    {
+    public void Create_WithInvalidPrice_ReturnsError(decimal price) {
         // Arrange
         var name = "Test Product";
 
@@ -62,8 +58,7 @@ public class ProductTests
     }
 
     [Fact]
-    public void Create_WithEmptyFacilityId_ReturnsError()
-    {
+    public void Create_WithEmptyFacilityId_ReturnsError() {
         // Arrange
         var name = "Test Product";
         var price = 99.99m;

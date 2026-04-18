@@ -7,15 +7,13 @@ using Template.Domain.Errors;
 
 namespace Template.Tests;
 
-public class CreateProductCommandHandlerTests
-{
+public class CreateProductCommandHandlerTests {
     private readonly IEntityStore<Product> _store;
     private readonly ICurrentUserService _currentUserService;
     private readonly CreateProductCommandHandler _handler;
     private readonly Guid _facilityId = Guid.NewGuid();
 
-    public CreateProductCommandHandlerTests()
-    {
+    public CreateProductCommandHandlerTests() {
         _store = Substitute.For<IEntityStore<Product>>();
         _currentUserService = Substitute.For<ICurrentUserService>();
         _currentUserService.FacilityId.Returns(_facilityId);
@@ -23,8 +21,7 @@ public class CreateProductCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithValidCommand_CreatesProductAndReturnsId()
-    {
+    public async Task Handle_WithValidCommand_CreatesProductAndReturnsId() {
         // Arrange
         var command = new CreateProductCommand("Test Product", 50.00m);
 
@@ -41,8 +38,7 @@ public class CreateProductCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithEmptyName_ReturnsValidationError()
-    {
+    public async Task Handle_WithEmptyName_ReturnsValidationError() {
         // Arrange
         var command = new CreateProductCommand("", 50.00m);
 
@@ -58,8 +54,7 @@ public class CreateProductCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithNegativePrice_ReturnsValidationError()
-    {
+    public async Task Handle_WithNegativePrice_ReturnsValidationError() {
         // Arrange
         var command = new CreateProductCommand("Test Product", -10.00m);
 
@@ -75,8 +70,7 @@ public class CreateProductCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithNoFacility_ReturnsForbiddenError()
-    {
+    public async Task Handle_WithNoFacility_ReturnsForbiddenError() {
         // Arrange
         var command = new CreateProductCommand("Test Product", 50.00m);
         _currentUserService.FacilityId.Returns((Guid?)null);

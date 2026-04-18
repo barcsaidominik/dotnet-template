@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Template.Application.Common.Interfaces;
 
 namespace Template.Infrastructure.Identity;
 
-public sealed class CurrentUserService : ICurrentUserService
-{
+public sealed class CurrentUserService : ICurrentUserService {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CurrentUserService(IHttpContextAccessor httpContextAccessor)

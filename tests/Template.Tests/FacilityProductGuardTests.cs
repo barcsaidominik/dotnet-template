@@ -6,11 +6,9 @@ using Template.Domain.Entities;
 
 namespace Template.Tests;
 
-public class FacilityProductGuardTests
-{
+public class FacilityProductGuardTests {
     [Fact]
-    public void Apply_WithFacilityId_FiltersProductsByFacilityId()
-    {
+    public void Apply_WithFacilityId_FiltersProductsByFacilityId() {
         // Arrange
         var facilityId = Guid.NewGuid();
         var otherFacilityId = Guid.NewGuid();
@@ -36,8 +34,7 @@ public class FacilityProductGuardTests
     }
 
     [Fact]
-    public void Apply_WithNullFacilityId_ReturnsAllProducts()
-    {
+    public void Apply_WithNullFacilityId_ReturnsAllProducts() {
         // Arrange
         var facilityId1 = Guid.NewGuid();
         var facilityId2 = Guid.NewGuid();
@@ -60,8 +57,7 @@ public class FacilityProductGuardTests
         result.Should().HaveCount(2);
     }
 
-    private static Product CreateProduct(string name, decimal price, Guid facilityId)
-    {
+    private static Product CreateProduct(string name, decimal price, Guid facilityId) {
         var result = Product.Create(name, price, facilityId);
         return result.Value;
     }

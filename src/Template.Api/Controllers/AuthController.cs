@@ -11,8 +11,7 @@ namespace Template.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class AuthController : ControllerBase
-{
+public sealed class AuthController : ControllerBase {
     private readonly ISender _sender;
 
     public AuthController(ISender sender) => _sender = sender;
@@ -22,20 +21,23 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken ct)
-        => (await _sender.Send(command, ct)).ToActionResult();
+    public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken ct) {
+        return await _sender.Send(command, ct).ToActionResultAsync();
+    }
 
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(LoginResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct)
-        => (await _sender.Send(command, ct)).ToActionResult();
+    public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct) {
+        return await _sender.Send(command, ct).ToActionResultAsync();
+    }
 
     [HttpPost("set-password")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> SetPassword([FromBody] SetPasswordCommand command, CancellationToken ct)
-        => (await _sender.Send(command, ct)).ToActionResult();
+    public async Task<IActionResult> SetPassword([FromBody] SetPasswordCommand command, CancellationToken ct) {
+        return await _sender.Send(command, ct).ToActionResultAsync();
+    }
 }

@@ -2,8 +2,7 @@ using ErrorOr;
 
 namespace Template.Domain.Errors;
 
-public static class FacilityErrors
-{
+public static class FacilityErrors {
     public static readonly Error NotFound =
         Error.NotFound("Facility.NotFound", "Facility not found");
     public static readonly Error UserNotInFacility =

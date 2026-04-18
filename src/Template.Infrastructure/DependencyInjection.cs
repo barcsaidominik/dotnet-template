@@ -8,15 +8,12 @@ using Template.Infrastructure.Persistence;
 
 namespace Template.Infrastructure;
 
-public static class DependencyInjection
-{
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {
+public static class DependencyInjection {
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration) {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-        services.AddIdentity<AppUser, AppRole>(options =>
-        {
+        services.AddIdentity<AppUser, AppRole>(options => {
             options.Password.RequiredLength = 12;
             options.Password.RequireUppercase = true;
             options.Password.RequireDigit = true;

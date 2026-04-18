@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -e
+
+echo "Running style verification..."
+dotnet restore
+dotnet format --verify-no-changes --severity error --no-restore
+
+echo "Running build..."
+dotnet build --nologo --no-restore
