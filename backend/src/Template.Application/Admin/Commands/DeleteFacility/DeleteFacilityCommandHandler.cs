@@ -7,9 +7,12 @@ using Template.Domain.Errors;
 
 namespace Template.Application.Admin.Commands.DeleteFacility;
 
-public sealed class DeleteFacilityCommandHandler(IEntityStore<Facility> store) : IRequestHandler<DeleteFacilityCommand, ErrorOr<Success>>
+public sealed class DeleteFacilityCommandHandler(
+    IEntityStore<Facility> store,
+    IFacilityProductUsageService facilityProductUsageService) : IRequestHandler<DeleteFacilityCommand, ErrorOr<Success>>
 {
     private readonly IEntityStore<Facility> _store = store;
+    private readonly IFacilityProductUsageService _facilityProductUsageService = facilityProductUsageService;
 
     public async ValueTask<ErrorOr<Success>> Handle(DeleteFacilityCommand request, CancellationToken ct)
     {
@@ -19,6 +22,12 @@ public sealed class DeleteFacilityCommandHandler(IEntityStore<Facility> store) :
         if (facility is null)
         {
             return FacilityErrors.NotFound;
+        }
+
+        var productCount = await _facilityProductUsageService.GetProductCountAsync(request.FacilityId, ct);
+        if (productCount > 0)
+        {
+            return FacilityErrors.HasProducts;
         }
 
         await _store.RemoveAsync(facility, ct);

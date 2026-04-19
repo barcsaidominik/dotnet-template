@@ -16,7 +16,9 @@
     <Project Path="src/Template.Api/Template.Api.csproj" />
     <Project Path="src/Template.Application/Template.Application.csproj" />
     <Project Path="src/Template.Domain/Template.Domain.csproj" />
+    <Project Path="src/Template.Grpc/Template.Grpc.csproj" />
     <Project Path="src/Template.Infrastructure/Template.Infrastructure.csproj" />
+    <Project Path="src/Template.Products.Api/Template.Products.Api.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Template.Tests/Template.Tests.csproj" />

@@ -75,4 +75,43 @@ public class ProductTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(ProductErrors.InvalidFacility);
     }
+
+    [Fact]
+    public void Update_WithValidInputs_UpdatesProduct()
+    {
+        // Arrange
+        var product = Product.Create("Original Product", 25.50m, _facilityId).Value;
+        var updatedName = "Updated Product";
+        var updatedPrice = 31.75m;
+
+        // Act
+        var result = product.Update(updatedName, updatedPrice);
+
+        // Assert
+        result.IsError.Should().BeFalse();
+        product.Name.Should().Be(updatedName);
+        product.Price.Should().Be(updatedPrice);
+    }
+
+    [Theory]
+    [InlineData(null, 25.50)]
+    [InlineData("", 25.50)]
+    [InlineData("   ", 25.50)]
+    [InlineData("Updated Product", 0)]
+    [InlineData("Updated Product", -10)]
+    public void Update_WithInvalidInputs_ReturnsError(string? name, decimal price)
+    {
+        // Arrange
+        var product = Product.Create("Original Product", 25.50m, _facilityId).Value;
+        var originalName = product.Name;
+        var originalPrice = product.Price;
+
+        // Act
+        var result = product.Update(name!, price);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        product.Name.Should().Be(originalName);
+        product.Price.Should().Be(originalPrice);
+    }
 }

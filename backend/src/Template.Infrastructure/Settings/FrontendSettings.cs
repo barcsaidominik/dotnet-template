@@ -1,8 +1,17 @@
+using System.ComponentModel.DataAnnotations;
 using Template.Application.Common.Interfaces;
 
 namespace Template.Infrastructure.Settings;
 
 public sealed class FrontendSettings : IFrontendSettings
 {
-    public string BaseUrl { get; set; } = "http://localhost:4200";
+    public const string SECTION_NAME = "Frontend";
+
+    [Required]
+    [Url]
+    public string BaseUrl
+    {
+        get;
+        set;
+    } = "http://localhost:4200";
 }

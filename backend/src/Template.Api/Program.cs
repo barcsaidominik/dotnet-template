@@ -3,16 +3,20 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
 using Scalar.AspNetCore;
 using Serilog;
 using Template.Api.Logging;
 using Template.Api.OpenApi;
+using Template.Api.Products;
 using Template.Application;
 using Template.Domain.Constants;
+using Template.Grpc.Products;
 using Template.Infrastructure;
 using Template.Infrastructure.Persistence;
+using Template.Infrastructure.Settings;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
 using TickerQ.EntityFrameworkCore.Customizer;
@@ -44,8 +48,38 @@ public class Program
                     .Enrich.With<SyslogSeverityEnricher>();
             });
 
+            builder.Services.AddOptions<JwtSettings>()
+                .Bind(builder.Configuration.GetSection(JwtSettings.SECTION_NAME))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            builder.Services.AddOptions<ProductsServiceOptions>()
+                .Bind(builder.Configuration.GetSection(ProductsServiceOptions.SECTION_NAME))
+                .ValidateDataAnnotations()
+                .Validate(
+                    settings => string.Equals(settings.Mode, ProductsServiceOptions.MODE_IN_PROCESS, StringComparison.OrdinalIgnoreCase) ||
+                                string.Equals(settings.Mode, ProductsServiceOptions.MODE_PROXY, StringComparison.OrdinalIgnoreCase),
+                    "ProductsService:Mode must be either InProcess or Proxy.")
+                .ValidateOnStart();
+
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
+            builder.Services.AddHttpClient(ProductsServiceOptions.CLIENT_NAME, (serviceProvider, client) =>
+            {
+                var options = serviceProvider
+                    .GetRequiredService<IOptions<ProductsServiceOptions>>()
+                    .Value;
+
+                client.BaseAddress = new Uri(options.BaseUrl);
+            });
+            builder.Services.AddGrpcClient<FacilityProductsGrpc.FacilityProductsGrpcClient>((serviceProvider, options) =>
+            {
+                var serviceOptions = serviceProvider
+                    .GetRequiredService<IOptions<ProductsServiceOptions>>()
+                    .Value;
+
+                options.Address = new Uri(serviceOptions.GrpcBaseUrl);
+            });
             builder.Services.AddTickerQ(options =>
             {
                 options.ConfigureScheduler(schedulerOptions =>
@@ -86,6 +120,8 @@ public class Program
                 builder.Configuration.GetSection(ResourceGuardOptions.SECTION_NAME));
             builder.Services.Configure<RequestTelemetryOptions>(
                 builder.Configuration.GetSection(RequestTelemetryOptions.SECTION_NAME));
+            builder.Services.Configure<ProductsServiceOptions>(
+                builder.Configuration.GetSection(ProductsServiceOptions.SECTION_NAME));
 
             builder.Services.AddOpenApi(options =>
             {
@@ -109,7 +145,9 @@ public class Program
                     name: "database",
                     tags: ["ready"]);
 
-            var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+            var jwtSettings = builder.Configuration
+                .GetRequiredSection(JwtSettings.SECTION_NAME)
+                .Get<JwtSettings>() ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
             builder.Services
                 .AddAuthentication(options =>
                 {
@@ -124,9 +162,9 @@ public class Program
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = jwtSettings["Issuer"],
-                        ValidAudience = jwtSettings["Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!))
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
                     };
                 });
 

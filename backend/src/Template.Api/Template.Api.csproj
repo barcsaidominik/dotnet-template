@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Template.Application\Template.Application.csproj" />
+    <ProjectReference Include="..\Template.Grpc\Template.Grpc.csproj" />
     <ProjectReference Include="..\Template.Infrastructure\Template.Infrastructure.csproj" />
   </ItemGroup>
 
@@ -24,6 +25,7 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.71.0" />
     <PackageReference Include="TickerQ" Version="10.2.5" />
     <PackageReference Include="TickerQ.Dashboard" Version="10.2.5" />
     <PackageReference Include="TickerQ.EntityFrameworkCore" Version="10.2.5" />
@@ -35,6 +37,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
     <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)</OpenApiDocumentsDirectory>
+    <UserSecretsId>dotnet-template-backend-shared-secrets</UserSecretsId>
   </PropertyGroup>
 
 </Project>

@@ -210,9 +210,9 @@ export class AdminFacilitiesPageComponent implements OnInit {
         );
         this.facilities.update((list) => list.filter((f) => f.id !== facility.id));
       },
-      error: () =>
+      error: (err) =>
         this.snackBar.open(
-          this.translate.instant('admin.facilities.failedToDelete'),
+          err?.error?.detail ?? this.translate.instant('admin.facilities.failedToDelete'),
           this.translate.instant('common.close'),
           { duration: 4000 }
         ),

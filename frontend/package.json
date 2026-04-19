@@ -6,6 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "test": "vitest",
+    "test:run": "vitest run",
     "lint": "eslint \"src/**/*.{ts,html}\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix",
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{json,js,md}\"",
@@ -38,17 +40,20 @@
     "@angular/cli": "^20.3.24",
     "@angular/compiler-cli": "^20.3.19",
     "@eslint/js": "^9.39.1",
+    "@types/node": "^25.6.0",
     "angular-eslint": "^20.2.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unused-imports": "^4.4.1",
+    "jsdom": "^29.0.2",
     "lint-staged": "^16.4.0",
     "ng-openapi-gen": "^1.0.5",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",
     "simple-git-hooks": "^2.13.1",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.58.2"
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^3.2.4"
   },
   "lint-staged": {
     "*.{ts,html}": [

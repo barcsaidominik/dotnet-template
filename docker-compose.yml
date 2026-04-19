@@ -3,9 +3,9 @@ services:
     image: postgres:17
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: template_db
+      POSTGRES_USER: ${TEMPLATE_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${TEMPLATE_DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${TEMPLATE_DB_NAME:-template_db}
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +22,27 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
-      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=template_db;Username=postgres;Password=postgres"
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${TEMPLATE_DB_NAME:-template_db};Username=${TEMPLATE_DB_USER:-postgres};Password=${TEMPLATE_DB_PASSWORD:-postgres}"
+      JwtSettings__Secret: "${TEMPLATE_JWT_SECRET:-template-compose-development-secret-change-me-2026}"
+      ProductsService__Mode: "Proxy"
+      ProductsService__BaseUrl: "http://products-api:8080/"
+      ProductsService__GrpcBaseUrl: "http://products-api:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+      products-api:
+        condition: service_started
+
+  products-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.ProductsApi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${TEMPLATE_DB_NAME:-template_db};Username=${TEMPLATE_DB_USER:-postgres};Password=${TEMPLATE_DB_PASSWORD:-postgres}"
+      JwtSettings__Secret: "${TEMPLATE_JWT_SECRET:-template-compose-development-secret-change-me-2026}"
     depends_on:
       db:
         condition: service_healthy

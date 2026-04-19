@@ -49,27 +49,28 @@ public static class ErrorOrExtensions
     {
         if (errors is not { Count: > 0 })
         {
-            return CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected");
+            return CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected", "An unexpected error occurred.");
         }
 
         var first = errors[0];
         return first.Type switch
         {
-            ErrorType.NotFound => CreateProblemResult(StatusCodes.Status404NotFound, first.Code),
+            ErrorType.NotFound => CreateProblemResult(StatusCodes.Status404NotFound, first.Code, first.Description),
             ErrorType.Validation => CreateValidationProblemResult(errors),
-            ErrorType.Conflict => CreateProblemResult(StatusCodes.Status409Conflict, first.Code),
-            ErrorType.Unauthorized => CreateProblemResult(StatusCodes.Status401Unauthorized, first.Code),
-            ErrorType.Forbidden => CreateProblemResult(StatusCodes.Status403Forbidden, first.Code),
-            _ => CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected")
+            ErrorType.Conflict => CreateProblemResult(StatusCodes.Status409Conflict, first.Code, first.Description),
+            ErrorType.Unauthorized => CreateProblemResult(StatusCodes.Status401Unauthorized, first.Code, first.Description),
+            ErrorType.Forbidden => CreateProblemResult(StatusCodes.Status403Forbidden, first.Code, first.Description),
+            _ => CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected", "An unexpected error occurred.")
         };
     }
 
-    private static ObjectResult CreateProblemResult(int statusCode, string title)
+    private static ObjectResult CreateProblemResult(int statusCode, string title, string detail)
     {
         return new ObjectResult(
             new ProblemDetails()
             {
                 Title = title,
+                Detail = detail,
                 Status = statusCode
             }
         )

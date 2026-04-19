@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "Template.Grpc.Products";
+
+package template.products;
+
+service FacilityProductsGrpc {
+  rpc GetFacilityProductUsage (FacilityProductUsageRequest) returns (FacilityProductUsageReply);
+}
+
+message FacilityProductUsageRequest {
+  string facility_id = 1;
+}
+
+message FacilityProductUsageReply {
+  string facility_id = 1;
+  int32 product_count = 2;
+  bool has_products = 3;
+}
