@@ -13,6 +13,8 @@ import { apiProductsGet$Json } from '../fn/products/api-products-get-json';
 import { ApiProductsGet$Json$Params } from '../fn/products/api-products-get-json';
 import { apiProductsGet$Plain } from '../fn/products/api-products-get-plain';
 import { ApiProductsGet$Plain$Params } from '../fn/products/api-products-get-plain';
+import { apiProductsIdPut } from '../fn/products/api-products-id-put';
+import { ApiProductsIdPut$Params } from '../fn/products/api-products-id-put';
 import { apiProductsPost$Json } from '../fn/products/api-products-post-json';
 import { ApiProductsPost$Json$Params } from '../fn/products/api-products-post-json';
 import { apiProductsPost$Plain } from '../fn/products/api-products-post-plain';
@@ -21,6 +23,7 @@ import { getProductById$Json } from '../fn/products/get-product-by-id-json';
 import { GetProductById$Json$Params } from '../fn/products/get-product-by-id-json';
 import { getProductById$Plain } from '../fn/products/get-product-by-id-plain';
 import { GetProductById$Plain$Params } from '../fn/products/get-product-by-id-plain';
+import { PagedResultOfProduct } from '../models/paged-result-of-product';
 import { Product } from '../models/product';
 
 @Injectable({ providedIn: 'root' })
@@ -38,7 +41,7 @@ export class ProductsService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiProductsGet$Plain$Response(params?: ApiProductsGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<Product>>> {
+  apiProductsGet$Plain$Response(params?: ApiProductsGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<PagedResultOfProduct>> {
     const obs = apiProductsGet$Plain(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
@@ -49,9 +52,9 @@ export class ProductsService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiProductsGet$Plain(params?: ApiProductsGet$Plain$Params, context?: HttpContext): Promise<Array<Product>> {
+  apiProductsGet$Plain(params?: ApiProductsGet$Plain$Params, context?: HttpContext): Promise<PagedResultOfProduct> {
     const resp = this.apiProductsGet$Plain$Response(params, context);
-    return resp.then((r: StrictHttpResponse<Array<Product>>): Array<Product> => r.body);
+    return resp.then((r: StrictHttpResponse<PagedResultOfProduct>): PagedResultOfProduct => r.body);
   }
 
   /**
@@ -60,7 +63,7 @@ export class ProductsService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiProductsGet$Json$Response(params?: ApiProductsGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<Product>>> {
+  apiProductsGet$Json$Response(params?: ApiProductsGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<PagedResultOfProduct>> {
     const obs = apiProductsGet$Json(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
@@ -71,9 +74,9 @@ export class ProductsService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiProductsGet$Json(params?: ApiProductsGet$Json$Params, context?: HttpContext): Promise<Array<Product>> {
+  apiProductsGet$Json(params?: ApiProductsGet$Json$Params, context?: HttpContext): Promise<PagedResultOfProduct> {
     const resp = this.apiProductsGet$Json$Response(params, context);
-    return resp.then((r: StrictHttpResponse<Array<Product>>): Array<Product> => r.body);
+    return resp.then((r: StrictHttpResponse<PagedResultOfProduct>): PagedResultOfProduct => r.body);
   }
 
   /** Path part for operation `apiProductsPost()` */
@@ -168,6 +171,31 @@ export class ProductsService extends BaseService {
   getProductById$Json(params: GetProductById$Json$Params, context?: HttpContext): Promise<Product> {
     const resp = this.getProductById$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<Product>): Product => r.body);
+  }
+
+  /** Path part for operation `apiProductsIdPut()` */
+  static readonly ApiProductsIdPutPath = '/api/Products/{id}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiProductsIdPut()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiProductsIdPut$Response(params: ApiProductsIdPut$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiProductsIdPut(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiProductsIdPut$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiProductsIdPut(params: ApiProductsIdPut$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiProductsIdPut$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
 }

@@ -2,15 +2,18 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Template.Application.Common.Interfaces;
+using Template.Infrastructure.Email;
 using Template.Infrastructure.Identity;
 using Template.Infrastructure.Persistence;
+using Template.Infrastructure.Settings;
 
 namespace Template.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
@@ -27,11 +30,27 @@ public static class DependencyInjection
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
 
+        services.AddMemoryCache();
         services.AddHttpContextAccessor();
         services.AddScoped(typeof(IEntityStore<>), typeof(EntityStore<>));
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAuthService, AuthService>();
+
+        services.Configure<EmailSettings>(configuration.GetSection("Email"));
+
+        var frontendSettings = new FrontendSettings();
+        configuration.GetSection("Frontend").Bind(frontendSettings);
+        services.AddSingleton<IFrontendSettings>(frontendSettings);
+
+        if (environment.IsDevelopment())
+        {
+            services.AddScoped<IEmailService, FileEmailService>();
+        }
+        else
+        {
+            services.AddScoped<IEmailService, SmtpEmailService>();
+        }
 
         return services;
     }

@@ -7,14 +7,18 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { Product } from '../../models/product';
+import { PagedResultOfProduct } from '../../models/paged-result-of-product';
 
 export interface ApiProductsGet$Json$Params {
+  page?: (number | string);
+  pageSize?: (number | string);
 }
 
-export function apiProductsGet$Json(http: HttpClient, rootUrl: string, params?: ApiProductsGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<Product>>> {
+export function apiProductsGet$Json(http: HttpClient, rootUrl: string, params?: ApiProductsGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<PagedResultOfProduct>> {
   const rb = new RequestBuilder(rootUrl, apiProductsGet$Json.PATH, 'get');
   if (params) {
+    rb.query('page', params.page, {});
+    rb.query('pageSize', params.pageSize, {});
   }
 
   return http.request(
@@ -22,7 +26,7 @@ export function apiProductsGet$Json(http: HttpClient, rootUrl: string, params?: 
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<Product>>;
+      return r as StrictHttpResponse<PagedResultOfProduct>;
     })
   );
 }

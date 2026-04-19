@@ -26,6 +26,9 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>Actions</th>
           <td mat-cell *matCellDef="let facility">
+            <button mat-icon-button color="primary" matTooltip="Edit" (click)="openEditDialog(facility)">
+              <mat-icon>edit</mat-icon>
+            </button>
             <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteFacility(facility)">
               <mat-icon>delete</mat-icon>
             </button>

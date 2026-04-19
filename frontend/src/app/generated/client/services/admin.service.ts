@@ -11,6 +11,8 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { apiAdminFacilitiesFacilityIdDelete } from '../fn/admin/api-admin-facilities-facility-id-delete';
 import { ApiAdminFacilitiesFacilityIdDelete$Params } from '../fn/admin/api-admin-facilities-facility-id-delete';
+import { apiAdminFacilitiesFacilityIdPut } from '../fn/admin/api-admin-facilities-facility-id-put';
+import { ApiAdminFacilitiesFacilityIdPut$Params } from '../fn/admin/api-admin-facilities-facility-id-put';
 import { apiAdminFacilitiesGet$Json } from '../fn/admin/api-admin-facilities-get-json';
 import { ApiAdminFacilitiesGet$Json$Params } from '../fn/admin/api-admin-facilities-get-json';
 import { apiAdminFacilitiesGet$Plain } from '../fn/admin/api-admin-facilities-get-plain';
@@ -225,6 +227,31 @@ export class AdminService extends BaseService {
   apiAdminFacilitiesPost$Json(params: ApiAdminFacilitiesPost$Json$Params, context?: HttpContext): Promise<string> {
     const resp = this.apiAdminFacilitiesPost$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<string>): string => r.body);
+  }
+
+  /** Path part for operation `apiAdminFacilitiesFacilityIdPut()` */
+  static readonly ApiAdminFacilitiesFacilityIdPutPath = '/api/Admin/facilities/{facilityId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminFacilitiesFacilityIdPut()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAdminFacilitiesFacilityIdPut$Response(params: ApiAdminFacilitiesFacilityIdPut$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiAdminFacilitiesFacilityIdPut(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminFacilitiesFacilityIdPut$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAdminFacilitiesFacilityIdPut(params: ApiAdminFacilitiesFacilityIdPut$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiAdminFacilitiesFacilityIdPut$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
   /** Path part for operation `apiAdminFacilitiesFacilityIdDelete()` */

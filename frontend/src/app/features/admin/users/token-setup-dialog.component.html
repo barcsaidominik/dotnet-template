@@ -1,11 +1,8 @@
-<h2 mat-dialog-title>User Created</h2>
+<h2 mat-dialog-title>Meghívó elküldve</h2>
 <mat-dialog-content>
-  <p>Share this setup link with the user:</p>
-  <p class="setup-link">{{ setupLink }}</p>
+  <p>A meghívó emailt elküldtük a megadott email címre.</p>
+  <p>A felhasználó az emailben kapott linkre kattintva beállíthatja jelszavát és aktiválhatja fiókját.</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button (click)="copyLink()">
-    <mat-icon>content_copy</mat-icon> Copy Link
-  </button>
-  <button mat-flat-button color="primary" mat-dialog-close>Close</button>
+  <button mat-flat-button color="primary" mat-dialog-close>OK</button>
 </mat-dialog-actions>

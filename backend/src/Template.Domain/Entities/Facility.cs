@@ -1,4 +1,6 @@
+using ErrorOr;
 using Template.Domain.Common;
+using Template.Domain.Errors;
 
 namespace Template.Domain.Entities;
 
@@ -16,5 +18,17 @@ public class Facility : Entity
         {
             Name = name
         };
+    }
+
+    public ErrorOr<Updated> Update(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return FacilityErrors.InvalidName;
+        }
+
+        Name = name;
+
+        return Result.Updated;
     }
 }

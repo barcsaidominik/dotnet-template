@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
@@ -45,6 +45,36 @@ export class ProductCreateDialogComponent {
   }
 }
 
+@NgComponent({
+  selector: 'app-product-update-dialog',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
+  templateUrl: './product-update-dialog.component.html',
+  styleUrls: ['./product-update-dialog.component.scss']
+})
+export class ProductUpdateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<ProductUpdateDialogComponent>);
+  readonly data = ngInject<{ name: string; price: number }>(MAT_DIALOG_DATA);
+  private readonly fb = ngInject(FormBuilder);
+
+  readonly form = this.fb.nonNullable.group({
+    name: [this.data.name, Validators.required],
+    price: [this.data.price, [Validators.required, Validators.min(0.01)]],
+  });
+
+  confirm(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.getRawValue());
+    }
+  }
+}
+
 @Component({
   selector: 'app-facility-products',
   standalone: true,
@@ -71,7 +101,7 @@ export class FacilityProductsPageComponent implements OnInit {
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(false);
 
-  readonly displayedColumns = ['name', 'price', 'createdAt', 'id'];
+  readonly displayedColumns = ['name', 'price', 'createdAt', 'id', 'actions'];
 
   ngOnInit(): void {
     this.isLoading.set(false);
@@ -100,6 +130,27 @@ export class FacilityProductsPageComponent implements OnInit {
           this.snackBar.open('Product created', 'Close', { duration: 3000 });
         },
         error: () => this.snackBar.open('Failed to create product', 'Close', { duration: 4000 })
+      });
+    });
+  }
+
+  openEditDialog(product: Product): void {
+    const ref = this.dialog.open(ProductUpdateDialogComponent, {
+      width: '360px',
+      data: { name: product.name, price: product.price }
+    });
+
+    ref.afterClosed().subscribe(result => {
+      if (!result) return;
+      from(this.productsApi.apiProductsIdPut({
+        id: product.id,
+        body: { name: result.name, price: result.price }
+      })).subscribe({
+        next: () => {
+          this.snackBar.open('Product updated', 'Close', { duration: 3000 });
+          this.products.update(list => list.map(p => p.id === product.id ? { ...p, name: result.name, price: result.price } : p));
+        },
+        error: () => this.snackBar.open('Failed to update product', 'Close', { duration: 4000 })
       });
     });
   }

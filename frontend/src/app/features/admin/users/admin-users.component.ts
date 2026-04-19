@@ -90,21 +90,14 @@ export class CreateFacilityUserDialogComponent {
 @NgComponent({
   selector: 'app-admin-token-setup-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [MatDialogModule, MatButtonModule],
   templateUrl: './token-setup-dialog.component.html',
   styleUrls: ['./token-setup-dialog.component.scss']
 })
 export class AdminTokenSetupDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<AdminTokenSetupDialogComponent>);
-  private readonly snackBar = ngInject(MatSnackBar);
 
   setupLink = '';
-
-  copyLink(): void {
-    navigator.clipboard.writeText(this.setupLink).then(() => {
-      this.snackBar.open('Link copied to clipboard', 'Close', { duration: 2000 });
-    });
-  }
 }
 
 @Component({

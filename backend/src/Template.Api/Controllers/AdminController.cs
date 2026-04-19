@@ -7,6 +7,7 @@ using Template.Application.Admin.Commands.ApproveUser;
 using Template.Application.Admin.Commands.CreateFacility;
 using Template.Application.Admin.Commands.DeleteFacility;
 using Template.Application.Admin.Commands.DeleteUser;
+using Template.Application.Admin.Commands.UpdateFacility;
 using Template.Application.Admin.Queries.GetAllFacilities;
 using Template.Application.Admin.Queries.GetAllUsers;
 using Template.Application.Common.Dtos;
@@ -62,5 +63,15 @@ public sealed class AdminController(ISender sender) : ApiController(sender)
     public async Task<IActionResult> DeleteFacility(Guid facilityId)
     {
         return await SendAsync(new DeleteFacilityCommand(facilityId)).ToActionResultAsync();
+    }
+
+    [HttpPut("facilities/{facilityId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateFacility(Guid facilityId, [FromBody] UpdateFacilityRequest request)
+    {
+        return await SendAsync(new UpdateFacilityCommand(facilityId, request.Name))
+            .ToActionResultAsync(_ => NoContent());
     }
 }

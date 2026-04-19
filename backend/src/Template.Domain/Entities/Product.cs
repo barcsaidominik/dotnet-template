@@ -44,4 +44,22 @@ public class Product : Entity
             FacilityId = facilityId
         };
     }
+
+    public ErrorOr<Updated> Update(string name, decimal price)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return ProductErrors.InvalidName;
+        }
+
+        if (price <= 0)
+        {
+            return ProductErrors.InvalidPrice;
+        }
+
+        Name = name;
+        Price = price;
+
+        return Result.Updated;
+    }
 }

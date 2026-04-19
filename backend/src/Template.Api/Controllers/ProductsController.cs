@@ -1,8 +1,11 @@
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Template.Api.Contracts;
 using Template.Api.Extensions;
+using Template.Application.Common.Dtos;
 using Template.Application.Products.Commands.CreateProduct;
+using Template.Application.Products.Commands.UpdateProduct;
 using Template.Application.Products.Queries.GetProductById;
 using Template.Application.Products.Queries.GetProducts;
 using Template.Domain.Constants;
@@ -15,10 +18,10 @@ namespace Template.Api.Controllers;
 public sealed class ProductsController(ISender sender) : ApiController(sender)
 {
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<Product>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(PagedResult<Product>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
-        return await SendAsync(new GetProductsQuery()).ToActionResultAsync();
+        return await SendAsync(new GetProductsQuery(page, pageSize)).ToActionResultAsync();
     }
 
     [HttpPost]
@@ -37,5 +40,17 @@ public sealed class ProductsController(ISender sender) : ApiController(sender)
     public async Task<IActionResult> GetById(Guid id)
     {
         return await SendAsync(new GetProductByIdQuery(id)).ToActionResultAsync();
+    }
+
+    [HttpPut("{id:guid}")]
+    [Authorize(Roles = Roles.FACILITY_ADMIN + "," + Roles.FACILITY_EDITOR)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
+    {
+        return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price))
+            .ToActionResultAsync(_ => NoContent());
     }
 }

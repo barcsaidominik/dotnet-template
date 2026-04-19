@@ -10,6 +10,7 @@ import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dial
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { ProductsService } from '../../generated/client/services/products.service';
@@ -58,6 +59,7 @@ export class ProductViewerCreateDialogComponent {
     MatSnackBarModule,
     MatDialogModule,
     MatCardModule,
+    MatPaginatorModule,
   ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
@@ -71,6 +73,9 @@ export class ProductsPageComponent implements OnInit {
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(true);
   readonly displayedColumns = ['name', 'price', 'createdAt', 'id'];
+  readonly totalCount = signal(0);
+  readonly page = signal(0);
+  readonly pageSize = signal(20);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -78,9 +83,13 @@ export class ProductsPageComponent implements OnInit {
 
   private loadProducts(): void {
     this.isLoading.set(true);
-    from(this.productsApi.apiProductsGet$Json()).subscribe({
-      next: products => {
-        this.products.set(products.map(p => ({
+    from(this.productsApi.apiProductsGet$Json({
+      page: this.page() + 1,
+      pageSize: this.pageSize()
+    })).subscribe({
+      next: result => {
+        this.totalCount.set(Number(result.totalCount ?? 0));
+        this.products.set((result.items ?? []).map(p => ({
           id: p.id ?? '',
           name: p.name ?? '',
           price: typeof p.price === 'number' ? p.price : parseFloat(p.price ?? '0'),
@@ -94,6 +103,12 @@ export class ProductsPageComponent implements OnInit {
         this.snackBar.open('Failed to load products', 'Close', { duration: 4000 });
       }
     });
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.page.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadProducts();
   }
 
   openCreateDialog(): void {

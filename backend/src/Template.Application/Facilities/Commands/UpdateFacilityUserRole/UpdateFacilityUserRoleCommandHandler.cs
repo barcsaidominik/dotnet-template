@@ -1,13 +1,16 @@
 using ErrorOr;
 using Mediator;
+using Microsoft.Extensions.Caching.Memory;
+using Template.Application.Common;
 using Template.Application.Common.Interfaces;
 using Template.Domain.Errors;
 
 namespace Template.Application.Facilities.Commands.UpdateFacilityUserRole;
 
-public sealed class UpdateFacilityUserRoleCommandHandler(IAuthService authService) : IRequestHandler<UpdateFacilityUserRoleCommand, ErrorOr<Success>>
+public sealed class UpdateFacilityUserRoleCommandHandler(IAuthService authService, IMemoryCache cache) : IRequestHandler<UpdateFacilityUserRoleCommand, ErrorOr<Success>>
 {
     private readonly IAuthService _authService = authService;
+    private readonly IMemoryCache _cache = cache;
 
     public async ValueTask<ErrorOr<Success>> Handle(UpdateFacilityUserRoleCommand request, CancellationToken ct)
     {
@@ -22,6 +25,13 @@ public sealed class UpdateFacilityUserRoleCommandHandler(IAuthService authServic
             return FacilityErrors.UserNotInFacility;
         }
 
-        return await _authService.UpdateUserRoleAsync(request.UserId, request.NewRole, ct);
+        var result = await _authService.UpdateUserRoleAsync(request.UserId, request.NewRole, ct);
+
+        if (!result.IsError)
+        {
+            _cache.Remove(CacheKeys.ALL_USERS);
+        }
+
+        return result;
     }
 }

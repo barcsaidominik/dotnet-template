@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
@@ -34,6 +34,35 @@ export class FacilityCreateDialogComponent {
 
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
+  });
+
+  confirm(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.getRawValue().name);
+    }
+  }
+}
+
+@NgComponent({
+  selector: 'app-facility-update-dialog',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
+  templateUrl: './facility-update-dialog.component.html',
+  styleUrls: ['./facility-update-dialog.component.scss']
+})
+export class FacilityUpdateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<FacilityUpdateDialogComponent>);
+  readonly data = ngInject<{ name: string }>(MAT_DIALOG_DATA);
+  private readonly fb = ngInject(FormBuilder);
+
+  readonly form = this.fb.nonNullable.group({
+    name: [this.data.name, Validators.required],
   });
 
   confirm(): void {
@@ -98,6 +127,27 @@ export class AdminFacilitiesPageComponent implements OnInit {
           this.loadFacilities();
         },
         error: () => this.snackBar.open('Failed to create facility', 'Close', { duration: 4000 })
+      });
+    });
+  }
+
+  openEditDialog(facility: Facility): void {
+    const ref = this.dialog.open(FacilityUpdateDialogComponent, {
+      width: '360px',
+      data: { name: facility.name }
+    });
+
+    ref.afterClosed().subscribe(name => {
+      if (!name) return;
+      from(this.adminApi.apiAdminFacilitiesFacilityIdPut({
+        facilityId: facility.id,
+        body: { name }
+      })).subscribe({
+        next: () => {
+          this.snackBar.open('Facility updated', 'Close', { duration: 3000 });
+          this.facilities.update(list => list.map(f => f.id === facility.id ? { ...f, name } : f));
+        },
+        error: () => this.snackBar.open('Failed to update facility', 'Close', { duration: 4000 })
       });
     });
   }

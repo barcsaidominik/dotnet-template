@@ -17,6 +17,8 @@ export type { ApiAdminFacilitiesPost$Plain$Params as ApiAdminFacilitiesPost$Plai
 export { apiAdminFacilitiesPost$Plain as apiAdminFacilitiesPost$Plain } from './fn/admin/api-admin-facilities-post-plain';
 export type { ApiAdminFacilitiesPost$Json$Params as ApiAdminFacilitiesPost$Json$Params } from './fn/admin/api-admin-facilities-post-json';
 export { apiAdminFacilitiesPost$Json as apiAdminFacilitiesPost$Json } from './fn/admin/api-admin-facilities-post-json';
+export type { ApiAdminFacilitiesFacilityIdPut$Params as ApiAdminFacilitiesFacilityIdPut$Params } from './fn/admin/api-admin-facilities-facility-id-put';
+export { apiAdminFacilitiesFacilityIdPut as apiAdminFacilitiesFacilityIdPut } from './fn/admin/api-admin-facilities-facility-id-put';
 export type { ApiAdminFacilitiesFacilityIdDelete$Params as ApiAdminFacilitiesFacilityIdDelete$Params } from './fn/admin/api-admin-facilities-facility-id-delete';
 export { apiAdminFacilitiesFacilityIdDelete as apiAdminFacilitiesFacilityIdDelete } from './fn/admin/api-admin-facilities-facility-id-delete';
 export type { ApiAuthRegisterPost$Params as ApiAuthRegisterPost$Params } from './fn/auth/api-auth-register-post';
@@ -57,3 +59,5 @@ export type { GetProductById$Plain$Params as GetProductById$Plain$Params } from 
 export { getProductById$Plain as getProductById$Plain } from './fn/products/get-product-by-id-plain';
 export type { GetProductById$Json$Params as GetProductById$Json$Params } from './fn/products/get-product-by-id-json';
 export { getProductById$Json as getProductById$Json } from './fn/products/get-product-by-id-json';
+export type { ApiProductsIdPut$Params as ApiProductsIdPut$Params } from './fn/products/api-products-id-put';
+export { apiProductsIdPut as apiProductsIdPut } from './fn/products/api-products-id-put';
