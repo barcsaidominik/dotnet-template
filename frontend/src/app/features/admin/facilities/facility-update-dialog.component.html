@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>{{ 'admin.facilities.updateDialog.title' | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form">
-    <mat-form-field appearance="outline" style="width:100%">
+    <mat-form-field appearance="outline" style="width: 100%">
       <mat-label>{{ 'admin.facilities.updateDialog.name' | translate }}</mat-label>
       <input matInput formControlName="name" />
     </mat-form-field>
@@ -9,5 +9,7 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
-  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="form.invalid">{{ 'admin.facilities.updateDialog.submit' | translate }}</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="form.invalid">
+    {{ 'admin.facilities.updateDialog.submit' | translate }}
+  </button>
 </mat-dialog-actions>

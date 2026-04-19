@@ -1,4 +1,5 @@
-import { ApplicationConfig, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import type { ApplicationConfig } from '@angular/core';
+import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -14,9 +15,11 @@ import { provideApiConfiguration } from './generated/client/api-configuration';
 import { environment } from '../environments/environment';
 
 function initializeAuth(auth: AuthService) {
-  return () => auth.refresh().pipe(
-    catchError(() => of(null))
-  ).toPromise();
+  return () =>
+    auth
+      .refresh()
+      .pipe(catchError(() => of(null)))
+      .toPromise();
 }
 
 export const appConfig: ApplicationConfig = {
@@ -27,24 +30,24 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'hu'
+        defaultLanguage: 'hu',
       })
     ),
     provideTranslateHttpLoader({
       prefix: './assets/i18n/',
-      suffix: '.json'
+      suffix: '.json',
     }),
     {
       provide: APP_INITIALIZER,
       useFactory: (auth: AuthService) => initializeAuth(auth),
       deps: [AuthService],
-      multi: true
+      multi: true,
     },
     {
       provide: APP_INITIALIZER,
       useFactory: (lang: LanguageService) => () => lang.initialize(),
       deps: [LanguageService],
-      multi: true
-    }
-  ]
+      multi: true,
+    },
+  ],
 };

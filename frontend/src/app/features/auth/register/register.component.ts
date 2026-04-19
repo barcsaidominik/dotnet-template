@@ -25,7 +25,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     TranslateModule,
   ],
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.scss']
+  styleUrls: ['./register.component.scss'],
 })
 export class AuthRegisterComponent {
   private readonly auth = inject(AuthService);
@@ -42,7 +42,9 @@ export class AuthRegisterComponent {
   });
 
   submit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      return;
+    }
     this.isLoading.set(true);
     const { email, password } = this.form.getRawValue();
 
@@ -53,8 +55,12 @@ export class AuthRegisterComponent {
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open(this.translate.instant('auth.register.failed'), this.translate.instant('common.close'), { duration: 4000 });
-      }
+        this.snackBar.open(
+          this.translate.instant('auth.register.failed'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
     });
   }
 }

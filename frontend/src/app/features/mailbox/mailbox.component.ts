@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MailboxMessageDto } from '../../generated/client/models/mailbox-message-dto';
+import type { MailboxMessageDto } from '../../generated/client/models/mailbox-message-dto';
 import { MailboxService } from '../../core/mailbox/mailbox.service';
 
 @Component({
@@ -23,7 +24,7 @@ import { MailboxService } from '../../core/mailbox/mailbox.service';
     TranslateModule,
   ],
   templateUrl: './mailbox.component.html',
-  styleUrls: ['./mailbox.component.scss']
+  styleUrls: ['./mailbox.component.scss'],
 })
 export class MailboxPageComponent implements OnInit {
   private readonly mailbox = inject(MailboxService);
@@ -40,7 +41,11 @@ export class MailboxPageComponent implements OnInit {
     try {
       await this.mailbox.loadMessages();
     } catch {
-      this.snackBar.open(this.translate.instant('mailbox.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
+      this.snackBar.open(
+        this.translate.instant('mailbox.failedToLoad'),
+        this.translate.instant('common.close'),
+        { duration: 4000 }
+      );
     }
   }
 
@@ -52,7 +57,11 @@ export class MailboxPageComponent implements OnInit {
     try {
       await this.mailbox.markAsRead(message.id);
     } catch {
-      this.snackBar.open(this.translate.instant('mailbox.failedToUpdate'), this.translate.instant('common.close'), { duration: 4000 });
+      this.snackBar.open(
+        this.translate.instant('mailbox.failedToUpdate'),
+        this.translate.instant('common.close'),
+        { duration: 4000 }
+      );
     }
   }
 
@@ -60,7 +69,11 @@ export class MailboxPageComponent implements OnInit {
     try {
       await this.mailbox.markAllAsRead();
     } catch {
-      this.snackBar.open(this.translate.instant('mailbox.failedToUpdate'), this.translate.instant('common.close'), { duration: 4000 });
+      this.snackBar.open(
+        this.translate.instant('mailbox.failedToUpdate'),
+        this.translate.instant('common.close'),
+        { duration: 4000 }
+      );
     }
   }
 

@@ -1,4 +1,4 @@
-import { HttpHeaders } from '@angular/common/http';
+import type { HttpHeaders } from '@angular/common/http';
 
 export function downloadBlobFile(blob: Blob, headers: HttpHeaders, fallbackFileName: string): void {
   const fileName = getFileName(headers.get('content-disposition')) ?? fallbackFileName;

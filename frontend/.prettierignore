@@ -1,0 +1,5 @@
+dist
+node_modules
+coverage
+src/app/generated
+src/app/generated/**

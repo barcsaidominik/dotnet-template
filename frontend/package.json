@@ -6,9 +6,15 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "lint": "eslint \"src/**/*.{ts,html}\" --max-warnings=0",
+    "lint:fix": "eslint \"src/**/*.{ts,html}\" --fix",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{json,js,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\" \"*.{json,js,md}\"",
+    "style:check": "npm run format:check && npm run lint",
     "generate:types": "openapi-typescript ../backend/src/Template.Api/Template.Api.json -o src/app/generated/api.types.ts",
     "generate:client": "ng-openapi-gen --config ng-openapi-gen.json",
-    "generate:api": "npm run generate:types && npm run generate:client"
+    "generate:api": "npm run generate:types && npm run generate:client",
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@angular/animations": "^20.3.19",
@@ -31,8 +37,29 @@
     "@angular/build": "^20.3.24",
     "@angular/cli": "^20.3.24",
     "@angular/compiler-cli": "^20.3.19",
+    "@eslint/js": "^9.39.1",
+    "angular-eslint": "^20.2.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "lint-staged": "^16.4.0",
     "ng-openapi-gen": "^1.0.5",
     "openapi-typescript": "^7.13.0",
-    "typescript": "~5.9.3"
+    "prettier": "^3.8.3",
+    "simple-git-hooks": "^2.13.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.58.2"
+  },
+  "lint-staged": {
+    "*.{ts,html}": [
+      "eslint --fix --max-warnings=0",
+      "prettier --write"
+    ],
+    "*.{scss,css,json,js,md}": [
+      "prettier --write"
+    ]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx --prefix frontend lint-staged --cwd frontend"
   }
 }

@@ -1,7 +1,9 @@
 <div class="header-row">
   <div>
     <h2>{{ 'mailbox.title' | translate }}</h2>
-    <p class="subtitle">{{ 'mailbox.unreadSummary' | translate:{ unreadCount: unreadCount() } }}</p>
+    <p class="subtitle">
+      {{ 'mailbox.unreadSummary' | translate: { unreadCount: unreadCount() } }}
+    </p>
   </div>
   <button mat-stroked-button (click)="markAllAsRead()" [disabled]="unreadCount() === 0">
     <mat-icon>done_all</mat-icon> {{ 'mailbox.markAllAsRead' | translate }}
@@ -26,8 +28,10 @@
         <mat-card-content>
           <div class="message-header">
             <div>
-              <div class="message-title">{{ message.titleKey | translate: message.parameters }}</div>
-              <div class="message-date">{{ message.createdAt | date:'short' }}</div>
+              <div class="message-title">
+                {{ message.titleKey | translate: message.parameters }}
+              </div>
+              <div class="message-date">{{ message.createdAt | date: 'short' }}</div>
             </div>
             @if (!message.isRead) {
               <span class="unread-pill">{{ 'mailbox.unread' | translate }}</span>

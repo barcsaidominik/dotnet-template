@@ -1,12 +1,12 @@
-import { Product } from '../../core/models/product.model';
+import type { Product } from '../../core/models/product.model';
 
-type ProductLikeDto = {
+interface ProductLikeDto {
   id?: string | null;
   name?: string | null;
   price?: number | string | null;
   facilityId?: string | null;
   createdAt?: string | null;
-};
+}
 
 export function mapProductDto(dto: ProductLikeDto): Product {
   return {

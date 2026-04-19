@@ -1,8 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { from, map, Observable, tap } from 'rxjs';
+import type { Observable } from 'rxjs';
+import { from, map, tap } from 'rxjs';
 import { AuthService as GeneratedAuthService } from '../../generated/client/services/auth.service';
-import { TokenResponse } from '../../generated/client/models/token-response';
+import type { TokenResponse } from '../../generated/client/models/token-response';
 import { LanguageService } from '../i18n/language.service';
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +23,8 @@ export class AuthService {
   readonly isSystemAdmin = computed(() => this._role() === 'SystemAdmin');
   readonly isFacilityAdmin = computed(() => this._role() === 'FacilityAdmin');
   readonly canEditProducts = computed(() =>
-    ['FacilityAdmin', 'FacilityEditor'].includes(this._role() ?? ''));
+    ['FacilityAdmin', 'FacilityEditor'].includes(this._role() ?? '')
+  );
   readonly accessToken = computed(() => this._accessToken());
 
   login(email: string, password: string): Observable<TokenResponse> {
@@ -52,7 +54,7 @@ export class AuthService {
 
   refresh(): Observable<void> {
     return from(this.authApi.apiAuthRefreshPost$Json()).pipe(
-      tap(response => this.setSession(response)),
+      tap((response) => this.setSession(response)),
       map(() => void 0)
     );
   }
@@ -69,7 +71,7 @@ export class AuthService {
         this._tokenExpiry.set(null);
         this._facilityId.set(null);
         this.router.navigate(['/auth/login']);
-      }
+      },
     });
   }
 

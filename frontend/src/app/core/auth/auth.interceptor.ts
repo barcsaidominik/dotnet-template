@@ -1,4 +1,4 @@
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
+import type { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -25,9 +25,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           switchMap(() => {
             const refreshedToken = auth.accessToken();
             const retryReq = req.clone({
-              setHeaders: refreshedToken
-                ? { Authorization: `Bearer ${refreshedToken}` }
-                : {}
+              setHeaders: refreshedToken ? { Authorization: `Bearer ${refreshedToken}` } : {},
             });
             return next(retryReq);
           }),

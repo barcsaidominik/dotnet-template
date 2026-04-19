@@ -1,5 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import type { OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import type { AbstractControl, ValidationErrors } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -34,7 +36,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     TranslateModule,
   ],
   templateUrl: './set-password.component.html',
-  styleUrls: ['./set-password.component.scss']
+  styleUrls: ['./set-password.component.scss'],
 })
 export class AuthSetPasswordComponent implements OnInit {
   private readonly auth = inject(AuthService);
@@ -46,34 +48,51 @@ export class AuthSetPasswordComponent implements OnInit {
 
   readonly isLoading = signal(false);
 
-  readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    token: ['', Validators.required],
-    newPassword: ['', [Validators.required, Validators.minLength(6)]],
-    confirmPassword: ['', Validators.required],
-  }, { validators: passwordMatchValidator });
+  readonly form = this.fb.nonNullable.group(
+    {
+      email: ['', [Validators.required, Validators.email]],
+      token: ['', Validators.required],
+      newPassword: ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: passwordMatchValidator }
+  );
 
   ngOnInit(): void {
     const email = this.route.snapshot.queryParamMap.get('email') ?? '';
     const token = this.route.snapshot.queryParamMap.get('token') ?? '';
-    if (email) this.form.get('email')?.setValue(email);
-    if (token) this.form.get('token')?.setValue(token);
+    if (email) {
+      this.form.get('email')?.setValue(email);
+    }
+    if (token) {
+      this.form.get('token')?.setValue(token);
+    }
   }
 
   submit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      return;
+    }
     this.isLoading.set(true);
     const { email, token, newPassword } = this.form.getRawValue();
 
     this.auth.setPassword(email, token, newPassword).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('auth.setPassword.success'), this.translate.instant('common.close'), { duration: 4000 });
+        this.snackBar.open(
+          this.translate.instant('auth.setPassword.success'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
         this.router.navigate(['/auth/login']);
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open(this.translate.instant('auth.setPassword.failed'), this.translate.instant('common.close'), { duration: 4000 });
-      }
+        this.snackBar.open(
+          this.translate.instant('auth.setPassword.failed'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
     });
   }
 }

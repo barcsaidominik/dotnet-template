@@ -1,4 +1,5 @@
-import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, DestroyRef, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -38,7 +39,7 @@ interface NavItem {
     LanguageSwitcherComponent,
   ],
   templateUrl: './shell.component.html',
-  styleUrls: ['./shell.component.scss']
+  styleUrls: ['./shell.component.scss'],
 })
 export class AppShellComponent implements OnInit {
   readonly auth = inject(AuthService);
@@ -83,9 +84,12 @@ export class AppShellComponent implements OnInit {
 
       if (this.hasLoadedUnreadCount && unreadCount > previousCount) {
         this.snackBar.open(
-          this.translate.instant('mailbox.newNotifications', { count: unreadCount - previousCount }),
+          this.translate.instant('mailbox.newNotifications', {
+            count: unreadCount - previousCount,
+          }),
           this.translate.instant('common.close'),
-          { duration: 4000 });
+          { duration: 4000 }
+        );
       }
 
       this.hasLoadedUnreadCount = true;

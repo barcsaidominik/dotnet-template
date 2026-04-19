@@ -5,7 +5,13 @@
       <mat-icon>download</mat-icon> {{ 'products.exportProducts' | translate }}
     </button>
     @if (auth.canEditProducts()) {
-      <input #importInput type="file" accept=".xlsx" hidden (change)="importProducts(importInput)">
+      <input
+        #importInput
+        type="file"
+        accept=".xlsx"
+        hidden
+        (change)="importProducts(importInput)"
+      />
       <button mat-stroked-button (click)="importInput.click()" [disabled]="isImporting()">
         <mat-icon>upload</mat-icon> {{ 'products.importProducts' | translate }}
       </button>
@@ -31,12 +37,12 @@
 
         <ng-container matColumnDef="price">
           <th mat-header-cell *matHeaderCellDef>{{ 'products.price' | translate }}</th>
-          <td mat-cell *matCellDef="let product">{{ product.price | number:'1.2-2' }}</td>
+          <td mat-cell *matCellDef="let product">{{ product.price | number: '1.2-2' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="createdAt">
           <th mat-header-cell *matHeaderCellDef>{{ 'products.created' | translate }}</th>
-          <td mat-cell *matCellDef="let product">{{ product.createdAt | date:'short' }}</td>
+          <td mat-cell *matCellDef="let product">{{ product.createdAt | date: 'short' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="id">
@@ -47,21 +53,28 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
           <td mat-cell *matCellDef="let product">
-            <button mat-icon-button color="primary" (click)="downloadOrderPdf(product)" [disabled]="downloadingProductId() === product.id" [title]="'products.downloadOrderPdf' | translate">
+            <button
+              mat-icon-button
+              color="primary"
+              (click)="downloadOrderPdf(product)"
+              [disabled]="downloadingProductId() === product.id"
+              [title]="'products.downloadOrderPdf' | translate"
+            >
               <mat-icon>picture_as_pdf</mat-icon>
             </button>
           </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
       <mat-paginator
         [length]="totalCount()"
         [pageSize]="pageSize()"
         [pageIndex]="page()"
         [pageSizeOptions]="[10, 20, 50]"
-        (page)="onPageChange($event)">
+        (page)="onPageChange($event)"
+      >
       </mat-paginator>
     } @else {
       <div class="placeholder">

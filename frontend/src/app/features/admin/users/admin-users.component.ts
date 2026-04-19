@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +7,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+  MatDialog,
+  MatDialogModule,
+  MatDialogRef,
+  MAT_DIALOG_DATA,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,8 +23,8 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
-import { User } from '../../../core/models/user.model';
-import { Facility } from '../../../core/models/facility.model';
+import type { User } from '../../../core/models/user.model';
+import type { Facility } from '../../../core/models/facility.model';
 import { downloadBlobFile } from '../../../shared/utils/file-download.util';
 
 @NgComponent({
@@ -33,7 +39,7 @@ import { downloadBlobFile } from '../../../shared/utils/file-download.util';
     TranslateModule,
   ],
   templateUrl: './user-approve-dialog.component.html',
-  styleUrls: ['./user-approve-dialog.component.scss']
+  styleUrls: ['./user-approve-dialog.component.scss'],
 })
 export class UserApproveDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<UserApproveDialogComponent>);
@@ -65,7 +71,7 @@ export class UserApproveDialogComponent {
     TranslateModule,
   ],
   templateUrl: './create-facility-user-dialog.component.html',
-  styleUrls: ['./create-facility-user-dialog.component.scss']
+  styleUrls: ['./create-facility-user-dialog.component.scss'],
 })
 export class CreateFacilityUserDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<CreateFacilityUserDialogComponent>);
@@ -96,7 +102,7 @@ export class CreateFacilityUserDialogComponent {
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, TranslateModule],
   templateUrl: './token-setup-dialog.component.html',
-  styleUrls: ['./token-setup-dialog.component.scss']
+  styleUrls: ['./token-setup-dialog.component.scss'],
 })
 export class AdminTokenSetupDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<AdminTokenSetupDialogComponent>);
@@ -120,7 +126,7 @@ export class AdminTokenSetupDialogComponent {
     TranslateModule,
   ],
   templateUrl: './admin-users.component.html',
-  styleUrls: ['./admin-users.component.scss']
+  styleUrls: ['./admin-users.component.scss'],
 })
 export class AdminUsersPageComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
@@ -143,40 +149,57 @@ export class AdminUsersPageComponent implements OnInit {
   private loadData(): void {
     this.isLoading.set(true);
     from(this.adminApi.apiAdminUsersGet$Json()).subscribe({
-      next: users => {
+      next: (users) => {
         this.users.set(users);
         this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open(this.translate.instant('admin.users.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
-      }
+        this.snackBar.open(
+          this.translate.instant('admin.users.failedToLoad'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
     });
     from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
-      next: facilities => this.facilities.set(facilities)
+      next: (facilities) => this.facilities.set(facilities),
     });
   }
 
   openApproveDialog(user: User): void {
     const ref = this.dialog.open(UserApproveDialogComponent, {
       width: '360px',
-      data: { facilities: this.facilities() }
+      data: { facilities: this.facilities() },
     });
 
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-      from(this.adminApi.apiAdminUsersUserIdApprovePost({
-        userId: user.id,
-        body: {
-          facilityId: result.facilityId,
-          role: result.role
-        }
-      })).subscribe({
+    ref.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+      from(
+        this.adminApi.apiAdminUsersUserIdApprovePost({
+          userId: user.id,
+          body: {
+            facilityId: result.facilityId,
+            role: result.role,
+          },
+        })
+      ).subscribe({
         next: () => {
-          this.snackBar.open(this.translate.instant('admin.users.userApproved'), this.translate.instant('common.close'), { duration: 3000 });
+          this.snackBar.open(
+            this.translate.instant('admin.users.userApproved'),
+            this.translate.instant('common.close'),
+            { duration: 3000 }
+          );
           this.loadData();
         },
-        error: () => this.snackBar.open(this.translate.instant('admin.users.failedToApprove'), this.translate.instant('common.close'), { duration: 4000 })
+        error: () =>
+          this.snackBar.open(
+            this.translate.instant('admin.users.failedToApprove'),
+            this.translate.instant('common.close'),
+            { duration: 4000 }
+          ),
       });
     });
   }
@@ -184,25 +207,34 @@ export class AdminUsersPageComponent implements OnInit {
   openCreateUserDialog(): void {
     const ref = this.dialog.open(CreateFacilityUserDialogComponent, {
       width: '400px',
-      data: { facilities: this.facilities() }
+      data: { facilities: this.facilities() },
     });
 
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-      from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
-        facilityId: result.facilityId,
-        body: {
-          email: result.email,
-          role: result.role
-        }
-      })).subscribe({
-        next: response => {
+    ref.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+      from(
+        this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
+          facilityId: result.facilityId,
+          body: {
+            email: result.email,
+            role: result.role,
+          },
+        })
+      ).subscribe({
+        next: (response) => {
           this.loadData();
           const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
           const tokenDialog = this.dialog.open(AdminTokenSetupDialogComponent, { width: '480px' });
           tokenDialog.componentInstance.setupLink = setupLink;
         },
-        error: () => this.snackBar.open(this.translate.instant('admin.users.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
+        error: () =>
+          this.snackBar.open(
+            this.translate.instant('admin.users.failedToCreate'),
+            this.translate.instant('common.close'),
+            { duration: 4000 }
+          ),
       });
     });
   }
@@ -210,28 +242,38 @@ export class AdminUsersPageComponent implements OnInit {
   exportUsers(): void {
     this.isExporting.set(true);
     from(this.adminApi.apiAdminUsersExportGet$Response()).subscribe({
-      next: response => {
+      next: (response) => {
         downloadBlobFile(response.body as Blob, response.headers, 'users.xlsx');
         this.isExporting.set(false);
       },
       error: () => {
         this.isExporting.set(false);
-        this.snackBar.open(this.translate.instant('admin.users.failedToExport'), this.translate.instant('common.close'), { duration: 4000 });
-      }
+        this.snackBar.open(
+          this.translate.instant('admin.users.failedToExport'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
     });
   }
 
   deleteUser(user: User): void {
-    if (!confirm(this.translate.instant('admin.users.deleteConfirm', { email: user.email }))) return;
+    if (!confirm(this.translate.instant('admin.users.deleteConfirm', { email: user.email }))) {
+      return;
+    }
     from(this.adminApi.apiAdminUsersUserIdDelete({ userId: user.id })).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('admin.users.userDeleted'), this.translate.instant('common.close'), { duration: 3000 });
-        this.users.update(list => list.filter(u => u.id !== user.id));
+        this.snackBar.open(
+          this.translate.instant('admin.users.userDeleted'),
+          this.translate.instant('common.close'),
+          { duration: 3000 }
+        );
+        this.users.update((list) => list.filter((u) => u.id !== user.id));
       },
       error: (err) => {
         const msg = err?.error?.detail ?? this.translate.instant('admin.users.failedToDelete');
         this.snackBar.open(msg, this.translate.instant('common.close'), { duration: 4000 });
-      }
+      },
     });
   }
 }

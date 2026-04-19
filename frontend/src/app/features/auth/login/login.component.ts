@@ -26,7 +26,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     TranslateModule,
   ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
 export class AuthLoginComponent {
   private readonly auth = inject(AuthService);
@@ -43,26 +43,34 @@ export class AuthLoginComponent {
   });
 
   submit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      return;
+    }
     this.isLoading.set(true);
     const { email, password } = this.form.getRawValue();
 
     this.auth.login(email, password).subscribe({
-      next: response => {
+      next: (response) => {
         this.auth.setSession(response);
-        const targetRoute = response.role === 'SystemAdmin'
-          ? '/admin/users'
-          : '/products';
+        const targetRoute = response.role === 'SystemAdmin' ? '/admin/users' : '/products';
 
         this.router.navigate([targetRoute]).catch(() => {
           this.isLoading.set(false);
-          this.snackBar.open(this.translate.instant('auth.login.navigationFailed'), this.translate.instant('common.close'), { duration: 4000 });
+          this.snackBar.open(
+            this.translate.instant('auth.login.navigationFailed'),
+            this.translate.instant('common.close'),
+            { duration: 4000 }
+          );
         });
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open(this.translate.instant('auth.login.invalidCredentials'), this.translate.instant('common.close'), { duration: 4000 });
-      }
+        this.snackBar.open(
+          this.translate.instant('auth.login.invalidCredentials'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
     });
   }
 }

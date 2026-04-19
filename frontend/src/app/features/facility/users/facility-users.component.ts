@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +18,7 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
 import { AuthService } from '../../../core/auth/auth.service';
-import { User } from '../../../core/models/user.model';
+import type { User } from '../../../core/models/user.model';
 
 const FACILITY_ROLES = [
   { value: 'FacilityAdmin', label: 'Facility Admin' },
@@ -38,7 +39,7 @@ const FACILITY_ROLES = [
     TranslateModule,
   ],
   templateUrl: './facility-user-create-dialog.component.html',
-  styleUrls: ['./facility-user-create-dialog.component.scss']
+  styleUrls: ['./facility-user-create-dialog.component.scss'],
 })
 export class FacilityUserCreateDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<FacilityUserCreateDialogComponent>);
@@ -63,7 +64,7 @@ export class FacilityUserCreateDialogComponent {
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, TranslateModule],
   templateUrl: './token-setup-dialog.component.html',
-  styleUrls: ['./token-setup-dialog.component.scss']
+  styleUrls: ['./token-setup-dialog.component.scss'],
 })
 export class TokenSetupDialogComponent {
   readonly dialogRef = ngInject(MatDialogRef<TokenSetupDialogComponent>);
@@ -89,7 +90,7 @@ export class TokenSetupDialogComponent {
     TranslateModule,
   ],
   templateUrl: './facility-users.component.html',
-  styleUrls: ['./facility-users.component.scss']
+  styleUrls: ['./facility-users.component.scss'],
 })
 export class FacilityUsersPageComponent implements OnInit {
   private readonly facilityUsersApi = inject(FacilityUsersService);
@@ -119,69 +120,107 @@ export class FacilityUsersPageComponent implements OnInit {
       return;
     }
     this.isLoading.set(true);
-    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json({ facilityId: fid })).subscribe({
-      next: users => {
-        this.users.set(users);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.snackBar.open(this.translate.instant('facility.users.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
+    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json({ facilityId: fid })).subscribe(
+      {
+        next: (users) => {
+          this.users.set(users);
+          this.isLoading.set(false);
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.snackBar.open(
+            this.translate.instant('facility.users.failedToLoad'),
+            this.translate.instant('common.close'),
+            { duration: 4000 }
+          );
+        },
       }
-    });
+    );
   }
 
   openCreateDialog(): void {
     const ref = this.dialog.open(FacilityUserCreateDialogComponent, { width: '360px' });
 
-    ref.afterClosed().subscribe(result => {
-      if (!result) return;
-      from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
-        facilityId: this.facilityId,
-        body: {
-          email: result.email,
-          role: result.role
-        }
-      })).subscribe({
-        next: response => {
+    ref.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+      from(
+        this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
+          facilityId: this.facilityId,
+          body: {
+            email: result.email,
+            role: result.role,
+          },
+        })
+      ).subscribe({
+        next: (response) => {
           this.loadUsers();
           const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
           const tokenDialog = this.dialog.open(TokenSetupDialogComponent, { width: '480px' });
           tokenDialog.componentInstance.setupLink = setupLink;
         },
-        error: () => this.snackBar.open(this.translate.instant('facility.users.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
+        error: () =>
+          this.snackBar.open(
+            this.translate.instant('facility.users.failedToCreate'),
+            this.translate.instant('common.close'),
+            { duration: 4000 }
+          ),
       });
     });
   }
 
   changeRole(user: User, role: string): void {
-    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdRolePut({
-      facilityId: this.facilityId,
-      userId: user.id,
-      body: { role }
-    })).subscribe({
+    from(
+      this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdRolePut({
+        facilityId: this.facilityId,
+        userId: user.id,
+        body: { role },
+      })
+    ).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('facility.users.roleUpdated'), this.translate.instant('common.close'), { duration: 3000 });
-        this.users.update(list => list.map(u => u.id === user.id ? { ...u, role } : u));
+        this.snackBar.open(
+          this.translate.instant('facility.users.roleUpdated'),
+          this.translate.instant('common.close'),
+          { duration: 3000 }
+        );
+        this.users.update((list) => list.map((u) => (u.id === user.id ? { ...u, role } : u)));
       },
       error: () => {
-        this.snackBar.open(this.translate.instant('facility.users.failedToUpdateRole'), this.translate.instant('common.close'), { duration: 4000 });
+        this.snackBar.open(
+          this.translate.instant('facility.users.failedToUpdateRole'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
         this.loadUsers();
-      }
+      },
     });
   }
 
   removeUser(user: User): void {
-    if (!confirm(this.translate.instant('facility.users.removeConfirm', { email: user.email }))) return;
-    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdDelete({
-      facilityId: this.facilityId,
-      userId: user.id
-    })).subscribe({
+    if (!confirm(this.translate.instant('facility.users.removeConfirm', { email: user.email }))) {
+      return;
+    }
+    from(
+      this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdDelete({
+        facilityId: this.facilityId,
+        userId: user.id,
+      })
+    ).subscribe({
       next: () => {
-        this.snackBar.open(this.translate.instant('facility.users.userRemoved'), this.translate.instant('common.close'), { duration: 3000 });
-        this.users.update(list => list.filter(u => u.id !== user.id));
+        this.snackBar.open(
+          this.translate.instant('facility.users.userRemoved'),
+          this.translate.instant('common.close'),
+          { duration: 3000 }
+        );
+        this.users.update((list) => list.filter((u) => u.id !== user.id));
       },
-      error: () => this.snackBar.open(this.translate.instant('facility.users.failedToRemove'), this.translate.instant('common.close'), { duration: 4000 })
+      error: () =>
+        this.snackBar.open(
+          this.translate.instant('facility.users.failedToRemove'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        ),
     });
   }
 }

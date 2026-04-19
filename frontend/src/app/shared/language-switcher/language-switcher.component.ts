@@ -10,7 +10,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     <button mat-button (click)="toggle()" style="color: white; font-weight: 600;">
       {{ lang.currentLanguage() === 'hu-HU' ? 'EN' : 'HU' }}
     </button>
-  `
+  `,
 })
 export class LanguageSwitcherComponent {
   readonly lang = inject(LanguageService);

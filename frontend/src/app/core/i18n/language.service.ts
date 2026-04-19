@@ -20,7 +20,9 @@ export class LanguageService {
   }
 
   setLanguage(lang: string, syncToServer = true): void {
-    if (!LanguageService.SUPPORTED.includes(lang as typeof LanguageService.SUPPORTED[number])) return;
+    if (!LanguageService.SUPPORTED.includes(lang as (typeof LanguageService.SUPPORTED)[number])) {
+      return;
+    }
     this.applyLanguage(lang);
     if (syncToServer) {
       this.http.put(`${environment.apiUrl}/api/users/me/language`, { language: lang }).subscribe();

@@ -1,9 +1,9 @@
 <h2 mat-dialog-title>{{ 'admin.users.createDialog.title' | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="confirm()">
-    <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
+    <mat-form-field appearance="outline" style="width: 100%; margin-top: 8px">
       <mat-label>{{ 'admin.users.createDialog.email' | translate }}</mat-label>
-      <input matInput type="email" formControlName="email">
+      <input matInput type="email" formControlName="email" />
       @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
         <mat-error>{{ 'admin.users.createDialog.emailRequired' | translate }}</mat-error>
       }
@@ -11,7 +11,7 @@
         <mat-error>{{ 'admin.users.createDialog.emailInvalid' | translate }}</mat-error>
       }
     </mat-form-field>
-    <mat-form-field appearance="outline" style="width:100%">
+    <mat-form-field appearance="outline" style="width: 100%">
       <mat-label>{{ 'admin.users.createDialog.facility' | translate }}</mat-label>
       <mat-select formControlName="facilityId">
         @for (f of data.facilities; track f.id) {
@@ -19,7 +19,7 @@
         }
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" style="width:100%">
+    <mat-form-field appearance="outline" style="width: 100%">
       <mat-label>{{ 'admin.users.createDialog.role' | translate }}</mat-label>
       <mat-select formControlName="role">
         <mat-option value="FacilityAdmin">{{ 'roles.FacilityAdmin' | translate }}</mat-option>
@@ -31,5 +31,7 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">{{ 'admin.users.createDialog.submit' | translate }}</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">
+    {{ 'admin.users.createDialog.submit' | translate }}
+  </button>
 </mat-dialog-actions>

@@ -2,7 +2,14 @@
   <mat-toolbar color="primary">
     <span>Template App</span>
     <span class="spacer"></span>
-    <button mat-icon-button routerLink="/mailbox" [matBadge]="mailbox.unreadCount()" [matBadgeHidden]="mailbox.unreadCount() === 0" matBadgeColor="warn" [title]="'mailbox.title' | translate">
+    <button
+      mat-icon-button
+      routerLink="/mailbox"
+      [matBadge]="mailbox.unreadCount()"
+      [matBadgeHidden]="mailbox.unreadCount() === 0"
+      matBadgeColor="warn"
+      [title]="'mailbox.title' | translate"
+    >
       <mat-icon>mail</mat-icon>
     </button>
     <app-language-switcher />
@@ -15,9 +22,7 @@
     <mat-sidenav mode="side" opened>
       <mat-nav-list>
         @for (item of navItems(); track item.route) {
-          <a mat-list-item
-             [routerLink]="item.route"
-             routerLinkActive="active-link">
+          <a mat-list-item [routerLink]="item.route" routerLinkActive="active-link">
             <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
             <span matListItemTitle>{{ item.label | translate }}</span>
           </a>
