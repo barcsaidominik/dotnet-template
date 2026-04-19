@@ -1,8 +1,13 @@
 <div class="header-row">
   <h2>{{ 'admin.users.title' | translate }}</h2>
-  <button mat-flat-button color="primary" (click)="openCreateUserDialog()">
-    <mat-icon>person_add</mat-icon> {{ 'admin.users.createUser' | translate }}
-  </button>
+  <div class="header-actions">
+    <button mat-stroked-button (click)="exportUsers()" [disabled]="isExporting()">
+      <mat-icon>download</mat-icon> {{ 'admin.users.exportUsers' | translate }}
+    </button>
+    <button mat-flat-button color="primary" (click)="openCreateUserDialog()">
+      <mat-icon>person_add</mat-icon> {{ 'admin.users.createUser' | translate }}
+    </button>
+  </div>
 </div>
 
 @if (isLoading()) {

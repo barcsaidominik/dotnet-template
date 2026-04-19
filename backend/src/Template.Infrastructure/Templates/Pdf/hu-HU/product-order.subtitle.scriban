@@ -1,0 +1,1 @@
+Sablon alapú megrendelő a(z) {{ model.ProductName }} termékhez, a(z) {{ model.FacilityName }} üzemhez.

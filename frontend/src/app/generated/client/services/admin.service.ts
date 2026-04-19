@@ -9,6 +9,8 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { apiAdminFacilitiesExportGet } from '../fn/admin/api-admin-facilities-export-get';
+import { ApiAdminFacilitiesExportGet$Params } from '../fn/admin/api-admin-facilities-export-get';
 import { apiAdminFacilitiesFacilityIdDelete } from '../fn/admin/api-admin-facilities-facility-id-delete';
 import { ApiAdminFacilitiesFacilityIdDelete$Params } from '../fn/admin/api-admin-facilities-facility-id-delete';
 import { apiAdminFacilitiesFacilityIdPut } from '../fn/admin/api-admin-facilities-facility-id-put';
@@ -21,6 +23,12 @@ import { apiAdminFacilitiesPost$Json } from '../fn/admin/api-admin-facilities-po
 import { ApiAdminFacilitiesPost$Json$Params } from '../fn/admin/api-admin-facilities-post-json';
 import { apiAdminFacilitiesPost$Plain } from '../fn/admin/api-admin-facilities-post-plain';
 import { ApiAdminFacilitiesPost$Plain$Params } from '../fn/admin/api-admin-facilities-post-plain';
+import { apiAdminJobsDemoLongRunningPost$Json } from '../fn/admin/api-admin-jobs-demo-long-running-post-json';
+import { ApiAdminJobsDemoLongRunningPost$Json$Params } from '../fn/admin/api-admin-jobs-demo-long-running-post-json';
+import { apiAdminJobsDemoLongRunningPost$Plain } from '../fn/admin/api-admin-jobs-demo-long-running-post-plain';
+import { ApiAdminJobsDemoLongRunningPost$Plain$Params } from '../fn/admin/api-admin-jobs-demo-long-running-post-plain';
+import { apiAdminUsersExportGet } from '../fn/admin/api-admin-users-export-get';
+import { ApiAdminUsersExportGet$Params } from '../fn/admin/api-admin-users-export-get';
 import { apiAdminUsersGet$Json } from '../fn/admin/api-admin-users-get-json';
 import { ApiAdminUsersGet$Json$Params } from '../fn/admin/api-admin-users-get-json';
 import { apiAdminUsersGet$Plain } from '../fn/admin/api-admin-users-get-plain';
@@ -30,6 +38,7 @@ import { ApiAdminUsersUserIdApprovePost$Params } from '../fn/admin/api-admin-use
 import { apiAdminUsersUserIdDelete } from '../fn/admin/api-admin-users-user-id-delete';
 import { ApiAdminUsersUserIdDelete$Params } from '../fn/admin/api-admin-users-user-id-delete';
 import { FacilityDto } from '../models/facility-dto';
+import { QueuedBackgroundJobResult } from '../models/queued-background-job-result';
 import { UserDto } from '../models/user-dto';
 
 @Injectable({ providedIn: 'root' })
@@ -83,6 +92,31 @@ export class AdminService extends BaseService {
   apiAdminUsersGet$Json(params?: ApiAdminUsersGet$Json$Params, context?: HttpContext): Promise<Array<UserDto>> {
     const resp = this.apiAdminUsersGet$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<Array<UserDto>>): Array<UserDto> => r.body);
+  }
+
+  /** Path part for operation `apiAdminUsersExportGet()` */
+  static readonly ApiAdminUsersExportGetPath = '/api/Admin/users/export';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminUsersExportGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminUsersExportGet$Response(params?: ApiAdminUsersExportGet$Params, context?: HttpContext): Promise<StrictHttpResponse<any>> {
+    const obs = apiAdminUsersExportGet(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminUsersExportGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminUsersExportGet(params?: ApiAdminUsersExportGet$Params, context?: HttpContext): Promise<any> {
+    const resp = this.apiAdminUsersExportGet$Response(params, context);
+    return resp.then((r: StrictHttpResponse<any>): any => r.body);
   }
 
   /** Path part for operation `apiAdminUsersUserIdApprovePost()` */
@@ -229,6 +263,31 @@ export class AdminService extends BaseService {
     return resp.then((r: StrictHttpResponse<string>): string => r.body);
   }
 
+  /** Path part for operation `apiAdminFacilitiesExportGet()` */
+  static readonly ApiAdminFacilitiesExportGetPath = '/api/Admin/facilities/export';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminFacilitiesExportGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminFacilitiesExportGet$Response(params?: ApiAdminFacilitiesExportGet$Params, context?: HttpContext): Promise<StrictHttpResponse<any>> {
+    const obs = apiAdminFacilitiesExportGet(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminFacilitiesExportGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminFacilitiesExportGet(params?: ApiAdminFacilitiesExportGet$Params, context?: HttpContext): Promise<any> {
+    const resp = this.apiAdminFacilitiesExportGet$Response(params, context);
+    return resp.then((r: StrictHttpResponse<any>): any => r.body);
+  }
+
   /** Path part for operation `apiAdminFacilitiesFacilityIdPut()` */
   static readonly ApiAdminFacilitiesFacilityIdPutPath = '/api/Admin/facilities/{facilityId}';
 
@@ -277,6 +336,53 @@ export class AdminService extends BaseService {
   apiAdminFacilitiesFacilityIdDelete(params: ApiAdminFacilitiesFacilityIdDelete$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiAdminFacilitiesFacilityIdDelete$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiAdminJobsDemoLongRunningPost()` */
+  static readonly ApiAdminJobsDemoLongRunningPostPath = '/api/Admin/jobs/demo-long-running';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminJobsDemoLongRunningPost$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminJobsDemoLongRunningPost$Plain$Response(params?: ApiAdminJobsDemoLongRunningPost$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<QueuedBackgroundJobResult>> {
+    const obs = apiAdminJobsDemoLongRunningPost$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminJobsDemoLongRunningPost$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminJobsDemoLongRunningPost$Plain(params?: ApiAdminJobsDemoLongRunningPost$Plain$Params, context?: HttpContext): Promise<QueuedBackgroundJobResult> {
+    const resp = this.apiAdminJobsDemoLongRunningPost$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<QueuedBackgroundJobResult>): QueuedBackgroundJobResult => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminJobsDemoLongRunningPost$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminJobsDemoLongRunningPost$Json$Response(params?: ApiAdminJobsDemoLongRunningPost$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<QueuedBackgroundJobResult>> {
+    const obs = apiAdminJobsDemoLongRunningPost$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminJobsDemoLongRunningPost$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminJobsDemoLongRunningPost$Json(params?: ApiAdminJobsDemoLongRunningPost$Json$Params, context?: HttpContext): Promise<QueuedBackgroundJobResult> {
+    const resp = this.apiAdminJobsDemoLongRunningPost$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<QueuedBackgroundJobResult>): QueuedBackgroundJobResult => r.body);
   }
 
 }

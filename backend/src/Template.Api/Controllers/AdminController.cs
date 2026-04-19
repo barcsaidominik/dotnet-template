@@ -8,22 +8,35 @@ using Template.Application.Admin.Commands.CreateFacility;
 using Template.Application.Admin.Commands.DeleteFacility;
 using Template.Application.Admin.Commands.DeleteUser;
 using Template.Application.Admin.Commands.UpdateFacility;
+using Template.Application.Admin.Queries.ExportFacilitiesToExcel;
+using Template.Application.Admin.Queries.ExportUsersToExcel;
 using Template.Application.Admin.Queries.GetAllFacilities;
 using Template.Application.Admin.Queries.GetAllUsers;
 using Template.Application.Common.Dtos;
+using Template.Application.Common.Interfaces;
 using Template.Domain.Constants;
 
 namespace Template.Api.Controllers;
 
 [Route("api/[controller]")]
 [Authorize(Roles = Roles.SYSTEM_ADMIN)]
-public sealed class AdminController(ISender sender) : ApiController(sender)
+public sealed class AdminController(ISender sender, IBackgroundJobScheduler backgroundJobScheduler) : ApiController(sender)
 {
+    private readonly IBackgroundJobScheduler _backgroundJobScheduler = backgroundJobScheduler;
+
     [HttpGet("users")]
     [ProducesResponseType(typeof(IReadOnlyList<UserDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUsers()
     {
         return await SendAsync(new GetAllUsersQuery()).ToActionResultAsync();
+    }
+
+    [HttpGet("users/export")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    public async Task<IActionResult> ExportUsers()
+    {
+        return await SendAsync(new ExportUsersToExcelQuery())
+            .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 
     [HttpPost("users/{userId:guid}/approve")]
@@ -47,6 +60,14 @@ public sealed class AdminController(ISender sender) : ApiController(sender)
     public async Task<IActionResult> GetFacilities()
     {
         return await SendAsync(new GetAllFacilitiesQuery()).ToActionResultAsync();
+    }
+
+    [HttpGet("facilities/export")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    public async Task<IActionResult> ExportFacilities()
+    {
+        return await SendAsync(new ExportFacilitiesToExcelQuery())
+            .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 
     [HttpPost("facilities")]
@@ -73,5 +94,13 @@ public sealed class AdminController(ISender sender) : ApiController(sender)
     {
         return await SendAsync(new UpdateFacilityCommand(facilityId, request.Name))
             .ToActionResultAsync(_ => NoContent());
+    }
+
+    [HttpPost("jobs/demo-long-running")]
+    [ProducesResponseType(typeof(QueuedBackgroundJobResult), StatusCodes.Status202Accepted)]
+    public async Task<IActionResult> ScheduleDemoLongRunningJob(CancellationToken cancellationToken)
+    {
+        var result = await _backgroundJobScheduler.ScheduleDemoLongRunningOperationAsync(cancellationToken);
+        return Accepted(result);
     }
 }

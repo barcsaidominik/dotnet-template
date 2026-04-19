@@ -1,8 +1,13 @@
 <div class="header-row">
   <h2>{{ 'admin.facilities.title' | translate }}</h2>
-  <button mat-flat-button color="primary" (click)="openCreateDialog()">
-    <mat-icon>add</mat-icon> {{ 'admin.facilities.createFacility' | translate }}
-  </button>
+  <div class="header-actions">
+    <button mat-stroked-button (click)="exportFacilities()" [disabled]="isExporting()">
+      <mat-icon>download</mat-icon> {{ 'admin.facilities.exportFacilities' | translate }}
+    </button>
+    <button mat-flat-button color="primary" (click)="openCreateDialog()">
+      <mat-icon>add</mat-icon> {{ 'admin.facilities.createFacility' | translate }}
+    </button>
+  </div>
 </div>
 
 @if (isLoading()) {

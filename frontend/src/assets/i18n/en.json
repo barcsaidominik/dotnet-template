@@ -6,6 +6,8 @@
     "delete": "Delete",
     "create": "Create",
     "edit": "Edit",
+    "export": "Export",
+    "import": "Import",
     "close": "Close",
     "loading": "Loading...",
     "noData": "No data to display.",
@@ -16,7 +18,38 @@
   "nav": {
     "users": "Users",
     "facilities": "Facilities",
-    "products": "Products"
+    "products": "Products",
+    "mailbox": "Mailbox"
+  },
+  "mailbox": {
+    "title": "Mailbox",
+    "empty": "There are no messages yet.",
+    "unread": "Unread",
+    "open": "Open",
+    "markAsRead": "Mark as read",
+    "markAllAsRead": "Mark all as read",
+    "unreadSummary": "Unread messages: {{unreadCount}}",
+    "newNotifications": "{{count}} new notification arrived.",
+    "failedToLoad": "Failed to load mailbox messages",
+    "failedToUpdate": "Failed to update mailbox state",
+    "events": {
+      "facilityUserCreated": {
+        "title": "New facility user created",
+        "body": "{{email}} was created as {{role}} for facility {{facilityId}}."
+      },
+      "longRunningJobCompleted": {
+        "title": "Background job completed",
+        "body": "Job {{jobId}} finished successfully. Facilities: {{facilityCount}}, products: {{productCount}}, users: {{userCount}}."
+      },
+      "longRunningJobCancelled": {
+        "title": "Background job cancelled",
+        "body": "Job {{jobId}} was cancelled before completion."
+      },
+      "longRunningJobFailed": {
+        "title": "Background job failed",
+        "body": "Job {{jobId}} ended with an error."
+      }
+    }
   },
   "auth": {
     "login": {
@@ -78,8 +111,10 @@
       "userApproved": "User approved",
       "userDeleted": "User deleted",
       "failedToLoad": "Failed to load users",
+      "exportUsers": "Export Users",
       "failedToApprove": "Failed to approve user",
       "failedToDelete": "Failed to delete user",
+      "failedToExport": "Failed to export users",
       "failedToCreate": "Failed to create user",
       "approveDialog": {
         "title": "Approve User",
@@ -115,8 +150,10 @@
       "facilityUpdated": "Facility updated",
       "facilityDeleted": "Facility deleted",
       "failedToLoad": "Failed to load facilities",
+      "exportFacilities": "Export Facilities",
       "failedToCreate": "Failed to create facility",
       "failedToUpdate": "Failed to update facility",
+      "failedToExport": "Failed to export facilities",
       "failedToDelete": "Failed to delete facility",
       "createDialog": {
         "title": "Create Facility",
@@ -174,8 +211,15 @@
       "noProducts": "No products yet. Create one to get started.",
       "productCreated": "Product created",
       "productUpdated": "Product updated",
+      "exportProducts": "Export Products",
+      "importProducts": "Import Products",
+      "downloadOrderPdf": "Download Order PDF",
+      "importCompleted": "Import finished. Imported: {{importedCount}}, skipped: {{skippedCount}}, errors: {{errorCount}}.",
       "failedToLoad": "Failed to load products",
       "failedToCreate": "Failed to create product",
+      "failedToExport": "Failed to export products",
+      "failedToImport": "Failed to import products",
+      "failedToDownloadPdf": "Failed to download the order PDF",
       "failedToUpdate": "Failed to update product",
       "createDialog": {
         "title": "Create Product",
@@ -204,8 +248,15 @@
     "noProducts": "No products found.",
     "noProductsHint": "Use the <strong>Create Product</strong> button above to add your first product.",
     "productCreated": "Product created",
+    "exportProducts": "Export Products",
+    "importProducts": "Import Products",
+    "downloadOrderPdf": "Download Order PDF",
+    "importCompleted": "Import finished. Imported: {{importedCount}}, skipped: {{skippedCount}}, errors: {{errorCount}}.",
     "failedToLoad": "Failed to load products",
     "failedToCreate": "Failed to create product",
+    "failedToExport": "Failed to export products",
+    "failedToImport": "Failed to import products",
+    "failedToDownloadPdf": "Failed to download the order PDF",
     "createDialog": {
       "title": "Create Product",
       "name": "Name",

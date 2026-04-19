@@ -19,6 +19,7 @@ import { AdminService } from '../../../generated/client/services/admin.service';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
 import { User } from '../../../core/models/user.model';
 import { Facility } from '../../../core/models/facility.model';
+import { downloadBlobFile } from '../../../shared/utils/file-download.util';
 
 @NgComponent({
   selector: 'app-user-approve-dialog',
@@ -131,6 +132,7 @@ export class AdminUsersPageComponent implements OnInit {
   readonly users = signal<User[]>([]);
   readonly facilities = signal<Facility[]>([]);
   readonly isLoading = signal(true);
+  readonly isExporting = signal(false);
 
   readonly displayedColumns = ['email', 'role', 'isApproved', 'facilityId', 'actions'];
 
@@ -202,6 +204,20 @@ export class AdminUsersPageComponent implements OnInit {
         },
         error: () => this.snackBar.open(this.translate.instant('admin.users.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
+    });
+  }
+
+  exportUsers(): void {
+    this.isExporting.set(true);
+    from(this.adminApi.apiAdminUsersExportGet$Response()).subscribe({
+      next: response => {
+        downloadBlobFile(response.body as Blob, response.headers, 'users.xlsx');
+        this.isExporting.set(false);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.snackBar.open(this.translate.instant('admin.users.failedToExport'), this.translate.instant('common.close'), { duration: 4000 });
+      }
     });
   }
 

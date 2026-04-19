@@ -5,7 +5,10 @@ using Template.Api.Contracts;
 using Template.Api.Extensions;
 using Template.Application.Common.Dtos;
 using Template.Application.Products.Commands.CreateProduct;
+using Template.Application.Products.Commands.ImportProductsFromExcel;
 using Template.Application.Products.Commands.UpdateProduct;
+using Template.Application.Products.Queries.ExportProductOrderPdf;
+using Template.Application.Products.Queries.ExportProductsToExcel;
 using Template.Application.Products.Queries.GetProductById;
 using Template.Application.Products.Queries.GetProducts;
 using Template.Domain.Constants;
@@ -22,6 +25,22 @@ public sealed class ProductsController(ISender sender) : ApiController(sender)
     public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
     {
         return await SendAsync(new GetProductsQuery(page, pageSize)).ToActionResultAsync();
+    }
+
+    [HttpGet("export")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    public async Task<IActionResult> Export()
+    {
+        return await SendAsync(new ExportProductsToExcelQuery())
+            .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
+    }
+
+    [HttpGet("{id:guid}/order-pdf")]
+    [Produces("application/pdf")]
+    public async Task<IActionResult> ExportOrderPdf(Guid id)
+    {
+        return await SendAsync(new ExportProductOrderPdfQuery(id))
+            .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 
     [HttpPost]
@@ -52,5 +71,19 @@ public sealed class ProductsController(ISender sender) : ApiController(sender)
     {
         return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price))
             .ToActionResultAsync(_ => NoContent());
+    }
+
+    [HttpPost("import")]
+    [Authorize(Roles = Roles.FACILITY_ADMIN + "," + Roles.FACILITY_EDITOR)]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ProductImportResultDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Import([FromForm] ImportProductsRequest request, CancellationToken cancellationToken)
+    {
+        await using var stream = request.File.OpenReadStream();
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream, cancellationToken);
+
+        return await SendAsync(new ImportProductsFromExcelCommand(memoryStream.ToArray(), request.File.FileName))
+            .ToActionResultAsync();
     }
 }

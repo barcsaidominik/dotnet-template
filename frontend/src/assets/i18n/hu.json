@@ -6,6 +6,8 @@
     "delete": "Törlés",
     "create": "Létrehozás",
     "edit": "Szerkesztés",
+    "export": "Exportálás",
+    "import": "Importálás",
     "close": "Bezárás",
     "loading": "Betöltés...",
     "noData": "Nincs megjeleníthető adat.",
@@ -16,7 +18,38 @@
   "nav": {
     "users": "Felhasználók",
     "facilities": "Üzemek",
-    "products": "Termékek"
+    "products": "Termékek",
+    "mailbox": "Postaláda"
+  },
+  "mailbox": {
+    "title": "Postaláda",
+    "empty": "Még nincs üzenet.",
+    "unread": "Olvasatlan",
+    "open": "Megnyitás",
+    "markAsRead": "Olvasottnak jelölés",
+    "markAllAsRead": "Összes olvasottnak jelölése",
+    "unreadSummary": "Olvasatlan üzenetek: {{unreadCount}}",
+    "newNotifications": "{{count}} új értesítés érkezett.",
+    "failedToLoad": "Nem sikerült betölteni a postaláda üzeneteit",
+    "failedToUpdate": "Nem sikerült frissíteni a postaláda állapotát",
+    "events": {
+      "facilityUserCreated": {
+        "title": "Új üzemfelhasználó jött létre",
+        "body": "{{email}} létrejött {{role}} szerepkörrel a(z) {{facilityId}} üzemhez."
+      },
+      "longRunningJobCompleted": {
+        "title": "A háttérfeladat befejeződött",
+        "body": "A(z) {{jobId}} azonosítójú feladat sikeresen lefutott. Üzemek: {{facilityCount}}, termékek: {{productCount}}, felhasználók: {{userCount}}."
+      },
+      "longRunningJobCancelled": {
+        "title": "A háttérfeladat megszakadt",
+        "body": "A(z) {{jobId}} azonosítójú feladat megszakításra került."
+      },
+      "longRunningJobFailed": {
+        "title": "A háttérfeladat hibára futott",
+        "body": "A(z) {{jobId}} azonosítójú feladat hibával ért véget."
+      }
+    }
   },
   "auth": {
     "login": {
@@ -78,8 +111,10 @@
       "userApproved": "Felhasználó jóváhagyva",
       "userDeleted": "Felhasználó törölve",
       "failedToLoad": "Nem sikerült betölteni a felhasználókat",
+      "exportUsers": "Felhasználók exportálása",
       "failedToApprove": "Nem sikerült jóváhagyni a felhasználót",
       "failedToDelete": "Nem sikerült törölni a felhasználót",
+      "failedToExport": "Nem sikerült exportálni a felhasználókat",
       "failedToCreate": "Nem sikerült létrehozni a felhasználót",
       "approveDialog": {
         "title": "Felhasználó jóváhagyása",
@@ -115,8 +150,10 @@
       "facilityUpdated": "Üzem frissítve",
       "facilityDeleted": "Üzem törölve",
       "failedToLoad": "Nem sikerült betölteni az üzemeket",
+      "exportFacilities": "Üzemek exportálása",
       "failedToCreate": "Nem sikerült létrehozni az üzemet",
       "failedToUpdate": "Nem sikerült frissíteni az üzemet",
+      "failedToExport": "Nem sikerült exportálni az üzemeket",
       "failedToDelete": "Nem sikerült törölni az üzemet",
       "createDialog": {
         "title": "Üzem létrehozása",
@@ -174,8 +211,15 @@
       "noProducts": "Még nincs termék. Hozd létre az elsőt a kezdéshez.",
       "productCreated": "Termék létrehozva",
       "productUpdated": "Termék frissítve",
+      "exportProducts": "Termékek exportálása",
+      "importProducts": "Termékek importálása",
+      "downloadOrderPdf": "Megrendelő PDF letöltése",
+      "importCompleted": "Import befejezve. Importálva: {{importedCount}}, kihagyva: {{skippedCount}}, hibák: {{errorCount}}.",
       "failedToLoad": "Nem sikerült betölteni a termékeket",
       "failedToCreate": "Nem sikerült létrehozni a terméket",
+      "failedToExport": "Nem sikerült exportálni a termékeket",
+      "failedToImport": "Nem sikerült importálni a termékeket",
+      "failedToDownloadPdf": "Nem sikerült letölteni a megrendelő PDF-et",
       "failedToUpdate": "Nem sikerült frissíteni a terméket",
       "createDialog": {
         "title": "Termék létrehozása",
@@ -204,8 +248,15 @@
     "noProducts": "Nincs termék.",
     "noProductsHint": "Használd a <strong>Termék létrehozása</strong> gombot az első termék hozzáadásához.",
     "productCreated": "Termék létrehozva",
+    "exportProducts": "Termékek exportálása",
+    "importProducts": "Termékek importálása",
+    "downloadOrderPdf": "Megrendelő PDF letöltése",
+    "importCompleted": "Import befejezve. Importálva: {{importedCount}}, kihagyva: {{skippedCount}}, hibák: {{errorCount}}.",
     "failedToLoad": "Nem sikerült betölteni a termékeket",
     "failedToCreate": "Nem sikerült létrehozni a terméket",
+    "failedToExport": "Nem sikerült exportálni a termékeket",
+    "failedToImport": "Nem sikerült importálni a termékeket",
+    "failedToDownloadPdf": "Nem sikerült letölteni a megrendelő PDF-et",
     "createDialog": {
       "title": "Termék létrehozása",
       "name": "Név",

@@ -24,6 +24,9 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Elastic.Serilog.Sinks" Version="9.0.0" />
+    <PackageReference Include="TickerQ" Version="10.2.5" />
+    <PackageReference Include="TickerQ.Dashboard" Version="10.2.5" />
+    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="10.2.5" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -6,6 +6,973 @@
     "version": "v1"
   },
   "paths": {
+    "/api/auth/info": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get authentication configuration",
+        "operationId": "GetAuthInfo",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/auth/validate": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Validate authentication credentials",
+        "operationId": "ValidateAuth",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/options": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get dashboard options and status",
+        "operationId": "GetOptions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-tickers": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get all time tickers",
+        "operationId": "GetTimeTickers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-tickers/paginated": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get paginated time tickers",
+        "operationId": "GetTimeTickersPaginated",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-tickers/graph-data-range": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get time tickers graph data for specific date range",
+        "operationId": "GetTimeTickersGraphDataRange",
+        "parameters": [
+          {
+            "name": "pastDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          },
+          {
+            "name": "futureDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-tickers/graph-data": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get time tickers graph data",
+        "operationId": "GetTimeTickersGraphData",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-ticker/add": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Create chain jobs",
+        "operationId": "CreateChainJobs",
+        "parameters": [
+          {
+            "name": "timeZoneId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-ticker/update": {
+      "put": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Update time ticker",
+        "operationId": "UpdateTimeTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "timeZoneId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-ticker/delete": {
+      "delete": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Delete time ticker",
+        "operationId": "DeleteTimeTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/time-ticker/delete-batch": {
+      "delete": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Delete multiple time tickers",
+        "operationId": "DeleteTimeTickersBatch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-tickers": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get all cron tickers",
+        "operationId": "GetCronTickers",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-tickers/paginated": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get paginated cron tickers",
+        "operationId": "GetCronTickersPaginated",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-tickers/graph-data-range": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get cron tickers graph data for specific date range",
+        "operationId": "GetCronTickersGraphDataRange",
+        "parameters": [
+          {
+            "name": "pastDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          },
+          {
+            "name": "futureDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-tickers/graph-data-range-id": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get cron ticker graph data by ID for specific date range",
+        "operationId": "GetCronTickersByIdGraphDataRange",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pastDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          },
+          {
+            "name": "futureDays",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 3
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-tickers/graph-data": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get cron tickers graph data",
+        "operationId": "GetCronTickersGraphData",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker-occurrences/{cronTickerId}": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get cron ticker occurrences",
+        "operationId": "GetCronTickerOccurrences",
+        "parameters": [
+          {
+            "name": "cronTickerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker-occurrences/{cronTickerId}/paginated": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get paginated cron ticker occurrences",
+        "operationId": "GetCronTickerOccurrencesPaginated",
+        "parameters": [
+          {
+            "name": "cronTickerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "pattern": "^-?(?:0|[1-9]\\d*)$",
+              "type": [
+                "integer",
+                "string"
+              ],
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker-occurrences/{cronTickerId}/graph-data": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get cron ticker occurrences graph data",
+        "operationId": "GetCronTickerOccurrencesGraphData",
+        "parameters": [
+          {
+            "name": "cronTickerId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker/add": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Add cron ticker",
+        "operationId": "AddCronTicker",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker/update": {
+      "put": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Update cron ticker",
+        "operationId": "UpdateCronTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker/toggle": {
+      "put": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Toggle cron ticker enabled/disabled",
+        "operationId": "ToggleCronTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "isEnabled",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker/run": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Run cron ticker on demand",
+        "operationId": "RunCronTickerOnDemand",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker/delete": {
+      "delete": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Delete cron ticker",
+        "operationId": "DeleteCronTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/cron-ticker-occurrence/delete": {
+      "delete": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Delete cron ticker occurrence",
+        "operationId": "DeleteCronTickerOccurrence",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker/cancel": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Cancel ticker by ID",
+        "operationId": "CancelTicker",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-request/{id}": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get ticker request by ID",
+        "operationId": "GetTickerRequest",
+        "parameters": [
+          {
+            "name": "tickerId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "tickerType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TickerType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-functions": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get available ticker functions",
+        "operationId": "GetTickerFunctions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-host/next-ticker": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get next planned ticker",
+        "operationId": "GetNextTicker",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-host/stop": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Stop ticker host",
+        "operationId": "StopTickerHost",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-host/start": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Start ticker host",
+        "operationId": "StartTickerHost",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-host/restart": {
+      "post": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Restart ticker host",
+        "operationId": "RestartTickerHost",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker-host/status": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get ticker host status",
+        "operationId": "GetTickerHostStatus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker/statuses/get-last-week": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get last week job statuses",
+        "operationId": "GetLastWeekJobStatus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker/statuses/get": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get overall job statuses",
+        "operationId": "GetJobStatuses",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/ticker/machine/jobs": {
+      "get": {
+        "tags": [
+          "TickerQ Dashboard"
+        ],
+        "summary": "Get machine jobs",
+        "operationId": "GetMachineJobs",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
     "/api/Admin/users": {
       "get": {
         "tags": [
@@ -39,6 +1006,24 @@
                   }
                 }
               }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Admin/users/export": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { }
             }
           }
         },
@@ -273,6 +1258,24 @@
         ]
       }
     },
+    "/api/Admin/facilities/export": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
     "/api/Admin/facilities/{facilityId}": {
       "delete": {
         "tags": [
@@ -393,6 +1396,38 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Admin/jobs/demo-long-running": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueuedBackgroundJobResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueuedBackgroundJobResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueuedBackgroundJobResult"
                 }
               }
             }
@@ -995,6 +2030,140 @@
         ]
       }
     },
+    "/api/Mailbox": {
+      "get": {
+        "tags": [
+          "Mailbox"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MailboxMessageDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MailboxMessageDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MailboxMessageDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Mailbox/unread-count": {
+      "get": {
+        "tags": [
+          "Mailbox"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxUnreadCountDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxUnreadCountDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailboxUnreadCountDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Mailbox/{messageId}/read": {
+      "post": {
+        "tags": [
+          "Mailbox"
+        ],
+        "parameters": [
+          {
+            "name": "messageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Mailbox/read-all": {
+      "post": {
+        "tags": [
+          "Mailbox"
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
     "/api/Products": {
       "get": {
         "tags": [
@@ -1140,6 +2309,53 @@
                   "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Products/export": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
+    "/api/Products/{id}/order-pdf": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/pdf": { }
             }
           }
         },
@@ -1316,6 +2532,53 @@
         ]
       }
     },
+    "/api/Products/import": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductImportResultDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductImportResultDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductImportResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          { }
+        ]
+      }
+    },
     "/api/users/me/language": {
       "put": {
         "tags": [
@@ -1472,6 +2735,26 @@
           }
         }
       },
+      "ExcelImportErrorDto": {
+        "required": [
+          "rowNumber",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "rowNumber": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
       "FacilityDto": {
         "required": [
           "id",
@@ -1488,6 +2771,10 @@
           }
         }
       },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
       "LoginCommand": {
         "required": [
           "email",
@@ -1500,6 +2787,77 @@
           },
           "password": {
             "type": "string"
+          }
+        }
+      },
+      "MailboxMessageDto": {
+        "required": [
+          "id",
+          "category",
+          "titleKey",
+          "bodyKey",
+          "parameters",
+          "link",
+          "isRead",
+          "createdAt",
+          "readAtUtc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "category": {
+            "type": "string"
+          },
+          "titleKey": {
+            "type": "string"
+          },
+          "bodyKey": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "link": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "isRead": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "readAtUtc": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        }
+      },
+      "MailboxUnreadCountDto": {
+        "required": [
+          "unreadCount"
+        ],
+        "type": "object",
+        "properties": {
+          "unreadCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },
@@ -1610,6 +2968,59 @@
           }
         }
       },
+      "ProductImportResultDto": {
+        "required": [
+          "importedCount",
+          "skippedCount",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "importedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "skippedCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExcelImportErrorDto"
+            }
+          }
+        }
+      },
+      "QueuedBackgroundJobResult": {
+        "required": [
+          "jobId",
+          "function",
+          "scheduledAtUtc"
+        ],
+        "type": "object",
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "function": {
+            "type": "string"
+          },
+          "scheduledAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "RegisterCommand": {
         "required": [
           "email",
@@ -1643,6 +3054,9 @@
             "type": "string"
           }
         }
+      },
+      "TickerType": {
+        "type": "integer"
       },
       "TokenResponse": {
         "required": [
@@ -1768,6 +3182,9 @@
   },
   "tags": [
     {
+      "name": "TickerQ Dashboard"
+    },
+    {
       "name": "Admin"
     },
     {
@@ -1775,6 +3192,9 @@
     },
     {
       "name": "FacilityUsers"
+    },
+    {
+      "name": "Mailbox"
     },
     {
       "name": "Products"

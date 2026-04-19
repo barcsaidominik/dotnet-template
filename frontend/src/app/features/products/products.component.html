@@ -1,10 +1,19 @@
 <div class="header-row">
   <h2>{{ 'products.title' | translate }}</h2>
-  @if (auth.canEditProducts()) {
-    <button mat-flat-button color="primary" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon> {{ 'products.createProduct' | translate }}
+  <div class="header-actions">
+    <button mat-stroked-button (click)="exportProducts()" [disabled]="isExporting()">
+      <mat-icon>download</mat-icon> {{ 'products.exportProducts' | translate }}
     </button>
-  }
+    @if (auth.canEditProducts()) {
+      <input #importInput type="file" accept=".xlsx" hidden (change)="importProducts(importInput)">
+      <button mat-stroked-button (click)="importInput.click()" [disabled]="isImporting()">
+        <mat-icon>upload</mat-icon> {{ 'products.importProducts' | translate }}
+      </button>
+      <button mat-flat-button color="primary" (click)="openCreateDialog()">
+        <mat-icon>add</mat-icon> {{ 'products.createProduct' | translate }}
+      </button>
+    }
+  </div>
 </div>
 
 <mat-card>
@@ -33,6 +42,15 @@
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef>{{ 'products.id' | translate }}</th>
           <td mat-cell *matCellDef="let product">{{ product.id }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
+          <td mat-cell *matCellDef="let product">
+            <button mat-icon-button color="primary" (click)="downloadOrderPdf(product)" [disabled]="downloadingProductId() === product.id" [title]="'products.downloadOrderPdf' | translate">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+          </td>
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

@@ -6,18 +6,23 @@ using Template.Application.Common;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
 using Template.Application.Common.Notifications;
+using Template.Domain.Constants;
 
 namespace Template.Application.Facilities.Commands.CreateFacilityUser;
 
 public sealed class CreateFacilityUserCommandHandler(
     IAuthService authService,
     INotificationService notificationService,
+    IMailboxService mailboxService,
+    ICurrentUserService currentUserService,
     IFrontendSettings frontendSettings,
     IMemoryCache cache,
     ILogger<CreateFacilityUserCommandHandler> logger) : IRequestHandler<CreateFacilityUserCommand, ErrorOr<CreateUserResult>>
 {
     private readonly IAuthService _authService = authService;
     private readonly INotificationService _notificationService = notificationService;
+    private readonly IMailboxService _mailboxService = mailboxService;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly IFrontendSettings _frontendSettings = frontendSettings;
     private readonly IMemoryCache _cache = cache;
     private readonly ILogger<CreateFacilityUserCommandHandler> _logger = logger;
@@ -48,6 +53,23 @@ public sealed class CreateFacilityUserCommandHandler(
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Failed to send setup email to {Email}", request.Email);
+        }
+
+        if (_currentUserService.Role == Roles.FACILITY_ADMIN)
+        {
+            await _mailboxService.AddToRoleAsync(
+                Roles.SYSTEM_ADMIN,
+                "FacilityUserCreated",
+                "mailbox.events.facilityUserCreated.title",
+                "mailbox.events.facilityUserCreated.body",
+                new Dictionary<string, string>
+                {
+                    ["email"] = request.Email,
+                    ["role"] = request.Role,
+                    ["facilityId"] = request.FacilityId.ToString()
+                },
+                "/admin/users",
+                ct);
         }
 
         return result;

@@ -7,6 +7,7 @@ namespace Template.Infrastructure.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<AppUser, AppRole, Guid>(options)
 {
+    public DbSet<MailboxMessage> MailboxMessages => Set<MailboxMessage>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Facility> Facilities => Set<Facility>();
 

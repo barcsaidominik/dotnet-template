@@ -4,13 +4,19 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using Scalar.AspNetCore;
 using Serilog;
 using Template.Api.Logging;
 using Template.Api.OpenApi;
 using Template.Application;
+using Template.Domain.Constants;
 using Template.Infrastructure;
 using Template.Infrastructure.Persistence;
+using TickerQ.Dashboard.DependencyInjection;
+using TickerQ.DependencyInjection;
+using TickerQ.EntityFrameworkCore.Customizer;
+using TickerQ.EntityFrameworkCore.DependencyInjection;
 
 namespace Template.Api;
 
@@ -18,6 +24,8 @@ public class Program
 {
     public static async Task Main(string[] args)
     {
+        QuestPDF.Settings.License = LicenseType.Community;
+
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
             .CreateBootstrapLogger();
@@ -38,6 +46,27 @@ public class Program
 
             builder.Services.AddApplication();
             builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
+            builder.Services.AddTickerQ(options =>
+            {
+                options.ConfigureScheduler(schedulerOptions =>
+                {
+                    schedulerOptions.MaxConcurrency = 4;
+                    schedulerOptions.NodeIdentifier = Environment.MachineName;
+                    schedulerOptions.SchedulerTimeZone = TimeZoneInfo.Utc;
+                });
+
+                options.AddOperationalStore(efOptions =>
+                {
+                    efOptions.UseApplicationDbContext<AppDbContext>(ConfigurationType.UseModelCustomizer);
+                    efOptions.SetDbContextPoolSize(16);
+                });
+
+                options.AddDashboard(dashboardOptions =>
+                {
+                    dashboardOptions.SetBasePath("/admin/tickerq");
+                    dashboardOptions.WithHostAuthentication("TickerQDashboard");
+                });
+            });
 
             builder.Services.AddCors(options =>
             {
@@ -52,6 +81,11 @@ public class Program
             });
 
             builder.Services.AddControllers();
+            builder.Services.AddSingleton<CriticalLoadState>();
+            builder.Services.Configure<ResourceGuardOptions>(
+                builder.Configuration.GetSection(ResourceGuardOptions.SECTION_NAME));
+            builder.Services.Configure<RequestTelemetryOptions>(
+                builder.Configuration.GetSection(RequestTelemetryOptions.SECTION_NAME));
 
             builder.Services.AddOpenApi(options =>
             {
@@ -96,7 +130,14 @@ public class Program
                     };
                 });
 
-            builder.Services.AddAuthorization();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TickerQDashboard", policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireRole(Roles.SYSTEM_ADMIN);
+                });
+            });
 
             var app = builder.Build();
 
@@ -116,8 +157,11 @@ public class Program
             }
 
             app.UseCors();
+            app.UseMiddleware<RequestTelemetryMiddleware>();
+            app.UseMiddleware<ResourceGuardMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseTickerQ();
             app.MapControllers();
 
             app.MapOpenApi();

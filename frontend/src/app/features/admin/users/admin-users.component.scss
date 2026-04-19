@@ -5,6 +5,13 @@
   margin-bottom: 16px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .spinner-wrap {
   display: flex;
   justify-content: center;

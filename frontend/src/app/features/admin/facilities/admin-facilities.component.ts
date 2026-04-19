@@ -15,6 +15,7 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import { Facility } from '../../../core/models/facility.model';
+import { downloadBlobFile } from '../../../shared/utils/file-download.util';
 
 @NgComponent({
   selector: 'app-facility-create-dialog',
@@ -100,6 +101,7 @@ export class AdminFacilitiesPageComponent implements OnInit {
 
   readonly facilities = signal<Facility[]>([]);
   readonly isLoading = signal(true);
+  readonly isExporting = signal(false);
 
   readonly displayedColumns = ['name', 'id', 'actions'];
 
@@ -165,6 +167,20 @@ export class AdminFacilitiesPageComponent implements OnInit {
         this.facilities.update(list => list.filter(f => f.id !== facility.id));
       },
       error: () => this.snackBar.open(this.translate.instant('admin.facilities.failedToDelete'), this.translate.instant('common.close'), { duration: 4000 })
+    });
+  }
+
+  exportFacilities(): void {
+    this.isExporting.set(true);
+    from(this.adminApi.apiAdminFacilitiesExportGet$Response()).subscribe({
+      next: response => {
+        downloadBlobFile(response.body as Blob, response.headers, 'facilities.xlsx');
+        this.isExporting.set(false);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.snackBar.open(this.translate.instant('admin.facilities.failedToExport'), this.translate.instant('common.close'), { duration: 4000 });
+      }
     });
   }
 }

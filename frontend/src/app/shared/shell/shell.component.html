@@ -2,6 +2,9 @@
   <mat-toolbar color="primary">
     <span>Template App</span>
     <span class="spacer"></span>
+    <button mat-icon-button routerLink="/mailbox" [matBadge]="mailbox.unreadCount()" [matBadgeHidden]="mailbox.unreadCount() === 0" matBadgeColor="warn" [title]="'mailbox.title' | translate">
+      <mat-icon>mail</mat-icon>
+    </button>
     <app-language-switcher />
     <button mat-icon-button (click)="auth.logout()" [title]="'common.logout' | translate">
       <mat-icon>logout</mat-icon>

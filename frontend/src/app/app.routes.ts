@@ -39,6 +39,10 @@ export const routes: Routes = [
         path: 'products',
         canActivate: [roleGuard(['FacilityEditor', 'FacilityViewer'])],
         loadComponent: () => import('./features/products/products.component').then(m => m.ProductsPageComponent)
+      },
+      {
+        path: 'mailbox',
+        loadComponent: () => import('./features/mailbox/mailbox.component').then(m => m.MailboxPageComponent)
       }
     ]
   },

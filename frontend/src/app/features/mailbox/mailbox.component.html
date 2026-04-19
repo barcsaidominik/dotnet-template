@@ -1,0 +1,55 @@
+<div class="header-row">
+  <div>
+    <h2>{{ 'mailbox.title' | translate }}</h2>
+    <p class="subtitle">{{ 'mailbox.unreadSummary' | translate:{ unreadCount: unreadCount() } }}</p>
+  </div>
+  <button mat-stroked-button (click)="markAllAsRead()" [disabled]="unreadCount() === 0">
+    <mat-icon>done_all</mat-icon> {{ 'mailbox.markAllAsRead' | translate }}
+  </button>
+</div>
+
+@if (isLoading()) {
+  <div class="spinner-wrap">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else if (!hasMessages()) {
+  <mat-card class="empty-state">
+    <mat-card-content>
+      <mat-icon>mail</mat-icon>
+      <p>{{ 'mailbox.empty' | translate }}</p>
+    </mat-card-content>
+  </mat-card>
+} @else {
+  <div class="message-list">
+    @for (message of messages(); track message.id) {
+      <mat-card class="message-card" [class.unread]="!message.isRead">
+        <mat-card-content>
+          <div class="message-header">
+            <div>
+              <div class="message-title">{{ message.titleKey | translate: message.parameters }}</div>
+              <div class="message-date">{{ message.createdAt | date:'short' }}</div>
+            </div>
+            @if (!message.isRead) {
+              <span class="unread-pill">{{ 'mailbox.unread' | translate }}</span>
+            }
+          </div>
+
+          <p class="message-body">{{ message.bodyKey | translate: message.parameters }}</p>
+
+          <div class="message-actions">
+            @if (!message.isRead) {
+              <button mat-button (click)="markAsRead(message)">
+                <mat-icon>done</mat-icon> {{ 'mailbox.markAsRead' | translate }}
+              </button>
+            }
+            @if (message.link) {
+              <button mat-flat-button color="primary" (click)="openMessage(message)">
+                <mat-icon>open_in_new</mat-icon> {{ 'mailbox.open' | translate }}
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+}

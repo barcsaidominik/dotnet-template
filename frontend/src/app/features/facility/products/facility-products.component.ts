@@ -17,9 +17,11 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { Router } from '@angular/router';
 import { from } from 'rxjs';
 import { ProductsService } from '../../../generated/client/services/products.service';
+import { ProductImportResultDto } from '../../../generated/client/models/product-import-result-dto';
 import { Product } from '../../../core/models/product.model';
 import { mapProductDto } from '../../../shared/mappers/product.mapper';
 import { createViewRefresh$ } from '../../../shared/rx/view-refresh.util';
+import { downloadBlobFile } from '../../../shared/utils/file-download.util';
 
 @NgComponent({
   selector: 'app-product-create-dialog',
@@ -111,6 +113,9 @@ export class FacilityProductsPageComponent implements OnInit {
 
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(true);
+  readonly isExporting = signal(false);
+  readonly isImporting = signal(false);
+  readonly downloadingProductId = signal<string | null>(null);
 
   readonly displayedColumns = ['name', 'price', 'createdAt', 'id', 'actions'];
 
@@ -177,6 +182,69 @@ export class FacilityProductsPageComponent implements OnInit {
         },
         error: () => this.snackBar.open(this.translate.instant('facility.products.failedToUpdate'), this.translate.instant('common.close'), { duration: 4000 })
       });
+    });
+  }
+
+  exportProducts(): void {
+    this.isExporting.set(true);
+    from(this.productsApi.apiProductsExportGet$Response()).subscribe({
+      next: response => {
+        downloadBlobFile(response.body as Blob, response.headers, 'facility-products.xlsx');
+        this.isExporting.set(false);
+      },
+      error: () => {
+        this.isExporting.set(false);
+        this.snackBar.open(this.translate.instant('facility.products.failedToExport'), this.translate.instant('common.close'), { duration: 4000 });
+      }
+    });
+  }
+
+  importProducts(fileInput: HTMLInputElement): void {
+    const file = fileInput.files?.item(0);
+
+    if (!file) {
+      return;
+    }
+
+    this.isImporting.set(true);
+    from(this.productsApi.apiProductsImportPost$Json({
+      body: { File: file }
+    })).subscribe({
+      next: result => {
+        this.isImporting.set(false);
+        this.loadProducts();
+        this.snackBar.open(this.buildImportSummary(result), this.translate.instant('common.close'), { duration: 7000 });
+        fileInput.value = '';
+      },
+      error: () => {
+        this.isImporting.set(false);
+        fileInput.value = '';
+        this.snackBar.open(this.translate.instant('facility.products.failedToImport'), this.translate.instant('common.close'), { duration: 4000 });
+      }
+    });
+  }
+
+  downloadOrderPdf(product: Product): void {
+    this.downloadingProductId.set(product.id);
+    from(this.productsApi.apiProductsIdOrderPdfGet$Response({ id: product.id })).subscribe({
+      next: response => {
+        downloadBlobFile(response.body as Blob, response.headers, `${product.name}-order-template.pdf`);
+        this.downloadingProductId.set(null);
+      },
+      error: () => {
+        this.downloadingProductId.set(null);
+        this.snackBar.open(this.translate.instant('facility.products.failedToDownloadPdf'), this.translate.instant('common.close'), { duration: 4000 });
+      }
+    });
+  }
+
+  private buildImportSummary(result: ProductImportResultDto): string {
+    const errorCount = result.errors.length;
+
+    return this.translate.instant('facility.products.importCompleted', {
+      importedCount: result.importedCount,
+      skippedCount: result.skippedCount,
+      errorCount
     });
   }
 }

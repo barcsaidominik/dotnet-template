@@ -14,4 +14,8 @@ public interface ICurrentUserService
     {
         get;
     }
+    string? Role
+    {
+        get;
+    }
 }

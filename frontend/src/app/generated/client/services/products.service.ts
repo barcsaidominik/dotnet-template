@@ -9,12 +9,20 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { apiProductsExportGet } from '../fn/products/api-products-export-get';
+import { ApiProductsExportGet$Params } from '../fn/products/api-products-export-get';
 import { apiProductsGet$Json } from '../fn/products/api-products-get-json';
 import { ApiProductsGet$Json$Params } from '../fn/products/api-products-get-json';
 import { apiProductsGet$Plain } from '../fn/products/api-products-get-plain';
 import { ApiProductsGet$Plain$Params } from '../fn/products/api-products-get-plain';
+import { apiProductsIdOrderPdfGet } from '../fn/products/api-products-id-order-pdf-get';
+import { ApiProductsIdOrderPdfGet$Params } from '../fn/products/api-products-id-order-pdf-get';
 import { apiProductsIdPut } from '../fn/products/api-products-id-put';
 import { ApiProductsIdPut$Params } from '../fn/products/api-products-id-put';
+import { apiProductsImportPost$Json } from '../fn/products/api-products-import-post-json';
+import { ApiProductsImportPost$Json$Params } from '../fn/products/api-products-import-post-json';
+import { apiProductsImportPost$Plain } from '../fn/products/api-products-import-post-plain';
+import { ApiProductsImportPost$Plain$Params } from '../fn/products/api-products-import-post-plain';
 import { apiProductsPost$Json } from '../fn/products/api-products-post-json';
 import { ApiProductsPost$Json$Params } from '../fn/products/api-products-post-json';
 import { apiProductsPost$Plain } from '../fn/products/api-products-post-plain';
@@ -25,6 +33,7 @@ import { getProductById$Plain } from '../fn/products/get-product-by-id-plain';
 import { GetProductById$Plain$Params } from '../fn/products/get-product-by-id-plain';
 import { PagedResultOfProduct } from '../models/paged-result-of-product';
 import { Product } from '../models/product';
+import { ProductImportResultDto } from '../models/product-import-result-dto';
 
 @Injectable({ providedIn: 'root' })
 export class ProductsService extends BaseService {
@@ -126,6 +135,56 @@ export class ProductsService extends BaseService {
     return resp.then((r: StrictHttpResponse<string>): string => r.body);
   }
 
+  /** Path part for operation `apiProductsExportGet()` */
+  static readonly ApiProductsExportGetPath = '/api/Products/export';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiProductsExportGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiProductsExportGet$Response(params?: ApiProductsExportGet$Params, context?: HttpContext): Promise<StrictHttpResponse<any>> {
+    const obs = apiProductsExportGet(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiProductsExportGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiProductsExportGet(params?: ApiProductsExportGet$Params, context?: HttpContext): Promise<any> {
+    const resp = this.apiProductsExportGet$Response(params, context);
+    return resp.then((r: StrictHttpResponse<any>): any => r.body);
+  }
+
+  /** Path part for operation `apiProductsIdOrderPdfGet()` */
+  static readonly ApiProductsIdOrderPdfGetPath = '/api/Products/{id}/order-pdf';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiProductsIdOrderPdfGet()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiProductsIdOrderPdfGet$Response(params: ApiProductsIdOrderPdfGet$Params, context?: HttpContext): Promise<StrictHttpResponse<any>> {
+    const obs = apiProductsIdOrderPdfGet(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiProductsIdOrderPdfGet$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiProductsIdOrderPdfGet(params: ApiProductsIdOrderPdfGet$Params, context?: HttpContext): Promise<any> {
+    const resp = this.apiProductsIdOrderPdfGet$Response(params, context);
+    return resp.then((r: StrictHttpResponse<any>): any => r.body);
+  }
+
   /** Path part for operation `getProductById()` */
   static readonly GetProductByIdPath = '/api/Products/{id}';
 
@@ -196,6 +255,53 @@ export class ProductsService extends BaseService {
   apiProductsIdPut(params: ApiProductsIdPut$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiProductsIdPut$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiProductsImportPost()` */
+  static readonly ApiProductsImportPostPath = '/api/Products/import';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiProductsImportPost$Plain()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiProductsImportPost$Plain$Response(params: ApiProductsImportPost$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<ProductImportResultDto>> {
+    const obs = apiProductsImportPost$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiProductsImportPost$Plain$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiProductsImportPost$Plain(params: ApiProductsImportPost$Plain$Params, context?: HttpContext): Promise<ProductImportResultDto> {
+    const resp = this.apiProductsImportPost$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<ProductImportResultDto>): ProductImportResultDto => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiProductsImportPost$Json()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiProductsImportPost$Json$Response(params: ApiProductsImportPost$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<ProductImportResultDto>> {
+    const obs = apiProductsImportPost$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiProductsImportPost$Json$Response()` instead.
+   *
+   * This method sends `multipart/form-data` and handles request body of type `multipart/form-data`.
+   */
+  apiProductsImportPost$Json(params: ApiProductsImportPost$Json$Params, context?: HttpContext): Promise<ProductImportResultDto> {
+    const resp = this.apiProductsImportPost$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<ProductImportResultDto>): ProductImportResultDto => r.body);
   }
 
 }
