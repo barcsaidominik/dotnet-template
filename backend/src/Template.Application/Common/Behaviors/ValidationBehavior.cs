@@ -29,7 +29,7 @@ public sealed class ValidationBehavior<TMessage, TResponse>(IEnumerable<IValidat
         var errors = validationResults
             .SelectMany(r => r.Errors)
             .Where(f => f is not null)
-            .Select(f => Error.Validation(f.PropertyName, f.ErrorMessage))
+            .Select(f => Error.Validation(f.PropertyName, f.ErrorCode))
             .ToList();
 
         if (errors.Count > 0)

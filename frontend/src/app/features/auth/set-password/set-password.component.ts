@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
@@ -30,6 +31,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    TranslateModule,
   ],
   templateUrl: './set-password.component.html',
   styleUrls: ['./set-password.component.scss']
@@ -40,6 +42,7 @@ export class AuthSetPasswordComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly isLoading = signal(false);
 
@@ -64,12 +67,12 @@ export class AuthSetPasswordComponent implements OnInit {
 
     this.auth.setPassword(email, token, newPassword).subscribe({
       next: () => {
-        this.snackBar.open('Password set successfully. Please sign in.', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('auth.setPassword.success'), this.translate.instant('common.close'), { duration: 4000 });
         this.router.navigate(['/auth/login']);
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Failed to set password. Check your token and try again.', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('auth.setPassword.failed'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }

@@ -1,8 +1,8 @@
 <div class="header-row">
-  <h2>Products</h2>
+  <h2>{{ 'products.title' | translate }}</h2>
   @if (auth.canEditProducts()) {
     <button mat-flat-button color="primary" (click)="openCreateDialog()">
-      <mat-icon>add</mat-icon> Create Product
+      <mat-icon>add</mat-icon> {{ 'products.createProduct' | translate }}
     </button>
   }
 </div>
@@ -16,22 +16,22 @@
     } @else if (products().length > 0) {
       <table mat-table [dataSource]="products()">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'products.name' | translate }}</th>
           <td mat-cell *matCellDef="let product">{{ product.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef>Price</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'products.price' | translate }}</th>
           <td mat-cell *matCellDef="let product">{{ product.price | number:'1.2-2' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="createdAt">
-          <th mat-header-cell *matHeaderCellDef>Created</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'products.created' | translate }}</th>
           <td mat-cell *matCellDef="let product">{{ product.createdAt | date:'short' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'products.id' | translate }}</th>
           <td mat-cell *matCellDef="let product">{{ product.id }}</td>
         </ng-container>
 
@@ -48,9 +48,9 @@
     } @else {
       <div class="placeholder">
         <mat-icon>inventory_2</mat-icon>
-        <p>No products found.</p>
+        <p>{{ 'products.noProducts' | translate }}</p>
         @if (auth.canEditProducts()) {
-          <p>Use the <strong>Create Product</strong> button above to add your first product.</p>
+          <p [innerHTML]="'products.noProductsHint' | translate"></p>
         }
       </div>
     }

@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
@@ -22,6 +23,7 @@ import { AuthService } from '../../../core/auth/auth.service';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    TranslateModule,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -31,6 +33,7 @@ export class AuthLoginComponent {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
+  private readonly translate = inject(TranslateService);
 
   readonly isLoading = signal(false);
 
@@ -53,12 +56,12 @@ export class AuthLoginComponent {
 
         this.router.navigate([targetRoute]).catch(() => {
           this.isLoading.set(false);
-          this.snackBar.open('Login succeeded, but navigation failed.', 'Close', { duration: 4000 });
+          this.snackBar.open(this.translate.instant('auth.login.navigationFailed'), this.translate.instant('common.close'), { duration: 4000 });
         });
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Invalid email or password', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('auth.login.invalidCredentials'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }

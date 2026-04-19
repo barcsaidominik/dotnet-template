@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
@@ -28,6 +29,7 @@ import { Facility } from '../../../core/models/facility.model';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './user-approve-dialog.component.html',
   styleUrls: ['./user-approve-dialog.component.scss']
@@ -59,6 +61,7 @@ export class UserApproveDialogComponent {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './create-facility-user-dialog.component.html',
   styleUrls: ['./create-facility-user-dialog.component.scss']
@@ -90,7 +93,7 @@ export class CreateFacilityUserDialogComponent {
 @NgComponent({
   selector: 'app-admin-token-setup-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, TranslateModule],
   templateUrl: './token-setup-dialog.component.html',
   styleUrls: ['./token-setup-dialog.component.scss']
 })
@@ -113,6 +116,7 @@ export class AdminTokenSetupDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatTooltipModule,
+    TranslateModule,
   ],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss']
@@ -122,6 +126,7 @@ export class AdminUsersPageComponent implements OnInit {
   private readonly facilityUsersApi = inject(FacilityUsersService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly users = signal<User[]>([]);
   readonly facilities = signal<Facility[]>([]);
@@ -142,7 +147,7 @@ export class AdminUsersPageComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Failed to load users', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('admin.users.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
     from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
@@ -166,10 +171,10 @@ export class AdminUsersPageComponent implements OnInit {
         }
       })).subscribe({
         next: () => {
-          this.snackBar.open('User approved', 'Close', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('admin.users.userApproved'), this.translate.instant('common.close'), { duration: 3000 });
           this.loadData();
         },
-        error: () => this.snackBar.open('Failed to approve user', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('admin.users.failedToApprove'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
@@ -195,21 +200,21 @@ export class AdminUsersPageComponent implements OnInit {
           const tokenDialog = this.dialog.open(AdminTokenSetupDialogComponent, { width: '480px' });
           tokenDialog.componentInstance.setupLink = setupLink;
         },
-        error: () => this.snackBar.open('Failed to create user', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('admin.users.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
 
   deleteUser(user: User): void {
-    if (!confirm(`Delete user ${user.email}?`)) return;
+    if (!confirm(this.translate.instant('admin.users.deleteConfirm', { email: user.email }))) return;
     from(this.adminApi.apiAdminUsersUserIdDelete({ userId: user.id })).subscribe({
       next: () => {
-        this.snackBar.open('User deleted', 'Close', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('admin.users.userDeleted'), this.translate.instant('common.close'), { duration: 3000 });
         this.users.update(list => list.filter(u => u.id !== user.id));
       },
       error: (err) => {
-        const msg = err?.error?.detail ?? 'Failed to delete user';
-        this.snackBar.open(msg, 'Close', { duration: 4000 });
+        const msg = err?.error?.detail ?? this.translate.instant('admin.users.failedToDelete');
+        this.snackBar.open(msg, this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }

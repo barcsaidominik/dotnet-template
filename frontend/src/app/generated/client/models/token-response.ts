@@ -3,6 +3,7 @@
 
 export interface TokenResponse {
   expiresAt: string;
+  preferredLanguage?: string | null;
   role: string;
   token: string;
 }

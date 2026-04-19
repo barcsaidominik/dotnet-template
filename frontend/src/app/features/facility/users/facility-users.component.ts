@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
@@ -34,6 +35,7 @@ const FACILITY_ROLES = [
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './facility-user-create-dialog.component.html',
   styleUrls: ['./facility-user-create-dialog.component.scss']
@@ -59,7 +61,7 @@ export class FacilityUserCreateDialogComponent {
 @NgComponent({
   selector: 'app-token-setup-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, TranslateModule],
   templateUrl: './token-setup-dialog.component.html',
   styleUrls: ['./token-setup-dialog.component.scss']
 })
@@ -84,6 +86,7 @@ export class TokenSetupDialogComponent {
     MatTooltipModule,
     MatSelectModule,
     MatFormFieldModule,
+    TranslateModule,
   ],
   templateUrl: './facility-users.component.html',
   styleUrls: ['./facility-users.component.scss']
@@ -93,6 +96,7 @@ export class FacilityUsersPageComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly users = signal<User[]>([]);
   readonly isLoading = signal(true);
@@ -122,7 +126,7 @@ export class FacilityUsersPageComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Failed to load users', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('facility.users.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }
@@ -145,7 +149,7 @@ export class FacilityUsersPageComponent implements OnInit {
           const tokenDialog = this.dialog.open(TokenSetupDialogComponent, { width: '480px' });
           tokenDialog.componentInstance.setupLink = setupLink;
         },
-        error: () => this.snackBar.open('Failed to create user', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('facility.users.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
@@ -157,27 +161,27 @@ export class FacilityUsersPageComponent implements OnInit {
       body: { role }
     })).subscribe({
       next: () => {
-        this.snackBar.open('Role updated', 'Close', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('facility.users.roleUpdated'), this.translate.instant('common.close'), { duration: 3000 });
         this.users.update(list => list.map(u => u.id === user.id ? { ...u, role } : u));
       },
       error: () => {
-        this.snackBar.open('Failed to update role', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('facility.users.failedToUpdateRole'), this.translate.instant('common.close'), { duration: 4000 });
         this.loadUsers();
       }
     });
   }
 
   removeUser(user: User): void {
-    if (!confirm(`Remove ${user.email} from this facility?`)) return;
+    if (!confirm(this.translate.instant('facility.users.removeConfirm', { email: user.email }))) return;
     from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersUserIdDelete({
       facilityId: this.facilityId,
       userId: user.id
     })).subscribe({
       next: () => {
-        this.snackBar.open('User removed', 'Close', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('facility.users.userRemoved'), this.translate.instant('common.close'), { duration: 3000 });
         this.users.update(list => list.filter(u => u.id !== user.id));
       },
-      error: () => this.snackBar.open('Failed to remove user', 'Close', { duration: 4000 })
+      error: () => this.snackBar.open(this.translate.instant('facility.users.failedToRemove'), this.translate.instant('common.close'), { duration: 4000 })
     });
   }
 }

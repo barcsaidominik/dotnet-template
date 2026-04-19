@@ -49,18 +49,18 @@ public static class ErrorOrExtensions
     {
         if (errors is not { Count: > 0 })
         {
-            return CreateProblemResult(StatusCodes.Status500InternalServerError, "Unexpected error occurred.");
+            return CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected");
         }
 
         var first = errors[0];
         return first.Type switch
         {
-            ErrorType.NotFound => CreateProblemResult(StatusCodes.Status404NotFound, first.Description),
+            ErrorType.NotFound => CreateProblemResult(StatusCodes.Status404NotFound, first.Code),
             ErrorType.Validation => CreateValidationProblemResult(errors),
-            ErrorType.Conflict => CreateProblemResult(StatusCodes.Status409Conflict, first.Description),
-            ErrorType.Unauthorized => CreateProblemResult(StatusCodes.Status401Unauthorized, first.Description),
-            ErrorType.Forbidden => CreateProblemResult(StatusCodes.Status403Forbidden, first.Description),
-            _ => CreateProblemResult(StatusCodes.Status500InternalServerError, first.Description)
+            ErrorType.Conflict => CreateProblemResult(StatusCodes.Status409Conflict, first.Code),
+            ErrorType.Unauthorized => CreateProblemResult(StatusCodes.Status401Unauthorized, first.Code),
+            ErrorType.Forbidden => CreateProblemResult(StatusCodes.Status403Forbidden, first.Code),
+            _ => CreateProblemResult(StatusCodes.Status500InternalServerError, "Error.Unexpected")
         };
     }
 
@@ -80,15 +80,16 @@ public static class ErrorOrExtensions
 
     private static BadRequestObjectResult CreateValidationProblemResult(List<Error> errors)
     {
+        var errorsByProperty = errors
+            .GroupBy(e => e.Code)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.Description).ToArray());
+
         return new BadRequestObjectResult(
-            new ValidationProblemDetails(
-                new Dictionary<string, string[]>()
-                {
-                    ["errors"] = errors.Select(e => e.Description).ToArray()
-                }
-            )
+            new ValidationProblemDetails(errorsByProperty)
             {
-                Title = "Validation failed.",
+                Title = "Validation.Failed",
                 Status = StatusCodes.Status400BadRequest
             }
         );

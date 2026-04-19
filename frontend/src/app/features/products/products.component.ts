@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -11,11 +12,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
+import { Router } from '@angular/router';
 import { from } from 'rxjs';
 import { ProductsService } from '../../generated/client/services/products.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Product } from '../../core/models/product.model';
+import { mapProductDto } from '../../shared/mappers/product.mapper';
+import { createViewRefresh$ } from '../../shared/rx/view-refresh.util';
 
 @NgComponent({
   selector: 'app-product-viewer-create-dialog',
@@ -26,6 +31,7 @@ import { Product } from '../../core/models/product.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './product-viewer-create-dialog.component.html',
   styleUrls: ['./product-viewer-create-dialog.component.scss']
@@ -60,14 +66,18 @@ export class ProductViewerCreateDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatPaginatorModule,
+    TranslateModule,
   ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss']
 })
 export class ProductsPageComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly productsApi = inject(ProductsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
   readonly auth = inject(AuthService);
 
   readonly products = signal<Product[]>([]);
@@ -79,6 +89,10 @@ export class ProductsPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProducts();
+
+    createViewRefresh$(this.router, '/products').pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.loadProducts());
   }
 
   private loadProducts(): void {
@@ -89,18 +103,12 @@ export class ProductsPageComponent implements OnInit {
     })).subscribe({
       next: result => {
         this.totalCount.set(Number(result.totalCount ?? 0));
-        this.products.set((result.items ?? []).map(p => ({
-          id: p.id ?? '',
-          name: p.name ?? '',
-          price: typeof p.price === 'number' ? p.price : parseFloat(p.price ?? '0'),
-          facilityId: p.facilityId ?? '',
-          createdAt: p.createdAt ?? '',
-        })));
+        this.products.set((result.items ?? []).map(mapProductDto));
         this.isLoading.set(false);
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Failed to load products', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('products.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }
@@ -124,9 +132,9 @@ export class ProductsPageComponent implements OnInit {
       })).subscribe({
         next: () => {
           this.loadProducts();
-          this.snackBar.open('Product created', 'Close', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('products.productCreated'), this.translate.instant('common.close'), { duration: 3000 });
         },
-        error: () => this.snackBar.open('Failed to create product', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('products.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }

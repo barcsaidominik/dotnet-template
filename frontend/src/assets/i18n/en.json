@@ -1,0 +1,253 @@
+{
+  "common": {
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "noData": "No data to display.",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "ok": "OK"
+  },
+  "nav": {
+    "users": "Users",
+    "facilities": "Facilities",
+    "products": "Products"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign In",
+      "email": "Email",
+      "password": "Password",
+      "emailRequired": "Email is required.",
+      "passwordRequired": "Password is required.",
+      "submit": "Sign In",
+      "register": "Create account",
+      "navigationFailed": "Login succeeded, but navigation failed.",
+      "invalidCredentials": "Invalid email or password."
+    },
+    "register": {
+      "title": "Create Account",
+      "email": "Email",
+      "password": "Password",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Invalid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMinLength": "Password must be at least 6 characters.",
+      "submit": "Register",
+      "login": "Already have an account?",
+      "success": "Your registration is pending approval by an administrator.",
+      "failed": "Registration failed. Please try again."
+    },
+    "setPassword": {
+      "title": "Set Password",
+      "subtitle": "Complete your account setup",
+      "email": "Email",
+      "emailRequired": "Email is required.",
+      "token": "Setup Token",
+      "tokenRequired": "Token is required.",
+      "newPassword": "New Password",
+      "passwordRequired": "Password is required.",
+      "passwordMinLength": "Password must be at least 6 characters.",
+      "confirmPassword": "Confirm Password",
+      "passwordMismatch": "Passwords do not match.",
+      "submit": "Set Password",
+      "backToLogin": "Back to Sign In",
+      "success": "Password set successfully. Please sign in.",
+      "failed": "Failed to set password. Check your token and try again."
+    }
+  },
+  "admin": {
+    "users": {
+      "title": "Users",
+      "createUser": "Create User",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "facilityId": "Facility ID",
+      "approved": "Approved",
+      "pending": "Pending",
+      "approve": "Approve",
+      "delete": "Delete",
+      "noUsers": "No users found.",
+      "deleteConfirm": "Delete user {{email}}?",
+      "userApproved": "User approved",
+      "userDeleted": "User deleted",
+      "failedToLoad": "Failed to load users",
+      "failedToApprove": "Failed to approve user",
+      "failedToDelete": "Failed to delete user",
+      "failedToCreate": "Failed to create user",
+      "approveDialog": {
+        "title": "Approve User",
+        "facility": "Facility",
+        "role": "Role",
+        "submit": "Approve"
+      },
+      "createDialog": {
+        "title": "Create Facility User",
+        "email": "Email",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Invalid email.",
+        "facility": "Facility",
+        "role": "Role",
+        "submit": "Create"
+      },
+      "tokenDialog": {
+        "title": "Invitation Sent",
+        "message": "An invitation email has been sent to the specified email address.",
+        "message2": "The user can set their password and activate their account by clicking the link in the email."
+      }
+    },
+    "facilities": {
+      "title": "Facilities",
+      "createFacility": "Create Facility",
+      "name": "Name",
+      "id": "ID",
+      "edit": "Edit",
+      "delete": "Delete",
+      "noFacilities": "No facilities found.",
+      "deleteConfirm": "Delete facility \"{{name}}\"?",
+      "facilityCreated": "Facility created",
+      "facilityUpdated": "Facility updated",
+      "facilityDeleted": "Facility deleted",
+      "failedToLoad": "Failed to load facilities",
+      "failedToCreate": "Failed to create facility",
+      "failedToUpdate": "Failed to update facility",
+      "failedToDelete": "Failed to delete facility",
+      "createDialog": {
+        "title": "Create Facility",
+        "name": "Facility Name",
+        "nameRequired": "Name is required.",
+        "submit": "Create"
+      },
+      "updateDialog": {
+        "title": "Edit Facility",
+        "name": "Name",
+        "submit": "Save"
+      }
+    }
+  },
+  "facility": {
+    "users": {
+      "title": "Facility Users",
+      "createUser": "Create User",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "approved": "Approved",
+      "pending": "Pending",
+      "remove": "Remove",
+      "noUsers": "No users in this facility.",
+      "removeConfirm": "Remove {{email}} from this facility?",
+      "roleUpdated": "Role updated",
+      "userRemoved": "User removed",
+      "failedToLoad": "Failed to load users",
+      "failedToCreate": "Failed to create user",
+      "failedToUpdateRole": "Failed to update role",
+      "failedToRemove": "Failed to remove user",
+      "createDialog": {
+        "title": "Create User",
+        "email": "Email",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Invalid email.",
+        "role": "Role",
+        "submit": "Create"
+      },
+      "tokenDialog": {
+        "title": "Invitation Sent",
+        "message": "An invitation email has been sent to the specified email address.",
+        "message2": "The user can set their password and activate their account by clicking the link in the email."
+      }
+    },
+    "products": {
+      "title": "Products",
+      "createProduct": "Create Product",
+      "name": "Name",
+      "price": "Price",
+      "created": "Created",
+      "id": "ID",
+      "edit": "Edit",
+      "noProducts": "No products yet. Create one to get started.",
+      "productCreated": "Product created",
+      "productUpdated": "Product updated",
+      "failedToLoad": "Failed to load products",
+      "failedToCreate": "Failed to create product",
+      "failedToUpdate": "Failed to update product",
+      "createDialog": {
+        "title": "Create Product",
+        "name": "Name",
+        "nameRequired": "Name is required.",
+        "price": "Price",
+        "priceRequired": "Price is required.",
+        "priceMin": "Price must be 0 or greater.",
+        "submit": "Create"
+      },
+      "updateDialog": {
+        "title": "Edit Product",
+        "name": "Name",
+        "price": "Price",
+        "submit": "Save"
+      }
+    }
+  },
+  "products": {
+    "title": "Products",
+    "createProduct": "Create Product",
+    "name": "Name",
+    "price": "Price",
+    "created": "Created",
+    "id": "ID",
+    "noProducts": "No products found.",
+    "noProductsHint": "Use the <strong>Create Product</strong> button above to add your first product.",
+    "productCreated": "Product created",
+    "failedToLoad": "Failed to load products",
+    "failedToCreate": "Failed to create product",
+    "createDialog": {
+      "title": "Create Product",
+      "name": "Name",
+      "nameRequired": "Name is required.",
+      "price": "Price",
+      "priceRequired": "Price is required.",
+      "priceMin": "Price must be 0 or greater.",
+      "submit": "Create"
+    }
+  },
+  "roles": {
+    "FacilityAdmin": "Facility Admin",
+    "FacilityEditor": "Facility Editor",
+    "FacilityViewer": "Facility Viewer"
+  },
+  "errors": {
+    "Auth.InvalidCredentials": "Invalid email or password.",
+    "Auth.NotApproved": "Account is pending approval.",
+    "Auth.NotAssigned": "Account is not assigned to a facility.",
+    "Auth.PasswordChangeRequired": "Password must be changed before logging in.",
+    "Auth.UserNotFound": "User not found.",
+    "Facility.NotFound": "Facility not found.",
+    "Facility.UserNotInFacility": "User does not belong to this facility.",
+    "Facility.UserAlreadyExists": "A user with this email already exists.",
+    "Facility.InvalidName": "Facility name cannot be empty.",
+    "Product.NotFound": "Product not found.",
+    "Product.InvalidName": "Product name cannot be empty.",
+    "Product.InvalidPrice": "Price must be positive.",
+    "Product.InvalidFacility": "Facility ID must be provided.",
+    "Error.Unexpected": "An unexpected error occurred.",
+    "Validation.Failed": "Validation failed."
+  },
+  "validation": {
+    "NotEmptyValidator": "This field is required.",
+    "NotNullValidator": "This field is required.",
+    "EmailValidator": "Invalid email address.",
+    "MinimumLengthValidator": "At least {{min}} characters required.",
+    "MaximumLengthValidator": "Maximum {{max}} characters allowed.",
+    "LengthValidator": "Must be between {{min}} and {{max}} characters.",
+    "GreaterThanValidator": "Must be greater than {{from}}.",
+    "GreaterThanOrEqualValidator": "Must be at least {{from}}.",
+    "PredicateValidator": "Invalid value.",
+    "Language.Invalid": "Unsupported language. Accepted values: hu-HU, en-US."
+  }
+}

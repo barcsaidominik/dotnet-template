@@ -7,5 +7,5 @@ public static class FacilityErrors
     public static readonly Error NotFound = Error.NotFound("Facility.NotFound", "Facility not found");
     public static readonly Error UserNotInFacility = Error.Forbidden("Facility.UserNotInFacility", "User does not belong to this facility");
     public static readonly Error UserAlreadyExists = Error.Conflict("Facility.UserAlreadyExists", "A user with this email already exists");
-    public static readonly Error InvalidName = Error.Validation("Facility.InvalidName", "A facility neve nem lehet ures.");
+    public static readonly Error InvalidName = Error.Validation("Facility.InvalidName", "Facility name cannot be empty.");
 }

@@ -5,18 +5,19 @@ using Microsoft.Extensions.Logging;
 using Template.Application.Common;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
+using Template.Application.Common.Notifications;
 
 namespace Template.Application.Facilities.Commands.CreateFacilityUser;
 
 public sealed class CreateFacilityUserCommandHandler(
     IAuthService authService,
-    IEmailService emailService,
+    INotificationService notificationService,
     IFrontendSettings frontendSettings,
     IMemoryCache cache,
     ILogger<CreateFacilityUserCommandHandler> logger) : IRequestHandler<CreateFacilityUserCommand, ErrorOr<CreateUserResult>>
 {
     private readonly IAuthService _authService = authService;
-    private readonly IEmailService _emailService = emailService;
+    private readonly INotificationService _notificationService = notificationService;
     private readonly IFrontendSettings _frontendSettings = frontendSettings;
     private readonly IMemoryCache _cache = cache;
     private readonly ILogger<CreateFacilityUserCommandHandler> _logger = logger;
@@ -34,9 +35,15 @@ public sealed class CreateFacilityUserCommandHandler(
 
         try
         {
-            var setupLink = $"{_frontendSettings.BaseUrl}/setup?token={Uri.EscapeDataString(result.Value.SetupToken)}&email={Uri.EscapeDataString(request.Email)}";
+            var setupLink = $"{_frontendSettings.BaseUrl}/auth/set-password?token={Uri.EscapeDataString(result.Value.SetupToken)}&email={Uri.EscapeDataString(request.Email)}";
+            var notification = new NotificationRequest(
+                NotificationTemplateKey.SetupInvitation,
+                new NotificationRecipient(request.Email),
+                new SetupInvitationNotificationModel(setupLink),
+                null,
+                [NotificationChannelType.Email]);
 
-            await _emailService.SendSetupEmailAsync(request.Email, setupLink, ct);
+            await _notificationService.SendAsync(notification, ct);
         }
         catch (Exception ex)
         {

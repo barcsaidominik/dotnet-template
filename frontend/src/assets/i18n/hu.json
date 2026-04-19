@@ -1,0 +1,253 @@
+{
+  "common": {
+    "logout": "Kijelentkezés",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "create": "Létrehozás",
+    "edit": "Szerkesztés",
+    "close": "Bezárás",
+    "loading": "Betöltés...",
+    "noData": "Nincs megjeleníthető adat.",
+    "actions": "Műveletek",
+    "confirm": "Megerősítés",
+    "ok": "OK"
+  },
+  "nav": {
+    "users": "Felhasználók",
+    "facilities": "Üzemek",
+    "products": "Termékek"
+  },
+  "auth": {
+    "login": {
+      "title": "Bejelentkezés",
+      "email": "Email",
+      "password": "Jelszó",
+      "emailRequired": "Az email cím megadása kötelező.",
+      "passwordRequired": "A jelszó megadása kötelező.",
+      "submit": "Bejelentkezés",
+      "register": "Fiók létrehozása",
+      "navigationFailed": "Bejelentkezés sikeres, de a navigáció sikertelen.",
+      "invalidCredentials": "Érvénytelen email cím vagy jelszó."
+    },
+    "register": {
+      "title": "Fiók létrehozása",
+      "email": "Email",
+      "password": "Jelszó",
+      "emailRequired": "Az email cím megadása kötelező.",
+      "emailInvalid": "Érvénytelen email cím.",
+      "passwordRequired": "A jelszó megadása kötelező.",
+      "passwordMinLength": "A jelszónak legalább 6 karakternek kell lennie.",
+      "submit": "Regisztráció",
+      "login": "Már van fiókja?",
+      "success": "A regisztráció függőben van, egy adminisztrátor jóváhagyására vár.",
+      "failed": "A regisztráció sikertelen. Kérlek, próbáld újra."
+    },
+    "setPassword": {
+      "title": "Jelszó beállítása",
+      "subtitle": "Fiók beállításának befejezése",
+      "email": "Email",
+      "emailRequired": "Az email cím megadása kötelező.",
+      "token": "Beállítási token",
+      "tokenRequired": "A token megadása kötelező.",
+      "newPassword": "Új jelszó",
+      "passwordRequired": "A jelszó megadása kötelező.",
+      "passwordMinLength": "A jelszónak legalább 6 karakternek kell lennie.",
+      "confirmPassword": "Jelszó megerősítése",
+      "passwordMismatch": "A jelszavak nem egyeznek.",
+      "submit": "Jelszó beállítása",
+      "backToLogin": "Vissza a bejelentkezéshez",
+      "success": "A jelszó sikeresen beállítva. Kérlek, jelentkezz be.",
+      "failed": "A jelszó beállítása sikertelen. Ellenőrizd a tokent és próbáld újra."
+    }
+  },
+  "admin": {
+    "users": {
+      "title": "Felhasználók",
+      "createUser": "Felhasználó létrehozása",
+      "email": "Email",
+      "role": "Szerepkör",
+      "status": "Státusz",
+      "facilityId": "Üzem ID",
+      "approved": "Jóváhagyva",
+      "pending": "Függőben",
+      "approve": "Jóváhagyás",
+      "delete": "Törlés",
+      "noUsers": "Nincs megjeleníthető felhasználó.",
+      "deleteConfirm": "Törölni szeretnéd ezt a felhasználót: {{email}}?",
+      "userApproved": "Felhasználó jóváhagyva",
+      "userDeleted": "Felhasználó törölve",
+      "failedToLoad": "Nem sikerült betölteni a felhasználókat",
+      "failedToApprove": "Nem sikerült jóváhagyni a felhasználót",
+      "failedToDelete": "Nem sikerült törölni a felhasználót",
+      "failedToCreate": "Nem sikerült létrehozni a felhasználót",
+      "approveDialog": {
+        "title": "Felhasználó jóváhagyása",
+        "facility": "Üzem",
+        "role": "Szerepkör",
+        "submit": "Jóváhagyás"
+      },
+      "createDialog": {
+        "title": "Üzem felhasználó létrehozása",
+        "email": "Email",
+        "emailRequired": "Az email cím megadása kötelező.",
+        "emailInvalid": "Érvénytelen email cím.",
+        "facility": "Üzem",
+        "role": "Szerepkör",
+        "submit": "Létrehozás"
+      },
+      "tokenDialog": {
+        "title": "Meghívó elküldve",
+        "message": "A meghívó emailt elküldtük a megadott email címre.",
+        "message2": "A felhasználó az emailben kapott linkre kattintva beállíthatja jelszavát és aktiválhatja fiókját."
+      }
+    },
+    "facilities": {
+      "title": "Üzemek",
+      "createFacility": "Üzem létrehozása",
+      "name": "Név",
+      "id": "ID",
+      "edit": "Szerkesztés",
+      "delete": "Törlés",
+      "noFacilities": "Nincs megjeleníthető üzem.",
+      "deleteConfirm": "Törölni szeretnéd az üzemet: \"{{name}}\"?",
+      "facilityCreated": "Üzem létrehozva",
+      "facilityUpdated": "Üzem frissítve",
+      "facilityDeleted": "Üzem törölve",
+      "failedToLoad": "Nem sikerült betölteni az üzemeket",
+      "failedToCreate": "Nem sikerült létrehozni az üzemet",
+      "failedToUpdate": "Nem sikerült frissíteni az üzemet",
+      "failedToDelete": "Nem sikerült törölni az üzemet",
+      "createDialog": {
+        "title": "Üzem létrehozása",
+        "name": "Üzem neve",
+        "nameRequired": "A név megadása kötelező.",
+        "submit": "Létrehozás"
+      },
+      "updateDialog": {
+        "title": "Üzem szerkesztése",
+        "name": "Név",
+        "submit": "Mentés"
+      }
+    }
+  },
+  "facility": {
+    "users": {
+      "title": "Üzem felhasználói",
+      "createUser": "Felhasználó létrehozása",
+      "email": "Email",
+      "role": "Szerepkör",
+      "status": "Státusz",
+      "approved": "Jóváhagyva",
+      "pending": "Függőben",
+      "remove": "Eltávolítás",
+      "noUsers": "Nincs felhasználó ebben az üzemben.",
+      "removeConfirm": "Eltávolítod a felhasználót ebből az üzemből: {{email}}?",
+      "roleUpdated": "Szerepkör frissítve",
+      "userRemoved": "Felhasználó eltávolítva",
+      "failedToLoad": "Nem sikerült betölteni a felhasználókat",
+      "failedToCreate": "Nem sikerült létrehozni a felhasználót",
+      "failedToUpdateRole": "Nem sikerült frissíteni a szerepkört",
+      "failedToRemove": "Nem sikerült eltávolítani a felhasználót",
+      "createDialog": {
+        "title": "Felhasználó létrehozása",
+        "email": "Email",
+        "emailRequired": "Az email cím megadása kötelező.",
+        "emailInvalid": "Érvénytelen email cím.",
+        "role": "Szerepkör",
+        "submit": "Létrehozás"
+      },
+      "tokenDialog": {
+        "title": "Meghívó elküldve",
+        "message": "A meghívó emailt elküldtük a megadott email címre.",
+        "message2": "A felhasználó az emailben kapott linkre kattintva beállíthatja jelszavát és aktiválhatja fiókját."
+      }
+    },
+    "products": {
+      "title": "Termékek",
+      "createProduct": "Termék létrehozása",
+      "name": "Név",
+      "price": "Ár",
+      "created": "Létrehozva",
+      "id": "ID",
+      "edit": "Szerkesztés",
+      "noProducts": "Még nincs termék. Hozd létre az elsőt a kezdéshez.",
+      "productCreated": "Termék létrehozva",
+      "productUpdated": "Termék frissítve",
+      "failedToLoad": "Nem sikerült betölteni a termékeket",
+      "failedToCreate": "Nem sikerült létrehozni a terméket",
+      "failedToUpdate": "Nem sikerült frissíteni a terméket",
+      "createDialog": {
+        "title": "Termék létrehozása",
+        "name": "Név",
+        "nameRequired": "A név megadása kötelező.",
+        "price": "Ár",
+        "priceRequired": "Az ár megadása kötelező.",
+        "priceMin": "Az árnak 0 vagy nagyobbnak kell lennie.",
+        "submit": "Létrehozás"
+      },
+      "updateDialog": {
+        "title": "Termék szerkesztése",
+        "name": "Név",
+        "price": "Ár",
+        "submit": "Mentés"
+      }
+    }
+  },
+  "products": {
+    "title": "Termékek",
+    "createProduct": "Termék létrehozása",
+    "name": "Név",
+    "price": "Ár",
+    "created": "Létrehozva",
+    "id": "ID",
+    "noProducts": "Nincs termék.",
+    "noProductsHint": "Használd a <strong>Termék létrehozása</strong> gombot az első termék hozzáadásához.",
+    "productCreated": "Termék létrehozva",
+    "failedToLoad": "Nem sikerült betölteni a termékeket",
+    "failedToCreate": "Nem sikerült létrehozni a terméket",
+    "createDialog": {
+      "title": "Termék létrehozása",
+      "name": "Név",
+      "nameRequired": "A név megadása kötelező.",
+      "price": "Ár",
+      "priceRequired": "Az ár megadása kötelező.",
+      "priceMin": "Az árnak 0 vagy nagyobbnak kell lennie.",
+      "submit": "Létrehozás"
+    }
+  },
+  "roles": {
+    "FacilityAdmin": "Üzem adminisztrátor",
+    "FacilityEditor": "Üzem szerkesztő",
+    "FacilityViewer": "Üzem megtekintő"
+  },
+  "errors": {
+    "Auth.InvalidCredentials": "Érvénytelen email cím vagy jelszó.",
+    "Auth.NotApproved": "A fiók jóváhagyásra vár.",
+    "Auth.NotAssigned": "A fiók nincs üzemhez rendelve.",
+    "Auth.PasswordChangeRequired": "Bejelentkezés előtt jelszót kell beállítani.",
+    "Auth.UserNotFound": "A felhasználó nem található.",
+    "Facility.NotFound": "Az üzem nem található.",
+    "Facility.UserNotInFacility": "A felhasználó nem tartozik ehhez az üzemhez.",
+    "Facility.UserAlreadyExists": "Ezzel az email címmel már létezik felhasználó.",
+    "Facility.InvalidName": "Az üzem neve nem lehet üres.",
+    "Product.NotFound": "A termék nem található.",
+    "Product.InvalidName": "A termék neve nem lehet üres.",
+    "Product.InvalidPrice": "Az árnak pozitívnak kell lennie.",
+    "Product.InvalidFacility": "Az üzem azonosítóját meg kell adni.",
+    "Error.Unexpected": "Váratlan hiba történt.",
+    "Validation.Failed": "Érvényesítési hiba."
+  },
+  "validation": {
+    "NotEmptyValidator": "Kötelező mező.",
+    "NotNullValidator": "Kötelező mező.",
+    "EmailValidator": "Érvénytelen email cím.",
+    "MinimumLengthValidator": "Legalább {{min}} karakter szükséges.",
+    "MaximumLengthValidator": "Legfeljebb {{max}} karakter megengedett.",
+    "LengthValidator": "{{min}} és {{max}} karakter közé kell esnie.",
+    "GreaterThanValidator": "{{from}}-nál nagyobbnak kell lennie.",
+    "GreaterThanOrEqualValidator": "Legalább {{from}} kell legyen.",
+    "PredicateValidator": "Érvénytelen érték.",
+    "Language.Invalid": "Nem támogatott nyelv. Elfogadott értékek: hu-HU, en-US."
+  }
+}

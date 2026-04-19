@@ -1,8 +1,8 @@
-<h2 mat-dialog-title>Meghívó elküldve</h2>
+<h2 mat-dialog-title>{{ 'facility.users.tokenDialog.title' | translate }}</h2>
 <mat-dialog-content>
-  <p>A meghívó emailt elküldtük a megadott email címre.</p>
-  <p>A felhasználó az emailben kapott linkre kattintva beállíthatja jelszavát és aktiválhatja fiókját.</p>
+  <p>{{ 'facility.users.tokenDialog.message' | translate }}</p>
+  <p>{{ 'facility.users.tokenDialog.message2' | translate }}</p>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-flat-button color="primary" mat-dialog-close>OK</button>
+  <button mat-flat-button color="primary" mat-dialog-close>{{ 'common.ok' | translate }}</button>
 </mat-dialog-actions>

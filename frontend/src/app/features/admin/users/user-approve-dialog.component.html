@@ -1,8 +1,8 @@
-<h2 mat-dialog-title>Approve User</h2>
+<h2 mat-dialog-title>{{ 'admin.users.approveDialog.title' | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form">
     <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-      <mat-label>Facility</mat-label>
+      <mat-label>{{ 'admin.users.approveDialog.facility' | translate }}</mat-label>
       <mat-select formControlName="facilityId">
         @for (f of data.facilities; track f.id) {
           <mat-option [value]="f.id">{{ f.name }}</mat-option>
@@ -10,16 +10,16 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="outline" style="width:100%">
-      <mat-label>Role</mat-label>
+      <mat-label>{{ 'admin.users.approveDialog.role' | translate }}</mat-label>
       <mat-select formControlName="role">
-        <mat-option value="FacilityAdmin">Facility Admin</mat-option>
-        <mat-option value="FacilityEditor">Facility Editor</mat-option>
-        <mat-option value="FacilityViewer">Facility Viewer</mat-option>
+        <mat-option value="FacilityAdmin">{{ 'roles.FacilityAdmin' | translate }}</mat-option>
+        <mat-option value="FacilityEditor">{{ 'roles.FacilityEditor' | translate }}</mat-option>
+        <mat-option value="FacilityViewer">{{ 'roles.FacilityViewer' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Approve</button>
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">{{ 'admin.users.approveDialog.submit' | translate }}</button>
 </mat-dialog-actions>

@@ -23,7 +23,7 @@ public class LoginCommandHandlerTests
     {
         // Arrange
         var command = new LoginCommand("user@test.com", "Password123!");
-        var expectedResult = new LoginResult("token", DateTime.UtcNow.AddHours(1), "FacilityAdmin", "refresh-token");
+        var expectedResult = new LoginResult("token", DateTime.UtcNow.AddHours(1), "FacilityAdmin", "refresh-token", "hu-HU");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(expectedResult);
 

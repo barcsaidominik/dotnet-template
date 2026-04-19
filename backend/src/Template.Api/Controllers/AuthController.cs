@@ -39,7 +39,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
         }
 
         SetRefreshTokenCookie(result.Value.RefreshToken);
-        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role));
+        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role, result.Value.PreferredLanguage));
     }
 
     [HttpPost("set-password")]
@@ -70,7 +70,7 @@ public sealed class AuthController(ISender sender) : ApiController(sender)
         }
 
         SetRefreshTokenCookie(result.Value.RefreshToken);
-        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role));
+        return Ok(new TokenResponse(result.Value.Token, result.Value.ExpiresAt, result.Value.Role, result.Value.PreferredLanguage));
     }
 
     [HttpPost("logout")]

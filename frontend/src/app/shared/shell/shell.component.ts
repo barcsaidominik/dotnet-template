@@ -5,7 +5,9 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 interface NavItem {
   label: string;
@@ -25,6 +27,8 @@ interface NavItem {
     MatListModule,
     MatIconModule,
     MatButtonModule,
+    TranslateModule,
+    LanguageSwitcherComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrls: ['./shell.component.scss']
@@ -36,18 +40,18 @@ export class AppShellComponent {
     const role = this.auth.role();
     if (role === 'SystemAdmin') {
       return [
-        { label: 'Users', route: '/admin/users', icon: 'people' },
-        { label: 'Facilities', route: '/admin/facilities', icon: 'business' },
+        { label: 'nav.users', route: '/admin/users', icon: 'people' },
+        { label: 'nav.facilities', route: '/admin/facilities', icon: 'business' },
       ];
     }
     if (role === 'FacilityAdmin') {
       return [
-        { label: 'Users', route: '/facility/users', icon: 'people' },
-        { label: 'Products', route: '/facility/products', icon: 'inventory_2' },
+        { label: 'nav.users', route: '/facility/users', icon: 'people' },
+        { label: 'nav.products', route: '/facility/products', icon: 'inventory_2' },
       ];
     }
     return [
-      { label: 'Products', route: '/products', icon: 'inventory_2' },
+      { label: 'nav.products', route: '/products', icon: 'inventory_2' },
     ];
   });
 }

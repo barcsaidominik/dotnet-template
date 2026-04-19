@@ -1,18 +1,18 @@
-<h2 mat-dialog-title>Create Facility User</h2>
+<h2 mat-dialog-title>{{ 'admin.users.createDialog.title' | translate }}</h2>
 <mat-dialog-content>
   <form [formGroup]="form" (ngSubmit)="confirm()">
     <mat-form-field appearance="outline" style="width:100%; margin-top:8px">
-      <mat-label>Email</mat-label>
+      <mat-label>{{ 'admin.users.createDialog.email' | translate }}</mat-label>
       <input matInput type="email" formControlName="email">
       @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-        <mat-error>Email is required</mat-error>
+        <mat-error>{{ 'admin.users.createDialog.emailRequired' | translate }}</mat-error>
       }
       @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-        <mat-error>Invalid email</mat-error>
+        <mat-error>{{ 'admin.users.createDialog.emailInvalid' | translate }}</mat-error>
       }
     </mat-form-field>
     <mat-form-field appearance="outline" style="width:100%">
-      <mat-label>Facility</mat-label>
+      <mat-label>{{ 'admin.users.createDialog.facility' | translate }}</mat-label>
       <mat-select formControlName="facilityId">
         @for (f of data.facilities; track f.id) {
           <mat-option [value]="f.id">{{ f.name }}</mat-option>
@@ -20,16 +20,16 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field appearance="outline" style="width:100%">
-      <mat-label>Role</mat-label>
+      <mat-label>{{ 'admin.users.createDialog.role' | translate }}</mat-label>
       <mat-select formControlName="role">
-        @for (r of facilityRoles; track r.value) {
-          <mat-option [value]="r.value">{{ r.label }}</mat-option>
-        }
+        <mat-option value="FacilityAdmin">{{ 'roles.FacilityAdmin' | translate }}</mat-option>
+        <mat-option value="FacilityEditor">{{ 'roles.FacilityEditor' | translate }}</mat-option>
+        <mat-option value="FacilityViewer">{{ 'roles.FacilityViewer' | translate }}</mat-option>
       </mat-select>
     </mat-form-field>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">Create</button>
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" [disabled]="form.invalid" (click)="confirm()">{{ 'admin.users.createDialog.submit' | translate }}</button>
 </mat-dialog-actions>

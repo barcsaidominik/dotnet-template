@@ -1,4 +1,5 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -11,10 +12,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
+import { Router } from '@angular/router';
 import { from } from 'rxjs';
 import { ProductsService } from '../../../generated/client/services/products.service';
 import { Product } from '../../../core/models/product.model';
+import { mapProductDto } from '../../../shared/mappers/product.mapper';
+import { createViewRefresh$ } from '../../../shared/rx/view-refresh.util';
 
 @NgComponent({
   selector: 'app-product-create-dialog',
@@ -25,6 +30,7 @@ import { Product } from '../../../core/models/product.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './product-create-dialog.component.html',
   styleUrls: ['./product-create-dialog.component.scss']
@@ -54,6 +60,7 @@ export class ProductCreateDialogComponent {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './product-update-dialog.component.html',
   styleUrls: ['./product-update-dialog.component.scss']
@@ -89,22 +96,47 @@ export class ProductUpdateDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatTooltipModule,
+    TranslateModule,
   ],
   templateUrl: './facility-products.component.html',
   styleUrls: ['./facility-products.component.scss']
 })
 export class FacilityProductsPageComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
   private readonly productsApi = inject(ProductsService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly products = signal<Product[]>([]);
-  readonly isLoading = signal(false);
+  readonly isLoading = signal(true);
 
   readonly displayedColumns = ['name', 'price', 'createdAt', 'id', 'actions'];
 
   ngOnInit(): void {
-    this.isLoading.set(false);
+    this.loadProducts();
+
+    createViewRefresh$(this.router, '/facility/products').pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(() => this.loadProducts());
+  }
+
+  private loadProducts(): void {
+    this.isLoading.set(true);
+    from(this.productsApi.apiProductsGet$Json({
+      page: 1,
+      pageSize: 1000
+    })).subscribe({
+      next: result => {
+        this.products.set((result.items ?? []).map(mapProductDto));
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.snackBar.open(this.translate.instant('facility.products.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
+      }
+    });
   }
 
   openCreateDialog(): void {
@@ -118,18 +150,11 @@ export class FacilityProductsPageComponent implements OnInit {
           price: result.price
         }
       })).subscribe({
-        next: id => {
-          const newProduct: Product = {
-            id,
-            name: result.name,
-            price: result.price,
-            facilityId: '',
-            createdAt: new Date().toISOString(),
-          };
-          this.products.update(list => [...list, newProduct]);
-          this.snackBar.open('Product created', 'Close', { duration: 3000 });
+        next: () => {
+          this.loadProducts();
+          this.snackBar.open(this.translate.instant('facility.products.productCreated'), this.translate.instant('common.close'), { duration: 3000 });
         },
-        error: () => this.snackBar.open('Failed to create product', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('facility.products.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
@@ -147,10 +172,10 @@ export class FacilityProductsPageComponent implements OnInit {
         body: { name: result.name, price: result.price }
       })).subscribe({
         next: () => {
-          this.snackBar.open('Product updated', 'Close', { duration: 3000 });
-          this.products.update(list => list.map(p => p.id === product.id ? { ...p, name: result.name, price: result.price } : p));
+          this.loadProducts();
+          this.snackBar.open(this.translate.instant('facility.products.productUpdated'), this.translate.instant('common.close'), { duration: 3000 });
         },
-        error: () => this.snackBar.open('Failed to update product', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('facility.products.failedToUpdate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }

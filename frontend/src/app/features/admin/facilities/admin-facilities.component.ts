@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
@@ -24,6 +25,7 @@ import { Facility } from '../../../core/models/facility.model';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './facility-create-dialog.component.html',
   styleUrls: ['./facility-create-dialog.component.scss']
@@ -52,6 +54,7 @@ export class FacilityCreateDialogComponent {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    TranslateModule,
   ],
   templateUrl: './facility-update-dialog.component.html',
   styleUrls: ['./facility-update-dialog.component.scss']
@@ -84,6 +87,7 @@ export class FacilityUpdateDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatTooltipModule,
+    TranslateModule,
   ],
   templateUrl: './admin-facilities.component.html',
   styleUrls: ['./admin-facilities.component.scss']
@@ -92,6 +96,7 @@ export class AdminFacilitiesPageComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly translate = inject(TranslateService);
 
   readonly facilities = signal<Facility[]>([]);
   readonly isLoading = signal(true);
@@ -111,7 +116,7 @@ export class AdminFacilitiesPageComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.snackBar.open('Failed to load facilities', 'Close', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('admin.facilities.failedToLoad'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }
@@ -123,10 +128,10 @@ export class AdminFacilitiesPageComponent implements OnInit {
       if (!name) return;
       from(this.adminApi.apiAdminFacilitiesPost$Json({ body: { name } })).subscribe({
         next: () => {
-          this.snackBar.open('Facility created', 'Close', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('admin.facilities.facilityCreated'), this.translate.instant('common.close'), { duration: 3000 });
           this.loadFacilities();
         },
-        error: () => this.snackBar.open('Failed to create facility', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('admin.facilities.failedToCreate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
@@ -144,22 +149,22 @@ export class AdminFacilitiesPageComponent implements OnInit {
         body: { name }
       })).subscribe({
         next: () => {
-          this.snackBar.open('Facility updated', 'Close', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('admin.facilities.facilityUpdated'), this.translate.instant('common.close'), { duration: 3000 });
           this.facilities.update(list => list.map(f => f.id === facility.id ? { ...f, name } : f));
         },
-        error: () => this.snackBar.open('Failed to update facility', 'Close', { duration: 4000 })
+        error: () => this.snackBar.open(this.translate.instant('admin.facilities.failedToUpdate'), this.translate.instant('common.close'), { duration: 4000 })
       });
     });
   }
 
   deleteFacility(facility: Facility): void {
-    if (!confirm(`Delete facility "${facility.name}"?`)) return;
+    if (!confirm(this.translate.instant('admin.facilities.deleteConfirm', { name: facility.name }))) return;
     from(this.adminApi.apiAdminFacilitiesFacilityIdDelete({ facilityId: facility.id })).subscribe({
       next: () => {
-        this.snackBar.open('Facility deleted', 'Close', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('admin.facilities.facilityDeleted'), this.translate.instant('common.close'), { duration: 3000 });
         this.facilities.update(list => list.filter(f => f.id !== facility.id));
       },
-      error: () => this.snackBar.open('Failed to delete facility', 'Close', { duration: 4000 })
+      error: () => this.snackBar.open(this.translate.instant('admin.facilities.failedToDelete'), this.translate.instant('common.close'), { duration: 4000 })
     });
   }
 }

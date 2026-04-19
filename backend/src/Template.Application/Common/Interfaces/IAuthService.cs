@@ -17,4 +17,5 @@ public interface IAuthService
     Task<ErrorOr<UserDto>> GetUserByIdAsync(Guid userId, CancellationToken ct = default);
     Task<ErrorOr<LoginResult>> RefreshAsync(string refreshToken, CancellationToken ct = default);
     Task<ErrorOr<Success>> LogoutAsync(string refreshToken, CancellationToken ct = default);
+    Task<ErrorOr<Updated>> UpdatePreferredLanguageAsync(Guid userId, string language, CancellationToken ct = default);
 }

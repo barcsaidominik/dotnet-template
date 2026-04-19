@@ -4,10 +4,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Template.Application.Common.Interfaces;
+using Template.Application.Common.Notifications;
 using Template.Infrastructure.Email;
 using Template.Infrastructure.Identity;
+using Template.Infrastructure.Notifications;
+using Template.Infrastructure.Notifications.Channels;
 using Template.Infrastructure.Persistence;
 using Template.Infrastructure.Settings;
+using Template.Infrastructure.Templating;
 
 namespace Template.Infrastructure;
 
@@ -36,6 +40,10 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<INotificationChannel, EmailNotificationChannel>();
+        services.AddSingleton<ITemplateRenderer, EmbeddedScribanTemplateRenderer>();
+        services.AddScoped<ISetupInvitationEmailTemplateFactory, SetupInvitationEmailTemplateFactory>();
 
         services.Configure<EmailSettings>(configuration.GetSection("Email"));
 

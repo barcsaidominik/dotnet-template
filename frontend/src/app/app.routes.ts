@@ -3,7 +3,7 @@ import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/products', pathMatch: 'full' },
+  { path: '', redirectTo: '', pathMatch: 'full' },
   {
     path: 'auth',
     children: [
@@ -28,7 +28,7 @@ export const routes: Routes = [
       },
       {
         path: 'facility',
-        canActivate: [roleGuard(['FacilityAdmin', 'SystemAdmin'])],
+        canActivate: [roleGuard(['FacilityAdmin'])],
         children: [
           { path: 'users', loadComponent: () => import('./features/facility/users/facility-users.component').then(m => m.FacilityUsersPageComponent) },
           { path: 'products', loadComponent: () => import('./features/facility/products/facility-products.component').then(m => m.FacilityProductsPageComponent) },
@@ -37,7 +37,7 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        canActivate: [roleGuard(['SystemAdmin', 'FacilityAdmin', 'FacilityEditor', 'FacilityViewer'])],
+        canActivate: [roleGuard(['FacilityEditor', 'FacilityViewer'])],
         loadComponent: () => import('./features/products/products.component').then(m => m.ProductsPageComponent)
       }
     ]

@@ -29,4 +29,8 @@ public sealed class AppUser : IdentityUser<Guid>
     {
         get; set;
     }
+    public string PreferredLanguage
+    {
+        get; set;
+    } = "hu-HU";
 }

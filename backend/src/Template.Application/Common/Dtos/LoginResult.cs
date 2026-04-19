@@ -1,3 +1,3 @@
 namespace Template.Application.Common.Dtos;
 
-public sealed record LoginResult(string Token, DateTime ExpiresAt, string Role, string RefreshToken);
+public sealed record LoginResult(string Token, DateTime ExpiresAt, string Role, string RefreshToken, string PreferredLanguage);

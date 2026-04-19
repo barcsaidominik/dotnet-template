@@ -76,7 +76,7 @@ public sealed class AuthService(
         await _userManager.UpdateAsync(user);
 
         var accessToken = _jwtTokenService.GenerateToken(user.Id, user.Email!, user.FacilityId, roles);
-        return new LoginResult(accessToken, DateTime.UtcNow.AddMinutes(15), roles.FirstOrDefault() ?? string.Empty, refreshToken);
+        return new LoginResult(accessToken, DateTime.UtcNow.AddMinutes(15), roles.FirstOrDefault() ?? string.Empty, refreshToken, user.PreferredLanguage);
     }
 
     public async Task<ErrorOr<Success>> SetPasswordAsync(string email, string token, string newPassword, CancellationToken ct = default)
@@ -224,7 +224,7 @@ public sealed class AuthService(
         await _userManager.UpdateAsync(user);
 
         var accessToken = _jwtTokenService.GenerateToken(user.Id, user.Email!, user.FacilityId, roles);
-        return new LoginResult(accessToken, DateTime.UtcNow.AddMinutes(15), roles.FirstOrDefault() ?? string.Empty, newRefreshToken);
+        return new LoginResult(accessToken, DateTime.UtcNow.AddMinutes(15), roles.FirstOrDefault() ?? string.Empty, newRefreshToken, user.PreferredLanguage);
     }
 
     public async Task<ErrorOr<Success>> LogoutAsync(string refreshToken, CancellationToken ct = default)
@@ -239,6 +239,24 @@ public sealed class AuthService(
         user.RefreshTokenExpiry = null;
         await _userManager.UpdateAsync(user);
         return Result.Success;
+    }
+
+    public async Task<ErrorOr<Updated>> UpdatePreferredLanguageAsync(Guid userId, string language, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return AuthErrors.UserNotFound;
+        }
+
+        user.PreferredLanguage = language;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return result.Errors.Select(e => Error.Validation(e.Code, e.Description)).ToList();
+        }
+
+        return Result.Updated;
     }
 
     private static string GenerateRefreshToken()

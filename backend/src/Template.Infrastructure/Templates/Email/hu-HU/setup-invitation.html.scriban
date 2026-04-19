@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Meghívó - Template rendszer</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <h1>Üdvözöljük!</h1>
+    <p>Meghívták a Template rendszerbe.</p>
+    <p>Az alábbi linkre kattintva véglegesítheti a regisztrációt:</p>
+    <p style="margin: 30px 0;">
+        <a href="{{ model.SetupLink }}"
+           style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+            Regisztráció véglegesítése
+        </a>
+    </p>
+    <p style="color: #666; font-size: 14px;">
+        Ha nem Ön igényelte ezt a meghívót, hagyja figyelmen kívül ezt az üzenetet.
+    </p>
+</body>
+</html>

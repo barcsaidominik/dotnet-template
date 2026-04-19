@@ -1,7 +1,7 @@
 <div class="header-row">
-  <h2>Facilities</h2>
+  <h2>{{ 'admin.facilities.title' | translate }}</h2>
   <button mat-flat-button color="primary" (click)="openCreateDialog()">
-    <mat-icon>add</mat-icon> Create Facility
+    <mat-icon>add</mat-icon> {{ 'admin.facilities.createFacility' | translate }}
   </button>
 </div>
 
@@ -14,22 +14,22 @@
     <mat-card-content>
       <table mat-table [dataSource]="facilities()">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>Name</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.name' | translate }}</th>
           <td mat-cell *matCellDef="let facility">{{ facility.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.id' | translate }}</th>
           <td mat-cell *matCellDef="let facility">{{ facility.id }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
           <td mat-cell *matCellDef="let facility">
-            <button mat-icon-button color="primary" matTooltip="Edit" (click)="openEditDialog(facility)">
+            <button mat-icon-button color="primary" [matTooltip]="'admin.facilities.edit' | translate" (click)="openEditDialog(facility)">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteFacility(facility)">
+            <button mat-icon-button color="warn" [matTooltip]="'admin.facilities.delete' | translate" (click)="deleteFacility(facility)">
               <mat-icon>delete</mat-icon>
             </button>
           </td>
@@ -39,7 +39,7 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
       @if (facilities().length === 0) {
-        <p style="text-align:center; color:#666; padding:24px;">No facilities found.</p>
+        <p style="text-align:center; color:#666; padding:24px;">{{ 'admin.facilities.noFacilities' | translate }}</p>
       }
     </mat-card-content>
   </mat-card>

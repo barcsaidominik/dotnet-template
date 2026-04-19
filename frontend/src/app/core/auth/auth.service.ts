@@ -3,11 +3,13 @@ import { Router } from '@angular/router';
 import { from, map, Observable, tap } from 'rxjs';
 import { AuthService as GeneratedAuthService } from '../../generated/client/services/auth.service';
 import { TokenResponse } from '../../generated/client/models/token-response';
+import { LanguageService } from '../i18n/language.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly authApi = inject(GeneratedAuthService);
   private readonly router = inject(Router);
+  private readonly langService = inject(LanguageService);
 
   private readonly _accessToken = signal<string | null>(null);
   private readonly _role = signal<string | null>(null);
@@ -41,6 +43,10 @@ export class AuthService {
       this._facilityId.set(payload['facilityId'] ?? null);
     } catch {
       this._facilityId.set(null);
+    }
+
+    if (response.preferredLanguage) {
+      this.langService.syncFromServer(response.preferredLanguage);
     }
   }
 
