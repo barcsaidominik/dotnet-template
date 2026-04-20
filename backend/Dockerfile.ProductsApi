@@ -14,6 +14,7 @@ COPY ["src/core/Template.Infrastructure/Template.Infrastructure.csproj", "src/co
 COPY ["src/common/Template.Common/Template.Common.csproj", "src/common/Template.Common/"]
 COPY ["src/common/Template.Common.Email/Template.Common.Email.csproj", "src/common/Template.Common.Email/"]
 COPY ["src/common/Template.Common.Excel/Template.Common.Excel.csproj", "src/common/Template.Common.Excel/"]
+COPY ["src/common/Template.Common.Jobs/Template.Common.Jobs.csproj", "src/common/Template.Common.Jobs/"]
 COPY ["src/common/Template.Common.Pdf/Template.Common.Pdf.csproj", "src/common/Template.Common.Pdf/"]
 COPY ["src/common/Template.Common.Templating/Template.Common.Templating.csproj", "src/common/Template.Common.Templating/"]
 COPY NuGet.Config ./

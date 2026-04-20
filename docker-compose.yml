@@ -56,6 +56,8 @@ services:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${TEMPLATE_DB_NAME:-template_db};Username=${TEMPLATE_DB_USER:-postgres};Password=${TEMPLATE_DB_PASSWORD:-postgres}"
       JwtSettings__Secret: "${TEMPLATE_JWT_SECRET:-template-compose-development-secret-change-me-2026}"
+      Kestrel__Endpoints__Http__Url: "http://0.0.0.0:8080"
+      Kestrel__Endpoints__Grpc__Url: "http://0.0.0.0:8081"
     depends_on:
       db:
         condition: service_healthy
