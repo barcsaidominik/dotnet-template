@@ -6,5 +6,4 @@ export { AdminService } from './services/admin.service';
 export { AuthService } from './services/auth.service';
 export { FacilityUsersService } from './services/facility-users.service';
 export { MailboxService } from './services/mailbox.service';
-export { ProductsService } from './services/products.service';
 export { UsersService } from './services/users.service';

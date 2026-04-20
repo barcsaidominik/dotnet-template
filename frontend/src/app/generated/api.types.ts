@@ -1637,284 +1637,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/Products": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: {
-                    page?: number | string;
-                    pageSize?: number | string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["PagedResultOfProduct"];
-                        "application/json": components["schemas"]["PagedResultOfProduct"];
-                        "text/json": components["schemas"]["PagedResultOfProduct"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["CreateProductCommand"];
-                    "text/json": components["schemas"]["CreateProductCommand"];
-                    "application/*+json": components["schemas"]["CreateProductCommand"];
-                };
-            };
-            responses: {
-                /** @description Created */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": string;
-                        "application/json": string;
-                        "text/json": string;
-                    };
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/Products/export": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/Products/{id}/order-pdf": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/pdf": unknown;
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/Products/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["GetProductById"];
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["UpdateProductRequest"];
-                    "text/json": components["schemas"]["UpdateProductRequest"];
-                    "application/*+json": components["schemas"]["UpdateProductRequest"];
-                };
-            };
-            responses: {
-                /** @description No Content */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description Bad Request */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Forbidden */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-                /** @description Not Found */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProblemDetails"];
-                        "application/json": components["schemas"]["ProblemDetails"];
-                        "text/json": components["schemas"]["ProblemDetails"];
-                    };
-                };
-            };
-        };
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/Products/import": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        File?: components["schemas"]["IFormFile"];
-                    };
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ProductImportResultDto"];
-                        "application/json": components["schemas"]["ProductImportResultDto"];
-                        "text/json": components["schemas"]["ProductImportResultDto"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/users/me/language": {
         parameters: {
             query?: never;
@@ -1992,28 +1714,16 @@ export interface components {
             email: string;
             role: string;
         };
-        CreateProductCommand: {
-            name: string;
-            /** Format: double */
-            price: number | string;
-        };
         CreateUserResult: {
             /** Format: uuid */
             userId: string;
             setupToken: string;
-        };
-        ExcelImportErrorDto: {
-            /** Format: int32 */
-            rowNumber: number | string;
-            message: string;
         };
         FacilityDto: {
             /** Format: uuid */
             id: string;
             name: string;
         };
-        /** Format: binary */
-        IFormFile: string;
         LoginCommand: {
             email: string;
             password: string;
@@ -2038,15 +1748,6 @@ export interface components {
             /** Format: int32 */
             unreadCount: number | string;
         };
-        PagedResultOfProduct: {
-            items: components["schemas"]["Product"][];
-            /** Format: int32 */
-            totalCount: number | string;
-            /** Format: int32 */
-            page: number | string;
-            /** Format: int32 */
-            pageSize: number | string;
-        };
         ProblemDetails: {
             type?: null | string;
             title?: null | string;
@@ -2054,24 +1755,6 @@ export interface components {
             status?: null | number | string;
             detail?: null | string;
             instance?: null | string;
-        };
-        Product: {
-            name?: string;
-            /** Format: double */
-            price?: number | string;
-            /** Format: uuid */
-            facilityId?: string;
-            /** Format: uuid */
-            id?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        ProductImportResultDto: {
-            /** Format: int32 */
-            importedCount: number | string;
-            /** Format: int32 */
-            skippedCount: number | string;
-            errors: components["schemas"]["ExcelImportErrorDto"][];
         };
         QueuedBackgroundJobResult: {
             /** Format: uuid */
@@ -2102,11 +1785,6 @@ export interface components {
         };
         UpdateLanguageRequest: {
             language: string;
-        };
-        UpdateProductRequest: {
-            name: string;
-            /** Format: double */
-            price: number | string;
         };
         UpdateRoleRequest: {
             role: string;
@@ -2826,41 +2504,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    GetProductById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": components["schemas"]["Product"];
-                    "application/json": components["schemas"]["Product"];
-                    "text/json": components["schemas"]["Product"];
-                };
-            };
-            /** @description Not Found */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/plain": components["schemas"]["ProblemDetails"];
-                    "application/json": components["schemas"]["ProblemDetails"];
-                    "text/json": components["schemas"]["ProblemDetails"];
-                };
             };
         };
     };

@@ -1,0 +1,9 @@
+{
+  "$schema": "./node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
+  "input": "../backend/ProductsApi.json",
+  "output": "src/app/generated/products-client",
+  "ignoreUnusedModels": false,
+  "services": true,
+  "models": true,
+  "module": false
+}

@@ -27,8 +27,8 @@ public class DeleteFacilityCommandHandlerTests
         var handler = new DeleteFacilityCommandHandler(store, _facilityProductUsageService);
 
         var facility = Facility.Create("Delete Test Facility");
-        await dbContext.Facilities.AddAsync(facility);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Facilities.AddAsync(facility, CancellationToken.None);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
 
         _facilityProductUsageService.GetProductCountAsync(facility.Id, Arg.Any<CancellationToken>())
             .Returns(2);
@@ -51,8 +51,8 @@ public class DeleteFacilityCommandHandlerTests
         var handler = new DeleteFacilityCommandHandler(store, _facilityProductUsageService);
 
         var facility = Facility.Create("Delete Test Facility");
-        await dbContext.Facilities.AddAsync(facility);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Facilities.AddAsync(facility, CancellationToken.None);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
 
         _facilityProductUsageService.GetProductCountAsync(facility.Id, Arg.Any<CancellationToken>())
             .Returns(0);

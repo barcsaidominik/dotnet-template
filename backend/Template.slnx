@@ -1,0 +1,37 @@
+<Solution>
+  <Folder Name="/common/">
+    <Project Path="src/common/Template.Common.Email/Template.Common.Email.csproj" />
+    <Project Path="src/common/Template.Common.Excel/Template.Common.Excel.csproj" />
+    <Project Path="src/common/Template.Common.Jobs/Template.Common.Jobs.csproj" />
+    <Project Path="src/common/Template.Common.Pdf/Template.Common.Pdf.csproj" />
+    <Project Path="src/common/Template.Common.Templating/Template.Common.Templating.csproj" />
+    <Project Path="src/common/Template.Common/Template.Common.csproj" />
+  </Folder>
+  <Folder Name="/core/">
+    <Project Path="src/core/Template.Application/Template.Application.csproj" />
+    <Project Path="src/core/Template.Domain/Template.Domain.csproj" />
+    <Project Path="src/core/Template.Grpc/Template.Grpc.csproj" />
+    <Project Path="src/core/Template.Infrastructure/Template.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/services/">
+    <Project Path="src/services/Template.Api/Template.Api.csproj" />
+    <Project Path="src/services/Template.Gateway.Api/Template.Gateway.Api.csproj" />
+    <Project Path="src/services/Template.Products.Api/Template.Products.Api.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".dockerignore" />
+    <File Path=".editorconfig" />
+    <File Path="Api.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Dockerfile" />
+    <File Path="Dockerfile.GatewayApi" />
+    <File Path="Dockerfile.ProductsApi" />
+    <File Path="dotnet-tools.json" />
+    <File Path="NuGet.Config" />
+    <File Path="SECRETS_SETUP.md" />
+    <File Path="Template.slnLaunch" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Template.Tests/Template.Tests.csproj" />
+  </Folder>
+</Solution>

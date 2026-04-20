@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\core\Template.Application\Template.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="TickerQ" Version="10.2.5" />
+    <PackageReference Include="TickerQ.Dashboard" Version="10.2.5" />
+    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="10.2.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.6" />
+  </ItemGroup>
+</Project>

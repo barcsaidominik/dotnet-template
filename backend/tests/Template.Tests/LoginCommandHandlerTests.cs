@@ -82,4 +82,20 @@ public class LoginCommandHandlerTests
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(AuthErrors.PasswordChangeRequired);
     }
+
+    [Fact]
+    public async Task Handle_WithLockedAccount_ReturnsAccountLockedError()
+    {
+        // Arrange
+        var command = new LoginCommand("user@test.com", "Password123!");
+        _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
+            .Returns(AuthErrors.AccountLocked);
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.IsError.Should().BeTrue();
+        result.FirstError.Should().Be(AuthErrors.AccountLocked);
+    }
 }

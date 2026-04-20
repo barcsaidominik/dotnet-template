@@ -5,9 +5,9 @@ using NSubstitute;
 using QuestPDF.Infrastructure;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
+using Template.Common.Templating;
 using Template.Infrastructure.Identity;
 using Template.Infrastructure.Pdf;
-using Template.Infrastructure.Templating;
 
 namespace Template.Tests;
 

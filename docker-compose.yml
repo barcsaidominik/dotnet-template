@@ -19,14 +19,27 @@ services:
   api:
     build:
       context: ./backend
+      dockerfile: Dockerfile.GatewayApi
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ReverseProxy__Clusters__core-api__Destinations__destination1__Address: "http://core-api:8080/"
+      ReverseProxy__Clusters__products-api__Destinations__destination1__Address: "http://products-api:8080/"
+    depends_on:
+      core-api:
+        condition: service_started
+      products-api:
+        condition: service_started
+
+  core-api:
+    build:
+      context: ./backend
       dockerfile: Dockerfile
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${TEMPLATE_DB_NAME:-template_db};Username=${TEMPLATE_DB_USER:-postgres};Password=${TEMPLATE_DB_PASSWORD:-postgres}"
       JwtSettings__Secret: "${TEMPLATE_JWT_SECRET:-template-compose-development-secret-change-me-2026}"
-      ProductsService__Mode: "Proxy"
-      ProductsService__BaseUrl: "http://products-api:8080/"
       ProductsService__GrpcBaseUrl: "http://products-api:8081"
     depends_on:
       db:

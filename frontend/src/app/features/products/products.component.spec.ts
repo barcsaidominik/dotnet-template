@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
-import { ProductsService } from '../../generated/client/services/products.service';
+import { ProductsService } from '../../generated/products-client/services/products.service';
 import { ProductsPageComponent } from './products.component';
 
 const { downloadBlobFileMock } = vi.hoisted(() => ({

@@ -6,15 +6,20 @@ EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["src/Template.Products.Api/Template.Products.Api.csproj", "src/Template.Products.Api/"]
-COPY ["src/Template.Application/Template.Application.csproj", "src/Template.Application/"]
-COPY ["src/Template.Domain/Template.Domain.csproj", "src/Template.Domain/"]
-COPY ["src/Template.Grpc/Template.Grpc.csproj", "src/Template.Grpc/"]
-COPY ["src/Template.Infrastructure/Template.Infrastructure.csproj", "src/Template.Infrastructure/"]
+COPY ["src/services/Template.Products.Api/Template.Products.Api.csproj", "src/services/Template.Products.Api/"]
+COPY ["src/core/Template.Application/Template.Application.csproj", "src/core/Template.Application/"]
+COPY ["src/core/Template.Domain/Template.Domain.csproj", "src/core/Template.Domain/"]
+COPY ["src/core/Template.Grpc/Template.Grpc.csproj", "src/core/Template.Grpc/"]
+COPY ["src/core/Template.Infrastructure/Template.Infrastructure.csproj", "src/core/Template.Infrastructure/"]
+COPY ["src/common/Template.Common/Template.Common.csproj", "src/common/Template.Common/"]
+COPY ["src/common/Template.Common.Email/Template.Common.Email.csproj", "src/common/Template.Common.Email/"]
+COPY ["src/common/Template.Common.Excel/Template.Common.Excel.csproj", "src/common/Template.Common.Excel/"]
+COPY ["src/common/Template.Common.Pdf/Template.Common.Pdf.csproj", "src/common/Template.Common.Pdf/"]
+COPY ["src/common/Template.Common.Templating/Template.Common.Templating.csproj", "src/common/Template.Common.Templating/"]
 COPY NuGet.Config ./
-RUN dotnet restore "src/Template.Products.Api/Template.Products.Api.csproj"
+RUN dotnet restore "src/services/Template.Products.Api/Template.Products.Api.csproj"
 COPY . .
-WORKDIR "/src/src/Template.Products.Api"
+WORKDIR "/src/src/services/Template.Products.Api"
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 FROM base AS final

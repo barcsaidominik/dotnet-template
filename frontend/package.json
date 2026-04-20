@@ -13,9 +13,11 @@
     "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\" \"*.{json,js,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\" \"*.{json,js,md}\"",
     "style:check": "npm run format:check && npm run lint",
-    "generate:types": "openapi-typescript ../backend/src/Template.Api/Template.Api.json -o src/app/generated/api.types.ts",
+    "generate:types": "openapi-typescript ../backend/Api.json -o src/app/generated/api.types.ts",
     "generate:client": "ng-openapi-gen --config ng-openapi-gen.json",
-    "generate:api": "npm run generate:types && npm run generate:client",
+    "generate:types:products": "openapi-typescript ../backend/ProductsApi.json -o src/app/generated/products.api.types.ts",
+    "generate:products": "npm run generate:types:products && ng-openapi-gen --config ng-openapi-gen-products.json",
+    "generate:api": "npm run generate:types && npm run generate:client && npm run generate:products",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {

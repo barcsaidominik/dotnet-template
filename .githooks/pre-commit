@@ -2,8 +2,8 @@
 set -e
 
 echo "Running style verification..."
-dotnet restore backend/dotnet-template.slnx
-dotnet format backend/dotnet-template.slnx --verify-no-changes --severity error --no-restore
+dotnet restore backend/Template.slnx
+dotnet format backend/Template.slnx --verify-no-changes --severity error --no-restore
 
 echo "Running build..."
-dotnet build backend/dotnet-template.slnx --nologo --no-restore
+dotnet build backend/Template.slnx --nologo --no-restore

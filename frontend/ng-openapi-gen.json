@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/ng-openapi-gen/ng-openapi-gen-schema.json",
-  "input": "../backend/src/Template.Api/Template.Api.json",
+  "input": "../backend/Api.json",
   "output": "src/app/generated/client",
   "ignoreUnusedModels": false,
   "services": true,

@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ProductsService } from '../../../generated/client/services/products.service';
+import { ProductsService } from '../../../generated/products-client/services/products.service';
 import { FacilityProductsPageComponent } from './facility-products.component';
 
 const { downloadBlobFileMock } = vi.hoisted(() => ({

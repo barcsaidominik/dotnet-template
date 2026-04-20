@@ -7,10 +7,10 @@ using Template.Application.Common.Dtos;
 
 namespace Template.Tests;
 
-[Collection("Api integration")]
-public class ProductsIntegrationTests(IntegrationTestWebApplicationFactory factory)
+[Collection("Products integration")]
+public class ProductsIntegrationTests(ProductsIntegrationTestWebApplicationFactory factory)
 {
-    private readonly IntegrationTestWebApplicationFactory _factory = factory;
+    private readonly ProductsIntegrationTestWebApplicationFactory _factory = factory;
 
     [Fact]
     public async Task Export_WithAuthenticatedFacilityAdmin_ReturnsExcelWorkbook()
@@ -18,10 +18,7 @@ public class ProductsIntegrationTests(IntegrationTestWebApplicationFactory facto
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         await _factory.ResetStateAsync(ct);
-        using var client = await _factory.CreateAuthenticatedClientAsync(
-            IntegrationTestWebApplicationFactory.FACILITY_ADMIN_EMAIL,
-            IntegrationTestWebApplicationFactory.DEFAULT_PASSWORD,
-            ct);
+        using var client = _factory.CreateFacilityAdminClient();
 
         // Act
         var response = await client.GetAsync("/api/products/export", ct);
@@ -43,10 +40,7 @@ public class ProductsIntegrationTests(IntegrationTestWebApplicationFactory facto
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         await _factory.ResetStateAsync(ct);
-        using var client = await _factory.CreateAuthenticatedClientAsync(
-            IntegrationTestWebApplicationFactory.FACILITY_ADMIN_EMAIL,
-            IntegrationTestWebApplicationFactory.DEFAULT_PASSWORD,
-            ct);
+        using var client = _factory.CreateFacilityAdminClient();
 
         using var workbook = new XLWorkbook();
         var worksheet = workbook.AddWorksheet("Products");
@@ -88,10 +82,7 @@ public class ProductsIntegrationTests(IntegrationTestWebApplicationFactory facto
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         await _factory.ResetStateAsync(ct);
-        using var client = await _factory.CreateAuthenticatedClientAsync(
-            IntegrationTestWebApplicationFactory.FACILITY_ADMIN_EMAIL,
-            IntegrationTestWebApplicationFactory.DEFAULT_PASSWORD,
-            ct);
+        using var client = _factory.CreateFacilityAdminClient();
 
         // Act
         var response = await client.GetAsync($"/api/products/{_factory.SeededProductId}/order-pdf", ct);

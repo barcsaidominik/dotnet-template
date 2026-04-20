@@ -1,0 +1,19 @@
+[
+  {
+    "Name": "Start All",
+    "Projects": [
+      {
+        "Path": "src\\services\\Template.Api\\Template.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\Template.Gateway.Api\\Template.Gateway.Api.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\services\\Template.Products.Api\\Template.Products.Api.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

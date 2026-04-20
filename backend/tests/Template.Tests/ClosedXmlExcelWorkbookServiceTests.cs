@@ -1,7 +1,7 @@
 using ClosedXML.Excel;
 using FluentAssertions;
 using Template.Application.Common.Dtos;
-using Template.Infrastructure.Excel;
+using Template.Common.Excel;
 
 namespace Template.Tests;
 
@@ -116,6 +116,57 @@ public class ClosedXmlExcelWorkbookServiceTests
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Code.Should().Be("ProductImport.InvalidWorkbook");
+    }
+
+    [Fact]
+    public void ExportUsers_WithRows_WritesExpectedWorksheetAndValues()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var facilityId = Guid.NewGuid();
+        IReadOnlyList<UserExcelExportRowDto> rows =
+        [
+            new(userId, "test@example.com", "Admin", "Approved", facilityId.ToString(), "en")
+        ];
+
+        // Act
+        var content = _service.ExportUsers(rows);
+
+        // Assert
+        using var workbook = new XLWorkbook(new MemoryStream(content));
+        var worksheet = workbook.Worksheet("Users");
+
+        worksheet.Cell(1, 1).GetString().Should().Be("User ID");
+        worksheet.Cell(1, 2).GetString().Should().Be("Email");
+        worksheet.Cell(2, 1).GetString().Should().Be(userId.ToString());
+        worksheet.Cell(2, 2).GetString().Should().Be("test@example.com");
+        worksheet.Cell(2, 3).GetString().Should().Be("Admin");
+        worksheet.Cell(2, 4).GetString().Should().Be("Approved");
+        worksheet.Cell(2, 5).GetString().Should().Be(facilityId.ToString());
+        worksheet.Cell(2, 6).GetString().Should().Be("en");
+    }
+
+    [Fact]
+    public void ExportFacilities_WithRows_WritesExpectedWorksheetAndValues()
+    {
+        // Arrange
+        var facilityId = Guid.NewGuid();
+        IReadOnlyList<FacilityExcelExportRowDto> rows =
+        [
+            new(facilityId, "Test Facility")
+        ];
+
+        // Act
+        var content = _service.ExportFacilities(rows);
+
+        // Assert
+        using var workbook = new XLWorkbook(new MemoryStream(content));
+        var worksheet = workbook.Worksheet("Facilities");
+
+        worksheet.Cell(1, 1).GetString().Should().Be("Facility ID");
+        worksheet.Cell(1, 2).GetString().Should().Be("Name");
+        worksheet.Cell(2, 1).GetString().Should().Be(facilityId.ToString());
+        worksheet.Cell(2, 2).GetString().Should().Be("Test Facility");
     }
 
     private static byte[] BuildWorkbook(Action<IXLWorksheet> configureWorksheet)

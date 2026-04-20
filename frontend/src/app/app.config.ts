@@ -12,6 +12,7 @@ import { authInterceptor } from './core/auth/auth.interceptor';
 import { AuthService } from './core/auth/auth.service';
 import { LanguageService } from './core/i18n/language.service';
 import { provideApiConfiguration } from './generated/client/api-configuration';
+import { provideApiConfiguration as provideProductsApiConfiguration } from './generated/products-client/api-configuration';
 import { environment } from '../environments/environment';
 
 function initializeAuth(auth: AuthService) {
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideApiConfiguration(environment.apiUrl),
+    provideProductsApiConfiguration(environment.apiUrl),
     provideAnimationsAsync(),
     importProvidersFrom(
       TranslateModule.forRoot({
