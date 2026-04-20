@@ -9,10 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Template.Application.Common.Dtos;
+using Template.Application.Common.Interfaces;
 using Template.Domain.Constants;
 using Template.Domain.Entities;
 using Template.Infrastructure.Identity;
 using Template.Infrastructure.Persistence;
+using Template.Infrastructure.Products;
 
 namespace Template.Tests;
 
@@ -85,6 +87,10 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
             {
                 services.Remove(descriptor);
             }
+
+            // Replace gRPC FacilityProductUsageService with the local implementation for testing
+            services.RemoveAll<IFacilityProductUsageService>();
+            services.AddScoped<IFacilityProductUsageService, LocalFacilityProductUsageService>();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));

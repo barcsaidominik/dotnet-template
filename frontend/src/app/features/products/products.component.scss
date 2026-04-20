@@ -16,6 +16,12 @@ table {
   width: 100%;
 }
 
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
 .placeholder {
   text-align: center;
   padding: 40px 24px;

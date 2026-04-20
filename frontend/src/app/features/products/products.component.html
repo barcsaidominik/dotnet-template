@@ -56,9 +56,9 @@
             <button
               mat-icon-button
               color="primary"
+              [matTooltip]="'products.downloadOrderPdf' | translate"
               (click)="downloadOrderPdf(product)"
               [disabled]="downloadingProductId() === product.id"
-              [title]="'products.downloadOrderPdf' | translate"
             >
               <mat-icon>picture_as_pdf</mat-icon>
             </button>

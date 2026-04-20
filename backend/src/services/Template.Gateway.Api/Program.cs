@@ -1,5 +1,3 @@
-using Yarp.ReverseProxy;
-
 namespace Template.Gateway.Api;
 
 public class Program
