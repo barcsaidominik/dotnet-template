@@ -13,20 +13,22 @@ namespace Template.Application.Facilities.Commands.CreateFacilityUser;
 
 public sealed class CreateFacilityUserCommandHandler(
     IAuthService authService,
-    INotificationService notificationService,
     IMailboxService mailboxService,
     ICurrentUserService currentUserService,
     IFrontendSettings frontendSettings,
     IMemoryCache cache,
-    ILogger<CreateFacilityUserCommandHandler> logger) : IRequestHandler<CreateFacilityUserCommand, ErrorOr<CreateUserResult>>
+    ILogger<CreateFacilityUserCommandHandler> logger,
+    INotificationService notificationService,
+    IBackgroundJobScheduler? backgroundJobScheduler = null) : IRequestHandler<CreateFacilityUserCommand, ErrorOr<CreateUserResult>>
 {
     private readonly IAuthService _authService = authService;
-    private readonly INotificationService _notificationService = notificationService;
+    private readonly IBackgroundJobScheduler? _backgroundJobScheduler = backgroundJobScheduler;
     private readonly IMailboxService _mailboxService = mailboxService;
     private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly IFrontendSettings _frontendSettings = frontendSettings;
     private readonly IMemoryCache _cache = cache;
     private readonly ILogger<CreateFacilityUserCommandHandler> _logger = logger;
+    private readonly INotificationService _notificationService = notificationService;
 
     public async ValueTask<ErrorOr<CreateUserResult>> Handle(CreateFacilityUserCommand request, CancellationToken ct)
     {
@@ -44,21 +46,28 @@ public sealed class CreateFacilityUserCommandHandler(
 
         _cache.Remove(CacheKeys.ALL_USERS);
 
+        var setupLink = $"{_frontendSettings.BaseUrl}/auth/set-password?token={Uri.EscapeDataString(result.Value.SetupToken)}&email={Uri.EscapeDataString(request.Email)}";
+        var notification = new NotificationRequest(
+            NotificationTemplateKey.SetupInvitation,
+            new NotificationRecipient(request.Email),
+            new SetupInvitationNotificationModel(setupLink),
+            null,
+            [NotificationChannelType.Email]);
+
         try
         {
-            var setupLink = $"{_frontendSettings.BaseUrl}/auth/set-password?token={Uri.EscapeDataString(result.Value.SetupToken)}&email={Uri.EscapeDataString(request.Email)}";
-            var notification = new NotificationRequest(
-                NotificationTemplateKey.SetupInvitation,
-                new NotificationRecipient(request.Email),
-                new SetupInvitationNotificationModel(setupLink),
-                null,
-                [NotificationChannelType.Email]);
-
-            await _notificationService.SendAsync(notification, ct);
+            if (_backgroundJobScheduler is not null)
+            {
+                await _backgroundJobScheduler.ScheduleNotificationAsync(notification, ct);
+            }
+            else
+            {
+                await _notificationService.SendAsync(notification, ct);
+            }
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Failed to send setup email to {Email}", request.Email);
+            _logger.LogError(ex, "Failed to send setup email for {Email}. User was created but will not receive setup link.", request.Email);
         }
 
         if (_currentUserService.Role == Roles.FACILITY_ADMIN)

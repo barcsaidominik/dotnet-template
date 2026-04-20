@@ -1,4 +1,4 @@
-Get-ChildItem -Path .. -Recurse -File -Include *.cs, *.ts |
+Get-ChildItem -Path .. -Recurse -File -Include *.cs, *.ts, *.md, *.json |
 Where-Object { $_.FullName -notmatch '\\node_modules\\' } |
 ForEach-Object {
     $content = Get-Content $_.FullName -Raw

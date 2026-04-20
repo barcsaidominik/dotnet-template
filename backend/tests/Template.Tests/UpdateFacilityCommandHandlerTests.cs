@@ -14,25 +14,26 @@ public class UpdateFacilityCommandHandlerTests
     public async Task Handle_WithExistingFacility_UpdatesAndReturnsUpdated()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new UpdateFacilityCommandHandler(store);
 
         var facility = Facility.Create("Original");
 
-        await dbContext.Facilities.AddAsync(facility);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Facilities.AddAsync(facility, ct);
+        await dbContext.SaveChangesAsync(ct);
 
         var command = new UpdateFacilityCommand(facility.Id, "Updated");
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeFalse();
         result.Value.Should().Be(Result.Updated);
 
-        var updatedFacility = await dbContext.Facilities.FirstOrDefaultAsync(f => f.Id == facility.Id);
+        var updatedFacility = await dbContext.Facilities.FirstOrDefaultAsync(f => f.Id == facility.Id, ct);
         updatedFacility.Should().NotBeNull();
         updatedFacility!.Name.Should().Be("Updated");
     }
@@ -41,6 +42,7 @@ public class UpdateFacilityCommandHandlerTests
     public async Task Handle_WithNonExistentFacility_ReturnsNotFoundError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new UpdateFacilityCommandHandler(store);
@@ -48,7 +50,7 @@ public class UpdateFacilityCommandHandlerTests
         var command = new UpdateFacilityCommand(Guid.NewGuid(), "Updated");
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -59,25 +61,26 @@ public class UpdateFacilityCommandHandlerTests
     public async Task Handle_WithInvalidName_ReturnsValidationError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new UpdateFacilityCommandHandler(store);
 
         var facility = Facility.Create("Original");
 
-        await dbContext.Facilities.AddAsync(facility);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Facilities.AddAsync(facility, ct);
+        await dbContext.SaveChangesAsync(ct);
 
         var command = new UpdateFacilityCommand(facility.Id, "");
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
         result.FirstError.Should().Be(FacilityErrors.InvalidName);
 
-        var unchangedFacility = await dbContext.Facilities.FirstOrDefaultAsync(f => f.Id == facility.Id);
+        var unchangedFacility = await dbContext.Facilities.FirstOrDefaultAsync(f => f.Id == facility.Id, ct);
         unchangedFacility.Should().NotBeNull();
         unchangedFacility!.Name.Should().Be("Original");
     }

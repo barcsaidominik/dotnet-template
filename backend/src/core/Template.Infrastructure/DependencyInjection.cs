@@ -39,6 +39,11 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.AddOptions<InternalServiceAuthSettings>()
+            .Bind(configuration.GetSection(InternalServiceAuthSettings.SECTION_NAME))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddOptions<FrontendSettings>()
             .Bind(configuration.GetSection(FrontendSettings.SECTION_NAME))
             .ValidateDataAnnotations()

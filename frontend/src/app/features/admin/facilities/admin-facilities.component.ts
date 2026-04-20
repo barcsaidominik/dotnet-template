@@ -1,5 +1,6 @@
 import type { OnInit } from '@angular/core';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -111,6 +112,7 @@ export class AdminFacilitiesPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly facilities = signal<Facility[]>([]);
   readonly allUsers = signal<User[]>([]);
@@ -226,27 +228,30 @@ export class AdminFacilitiesPageComponent implements OnInit {
   openCreateDialog(): void {
     const ref = this.dialog.open(FacilityCreateDialogComponent, { width: '360px' });
 
-    ref.afterClosed().subscribe((name) => {
-      if (!name) {
-        return;
-      }
-      from(this.adminApi.apiAdminFacilitiesPost$Json({ body: { name } })).subscribe({
-        next: () => {
-          this.snackBar.open(
-            this.translate.instant('admin.facilities.facilityCreated'),
-            this.translate.instant('common.close'),
-            { duration: 3000 }
-          );
-          this.loadFacilities();
-        },
-        error: () =>
-          this.snackBar.open(
-            this.translate.instant('admin.facilities.failedToCreate'),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          ),
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((name) => {
+        if (!name) {
+          return;
+        }
+        from(this.adminApi.apiAdminFacilitiesPost$Json({ body: { name } })).subscribe({
+          next: () => {
+            this.snackBar.open(
+              this.translate.instant('admin.facilities.facilityCreated'),
+              this.translate.instant('common.close'),
+              { duration: 3000 }
+            );
+            this.loadFacilities();
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant('admin.facilities.failedToCreate'),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
-    });
   }
 
   openEditDialog(facility: Facility): void {
@@ -255,34 +260,37 @@ export class AdminFacilitiesPageComponent implements OnInit {
       data: { name: facility.name },
     });
 
-    ref.afterClosed().subscribe((name) => {
-      if (!name) {
-        return;
-      }
-      from(
-        this.adminApi.apiAdminFacilitiesFacilityIdPut({
-          facilityId: facility.id,
-          body: { name },
-        })
-      ).subscribe({
-        next: () => {
-          this.snackBar.open(
-            this.translate.instant('admin.facilities.facilityUpdated'),
-            this.translate.instant('common.close'),
-            { duration: 3000 }
-          );
-          this.facilities.update((list) =>
-            list.map((f) => (f.id === facility.id ? { ...f, name } : f))
-          );
-        },
-        error: () =>
-          this.snackBar.open(
-            this.translate.instant('admin.facilities.failedToUpdate'),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          ),
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((name) => {
+        if (!name) {
+          return;
+        }
+        from(
+          this.adminApi.apiAdminFacilitiesFacilityIdPut({
+            facilityId: facility.id,
+            body: { name },
+          })
+        ).subscribe({
+          next: () => {
+            this.snackBar.open(
+              this.translate.instant('admin.facilities.facilityUpdated'),
+              this.translate.instant('common.close'),
+              { duration: 3000 }
+            );
+            this.facilities.update((list) =>
+              list.map((f) => (f.id === facility.id ? { ...f, name } : f))
+            );
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant('admin.facilities.failedToUpdate'),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
-    });
   }
 
   deleteFacility(facility: Facility): void {
@@ -300,18 +308,20 @@ export class AdminFacilitiesPageComponent implements OnInit {
         );
         this.facilities.update((list) => list.filter((f) => f.id !== facility.id));
       },
-      error: (err) =>
+      error: (err) => {
+        console.error('Failed to delete facility:', err);
         this.snackBar.open(
-          err?.error?.detail ?? this.translate.instant('admin.facilities.failedToDelete'),
+          this.translate.instant('errors.Error.Unexpected'),
           this.translate.instant('common.close'),
           { duration: 4000 }
-        ),
+        );
+      },
     });
   }
 
   exportFacilities(): void {
     this.isExporting.set(true);
-    from(this.adminApi.apiAdminFacilitiesExportGet$Response()).subscribe({
+    from(this.adminApi.apiAdminFacilitiesExportGet$Response(this.buildFacilitiesQueryParams())).subscribe({
       next: (response) => {
         downloadBlobFile(response.body as Blob, response.headers, 'facilities.xlsx');
         this.isExporting.set(false);

@@ -666,7 +666,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -878,7 +882,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;

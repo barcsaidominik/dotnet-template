@@ -5,7 +5,7 @@ import localeHu from '@angular/common/locales/hu';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -21,11 +21,7 @@ import { environment } from '../environments/environment';
 registerLocaleData(localeHu, 'hu-HU');
 
 function initializeAuth(auth: AuthService) {
-  return () =>
-    auth
-      .refresh()
-      .pipe(catchError(() => of(null)))
-      .toPromise();
+  return () => firstValueFrom(auth.refresh().pipe(catchError(() => of(null))));
 }
 
 export const appConfig: ApplicationConfig = {

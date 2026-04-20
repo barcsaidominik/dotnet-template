@@ -37,9 +37,12 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
 
     [HttpGet("users/export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-    public async Task<IActionResult> ExportUsers()
+    public async Task<IActionResult> ExportUsers(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new ExportUsersToExcelQuery())
+        return await SendAsync(new ExportUsersToExcelQuery(search, sortBy, sortDescending))
             .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 
@@ -71,9 +74,12 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
 
     [HttpGet("facilities/export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-    public async Task<IActionResult> ExportFacilities()
+    public async Task<IActionResult> ExportFacilities(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new ExportFacilitiesToExcelQuery())
+        return await SendAsync(new ExportFacilitiesToExcelQuery(search, sortBy, sortDescending))
             .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 

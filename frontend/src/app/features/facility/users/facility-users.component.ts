@@ -1,5 +1,6 @@
 import type { OnInit } from '@angular/core';
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -98,6 +99,7 @@ export class FacilityUsersPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly users = signal<User[]>([]);
   readonly isLoading = signal(true);
@@ -141,33 +143,36 @@ export class FacilityUsersPageComponent implements OnInit {
   openCreateDialog(): void {
     const ref = this.dialog.open(FacilityUserCreateDialogComponent, { width: '360px' });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result) {
-        return;
-      }
-      from(
-        this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
-          facilityId: this.facilityId,
-          body: {
-            email: result.email,
-            role: result.role,
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+        from(
+          this.facilityUsersApi.apiFacilitiesFacilityIdUsersPost$Json({
+            facilityId: this.facilityId,
+            body: {
+              email: result.email,
+              role: result.role,
+            },
+          })
+        ).subscribe({
+          next: (response) => {
+            this.loadUsers();
+            const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
+            const tokenDialog = this.dialog.open(TokenSetupDialogComponent, { width: '480px' });
+            tokenDialog.componentInstance.setupLink = setupLink;
           },
-        })
-      ).subscribe({
-        next: (response) => {
-          this.loadUsers();
-          const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
-          const tokenDialog = this.dialog.open(TokenSetupDialogComponent, { width: '480px' });
-          tokenDialog.componentInstance.setupLink = setupLink;
-        },
-        error: () =>
-          this.snackBar.open(
-            this.translate.instant('facility.users.failedToCreate'),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          ),
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant('facility.users.failedToCreate'),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
-    });
   }
 
   changeRole(user: User, role: string): void {

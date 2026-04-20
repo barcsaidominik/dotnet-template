@@ -24,6 +24,7 @@ public class MailboxHandlersTests
     public async Task GetUnreadMailboxCountQueryHandler_WithCurrentUser_ReturnsUnreadCount()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         const int unreadCount = 7;
         _mailboxService
             .GetUnreadCountAsync(_currentUserService.UserId, Arg.Any<CancellationToken>())
@@ -32,7 +33,7 @@ public class MailboxHandlersTests
         var handler = new GetUnreadMailboxCountQueryHandler(_mailboxService, _currentUserService);
 
         // Act
-        var result = await handler.Handle(new GetUnreadMailboxCountQuery(), CancellationToken.None);
+        var result = await handler.Handle(new GetUnreadMailboxCountQuery(), ct);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -44,6 +45,7 @@ public class MailboxHandlersTests
     public async Task MarkMailboxMessageAsReadCommandHandler_WithCurrentUser_DelegatesToMailboxService()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var messageId = Guid.NewGuid();
         _mailboxService
             .MarkAsReadAsync(_currentUserService.UserId, messageId, Arg.Any<CancellationToken>())
@@ -52,7 +54,7 @@ public class MailboxHandlersTests
         var handler = new MarkMailboxMessageAsReadCommandHandler(_mailboxService, _currentUserService);
 
         // Act
-        var result = await handler.Handle(new MarkMailboxMessageAsReadCommand(messageId), CancellationToken.None);
+        var result = await handler.Handle(new MarkMailboxMessageAsReadCommand(messageId), ct);
 
         // Assert
         result.IsError.Should().BeFalse();

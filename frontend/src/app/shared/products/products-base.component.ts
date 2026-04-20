@@ -62,7 +62,7 @@ export abstract class ProductsBaseComponent implements OnInit {
     this.loadProducts();
   }
 
-  toggleSort(column: 'name' | 'price' | 'createdAt'): void {
+  toggleSort(column: 'name' | 'price' | 'createdAt' | 'quantity'): void {
     if (this.sortBy() !== column) {
       this.sortBy.set(column);
       this.sortDescending.set(false);
@@ -119,7 +119,15 @@ export abstract class ProductsBaseComponent implements OnInit {
 
   exportProducts(): void {
     this.isExporting.set(true);
-    from(this.productsApi.apiProductsExportGet$Response()).subscribe({
+    const params: { search?: string; sortBy?: string; sortDescending?: boolean } = {};
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy() ?? undefined;
+      params.sortDescending = this.sortDescending();
+    }
+    from(this.productsApi.apiProductsExportGet$Response(params)).subscribe({
       next: (response) => {
         downloadBlobFile(response.body as Blob, response.headers, this.exportFilename);
         this.isExporting.set(false);

@@ -55,10 +55,10 @@ public sealed class ProductOrderPdfService(
                     {
                         info.Spacing(8);
                         info.Item().Text($"{model.ProductName}").SemiBold().FontSize(16);
-                        info.Item().Text($"{L("ProductID", culture)} {model.ProductId}");
-                        info.Item().Text($"{L("Facility", culture)} {model.FacilityName} ({model.FacilityId})");
-                        info.Item().Text($"{L("RequestedBy", culture)} {model.RequestedByEmail}");
-                        info.Item().Text($"{L("GeneratedAt", culture)} {model.GeneratedAtUtc:yyyy-MM-dd HH:mm:ss}");
+                        info.Item().Text($"{GetTranslatedString("ProductID", culture)} {model.ProductId}");
+                        info.Item().Text($"{GetTranslatedString("Facility", culture)} {model.FacilityName} ({model.FacilityId})");
+                        info.Item().Text($"{GetTranslatedString("RequestedBy", culture)} {model.RequestedByEmail}");
+                        info.Item().Text($"{GetTranslatedString("GeneratedAt", culture)} {model.GeneratedAtUtc:yyyy-MM-dd HH:mm:ss}");
                     });
 
                     column.Item().Table(table =>
@@ -73,17 +73,16 @@ public sealed class ProductOrderPdfService(
 
                         table.Header(header =>
                         {
-                            header.Cell().Element(CellStyle).Text(L("Product", culture));
-                            header.Cell().Element(CellStyle).AlignRight().Text(L("Quantity", culture));
-                            header.Cell().Element(CellStyle).AlignRight().Text(L("UnitPrice", culture));
-                            header.Cell().Element(CellStyle).AlignRight().Text(L("Total", culture));
+                            header.Cell().Element(CellStyle).Text(GetTranslatedString("Product", culture));
+                            header.Cell().Element(CellStyle).AlignRight().Text(GetTranslatedString("Quantity", culture));
+                            header.Cell().Element(CellStyle).AlignRight().Text(GetTranslatedString("UnitPrice", culture));
+                            header.Cell().Element(CellStyle).AlignRight().Text(GetTranslatedString("Total", culture));
                         });
 
-                        var quantity = model.Quantity > 0 ? model.Quantity : 1;
-                        var total = model.Price * quantity;
+                        var total = model.Price * model.Quantity;
 
                         table.Cell().Element(ValueCellStyle).Text(model.ProductName);
-                        table.Cell().Element(ValueCellStyle).AlignRight().Text(quantity.ToString());
+                        table.Cell().Element(ValueCellStyle).AlignRight().Text(model.Quantity.ToString());
                         table.Cell().Element(ValueCellStyle).AlignRight().Text($"{model.Price:F2}");
                         table.Cell().Element(ValueCellStyle).AlignRight().Text($"{total:F2}");
                     });
@@ -139,7 +138,7 @@ public sealed class ProductOrderPdfService(
             .PaddingHorizontal(10);
     }
 
-    private static string L(string key, CultureInfo? culture)
+    private static string GetTranslatedString(string key, CultureInfo? culture)
     {
         var isHungarian = culture?.Name == "hu-HU";
 

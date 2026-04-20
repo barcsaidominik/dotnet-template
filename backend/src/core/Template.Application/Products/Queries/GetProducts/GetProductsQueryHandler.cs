@@ -39,6 +39,7 @@ public sealed class GetProductsQueryHandler(IEntityStore<Product> store) : IRequ
             "price" => descending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
             "createdat" => descending ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
             "name" => descending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+            "quantity" => descending ? query.OrderByDescending(p => p.Quantity) : query.OrderBy(p => p.Quantity),
             _ => query.OrderBy(p => p.Name)
         };
     }

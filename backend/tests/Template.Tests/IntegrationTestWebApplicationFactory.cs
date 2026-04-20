@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ using Template.Domain.Entities;
 using Template.Infrastructure.Identity;
 using Template.Infrastructure.Persistence;
 using Template.Infrastructure.Products;
+using Template.Infrastructure.Settings;
 
 namespace Template.Tests;
 
@@ -22,6 +24,8 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 {
     private readonly SemaphoreSlim _resetLock = new(1, 1);
     private readonly string _databaseName = $"template-tests-{Guid.NewGuid():N}";
+    private const string TEST_JWT_SECRET = "template-tests-jwt-secret-at-least-32-chars";
+    private const string TEST_INTERNAL_SERVICE_TOKEN = "template-tests-internal-service-token-32";
 
     public const string DEFAULT_PASSWORD = "Template1234!";
     public const string FACILITY_ADMIN_EMAIL = "facility.admin@test.local";
@@ -52,6 +56,8 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
             Dictionary<string, string?> overrides = new()
             {
                 ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=template_tests;Username=test;Password=test",
+                ["JwtSettings:Secret"] = TEST_JWT_SECRET,
+                ["InternalServiceAuth:Token"] = TEST_INTERNAL_SERVICE_TOKEN,
                 ["ResourceGuard:Enabled"] = "false"
             };
 
@@ -60,6 +66,28 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
 
         builder.ConfigureServices(services =>
         {
+            services.PostConfigure<JwtSettings>(options =>
+            {
+                options.Secret = TEST_JWT_SECRET;
+                options.Issuer = "template-api";
+                options.Audience = "template-clients";
+                options.ExpiryMinutes = 15;
+            });
+
+            services.PostConfigure<InternalServiceAuthSettings>(options =>
+            {
+                options.Token = TEST_INTERNAL_SERVICE_TOKEN;
+            });
+
+            services.PostConfigureAll<JwtBearerOptions>(options =>
+            {
+                options.TokenValidationParameters.ValidIssuer = "template-api";
+                options.TokenValidationParameters.ValidAudience = "template-clients";
+                options.TokenValidationParameters.IssuerSigningKey =
+                    new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(TEST_JWT_SECRET));
+            });
+
             services.RemoveAll<DbContextOptions<AppDbContext>>();
             services.RemoveAll<AppDbContext>();
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();

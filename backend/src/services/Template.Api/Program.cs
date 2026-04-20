@@ -1,6 +1,8 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -54,6 +56,28 @@ public class Program
                 dashboardBasePath: "/admin/tickerq",
                 dashboardPolicyName: "TickerQDashboard");
 
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+                .SetApplicationName("template-app");
+
+            if (!builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddRateLimiter(options =>
+                {
+                    options.AddPolicy("auth", context =>
+                        RateLimitPartition.GetFixedWindowLimiter(
+                            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                            factory: _ => new FixedWindowRateLimiterOptions
+                            {
+                                PermitLimit = 10,
+                                Window = TimeSpan.FromMinutes(1),
+                                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                                QueueLimit = 0
+                            }));
+                    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+                });
+            }
+
             builder.Services.AddControllers();
 
             builder.Services.AddOpenApi(options =>
@@ -97,7 +121,8 @@ public class Program
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtSettings.Issuer,
                         ValidAudience = jwtSettings.Audience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Secret)),
+                        ClockSkew = TimeSpan.Zero
                     };
                 });
 
@@ -129,6 +154,10 @@ public class Program
 
             app.UseMiddleware<RequestTelemetryMiddleware>();
             app.UseMiddleware<ResourceGuardMiddleware>();
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseRateLimiter();
+            }
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseTickerQ();

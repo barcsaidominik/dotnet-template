@@ -24,8 +24,18 @@ public sealed class ExportFacilitiesToExcelQueryHandler(
 
     public async ValueTask<ErrorOr<ExcelFileDto>> Handle(ExportFacilitiesToExcelQuery request, CancellationToken ct)
     {
-        var facilities = await _store.GetQuery(asNoTracking: true, skipGuards: true)
-            .OrderBy(facility => facility.Name)
+        var query = _store.GetQuery(asNoTracking: true, skipGuards: true);
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var searchLower = request.Search.ToLowerInvariant();
+            query = query.Where(f => f.Name.ToLower().Contains(searchLower));
+        }
+
+        query = ApplySorting(query, request.SortBy, request.SortDescending);
+
+        var facilities = await query
+            .Take(10_000)
             .Select(facility => new FacilityExcelExportRowDto(facility.Id, facility.Name))
             .ToListAsync(ct);
 
@@ -44,11 +54,32 @@ public sealed class ExportFacilitiesToExcelQueryHandler(
         }
 
         var preferredLanguage = await _authService.GetUserPreferredLanguageAsync(_currentUserService.UserId, ct);
+        return GetCultureSafe(preferredLanguage);
+    }
+
+    private static CultureInfo? GetCultureSafe(string? preferredLanguage)
+    {
         if (preferredLanguage is null)
         {
             return null;
         }
 
-        return CultureInfo.GetCultureInfo(preferredLanguage);
+        try
+        {
+            return CultureInfo.GetCultureInfo(preferredLanguage);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.GetCultureInfo("hu-HU");
+        }
+    }
+
+    private static IQueryable<Facility> ApplySorting(IQueryable<Facility> query, string? sortBy, bool descending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "name" => descending ? query.OrderByDescending(f => f.Name) : query.OrderBy(f => f.Name),
+            _ => query.OrderBy(f => f.Name)
+        };
     }
 }

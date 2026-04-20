@@ -26,8 +26,17 @@ public sealed class ExportUsersToExcelQueryHandler(
             return usersResult.Errors;
         }
 
-        var rows = usersResult.Value
-            .OrderBy(user => user.Email)
+        var filtered = usersResult.Value.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var searchLower = request.Search.ToLowerInvariant();
+            filtered = filtered.Where(u => u.Email.ToLowerInvariant().Contains(searchLower));
+        }
+
+        filtered = ApplySorting(filtered, request.SortBy, request.SortDescending);
+
+        var rows = filtered
             .Select(user => new UserExcelExportRowDto(
                 user.Id,
                 user.Email,
@@ -52,11 +61,33 @@ public sealed class ExportUsersToExcelQueryHandler(
         }
 
         var preferredLanguage = await _authService.GetUserPreferredLanguageAsync(_currentUserService.UserId, ct);
+        return GetCultureSafe(preferredLanguage);
+    }
+
+    private static CultureInfo? GetCultureSafe(string? preferredLanguage)
+    {
         if (preferredLanguage is null)
         {
             return null;
         }
 
-        return CultureInfo.GetCultureInfo(preferredLanguage);
+        try
+        {
+            return CultureInfo.GetCultureInfo(preferredLanguage);
+        }
+        catch (CultureNotFoundException)
+        {
+            return CultureInfo.GetCultureInfo("hu-HU");
+        }
+    }
+
+    private static IEnumerable<UserDto> ApplySorting(IEnumerable<UserDto> users, string? sortBy, bool descending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "role" => descending ? users.OrderByDescending(u => u.Role) : users.OrderBy(u => u.Role),
+            "email" => descending ? users.OrderByDescending(u => u.Email) : users.OrderBy(u => u.Email),
+            _ => users.OrderBy(u => u.Email)
+        };
     }
 }

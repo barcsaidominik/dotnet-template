@@ -100,16 +100,29 @@ public sealed class MailboxService(
 
     public async Task<Updated> MarkAllAsReadAsync(Guid userId, CancellationToken ct = default)
     {
-        var unread = await _dbContext.MailboxMessages
-            .Where(message => message.RecipientUserId == userId && !message.IsRead)
-            .ToListAsync(ct);
-
-        foreach (var message in unread)
+        try
         {
-            message.MarkAsRead();
+            await _dbContext.MailboxMessages
+                .Where(message => message.RecipientUserId == userId && !message.IsRead)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(m => m.IsRead, true)
+                    .SetProperty(m => m.ReadAtUtc, DateTime.UtcNow), ct);
+        }
+        catch (InvalidOperationException)
+        {
+            // Fallback for providers that don't support ExecuteUpdate (e.g., InMemory)
+            var unread = await _dbContext.MailboxMessages
+                .Where(message => message.RecipientUserId == userId && !message.IsRead)
+                .ToListAsync(ct);
+
+            foreach (var message in unread)
+            {
+                message.MarkAsRead();
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
         }
 
-        await _dbContext.SaveChangesAsync(ct);
         return Result.Updated;
     }
 }

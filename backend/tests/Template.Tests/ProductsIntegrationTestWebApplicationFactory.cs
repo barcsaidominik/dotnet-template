@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
 using ErrorOr;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -19,16 +20,16 @@ using Template.Application.Common.Notifications;
 using Template.Domain.Constants;
 using Template.Domain.Entities;
 using Template.Infrastructure.Persistence;
+using Template.Infrastructure.Settings;
 
 namespace Template.Tests;
 
 public sealed class ProductsIntegrationTestWebApplicationFactory : WebApplicationFactory<Template.Products.Api.Program>
 {
-    private const string TEST_JWT_SECRET = "template-development-jwt-secret-change-via-user-secrets-2026";
+    private const string TEST_JWT_SECRET = "template-tests-jwt-secret-at-least-32-chars";
     private const string TEST_JWT_ISSUER = "template-api";
     private const string TEST_JWT_AUDIENCE = "template-clients";
-
-    // Use the same development secret that JwtSettings defaults to
+    private const string TEST_INTERNAL_SERVICE_TOKEN = "template-tests-internal-service-token-32";
     private readonly string _databaseName = $"products-tests-{Guid.NewGuid():N}";
 
     public Guid FacilityId
@@ -55,12 +56,35 @@ public sealed class ProductsIntegrationTestWebApplicationFactory : WebApplicatio
         {
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
+                ["JwtSettings:Secret"] = TEST_JWT_SECRET,
+                ["InternalServiceAuth:Token"] = TEST_INTERNAL_SERVICE_TOKEN,
                 ["ResourceGuard:Enabled"] = "false"
             });
         });
 
         builder.ConfigureServices(services =>
         {
+            services.PostConfigure<JwtSettings>(options =>
+            {
+                options.Secret = TEST_JWT_SECRET;
+                options.Issuer = TEST_JWT_ISSUER;
+                options.Audience = TEST_JWT_AUDIENCE;
+                options.ExpiryMinutes = 15;
+            });
+
+            services.PostConfigure<InternalServiceAuthSettings>(options =>
+            {
+                options.Token = TEST_INTERNAL_SERVICE_TOKEN;
+            });
+
+            services.PostConfigureAll<JwtBearerOptions>(options =>
+            {
+                options.TokenValidationParameters.ValidIssuer = TEST_JWT_ISSUER;
+                options.TokenValidationParameters.ValidAudience = TEST_JWT_AUDIENCE;
+                options.TokenValidationParameters.IssuerSigningKey =
+                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(TEST_JWT_SECRET));
+            });
+
             services.RemoveAll<DbContextOptions<AppDbContext>>();
             services.RemoveAll<AppDbContext>();
             services.RemoveAll<IDbContextOptionsConfiguration<AppDbContext>>();

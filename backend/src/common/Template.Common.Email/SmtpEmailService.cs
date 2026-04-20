@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Options;
+using Template.Common.Retry;
 
 namespace Template.Common.Email;
 
@@ -25,6 +26,17 @@ public sealed class SmtpEmailService(IOptions<EmailSettings> settings) : IEmailS
             EnableSsl = true
         };
 
-        await client.SendMailAsync(message, ct);
+        await RetryHelpers.RetryAsync(
+            async cancellationToken =>
+            {
+                await client.SendMailAsync(message, cancellationToken);
+                return true;
+            },
+            shouldNotRetry: ex => ex is not SmtpException and not IOException,
+            retryCount: 3,
+            retryDelayInSeconds: 2,
+            isExponentialWait: false,
+            cancellationToken: ct
+        );
     }
 }

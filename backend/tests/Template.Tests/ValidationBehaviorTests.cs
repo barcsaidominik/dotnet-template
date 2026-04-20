@@ -12,6 +12,7 @@ public class ValidationBehaviorTests
     public async Task Handle_WithNoValidators_InvokesNext()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var behavior = new ValidationBehavior<TestCommand, ErrorOr<string>>([]);
         var command = new TestCommand("Product", 2);
         var nextWasCalled = false;
@@ -24,7 +25,7 @@ public class ValidationBehaviorTests
                 nextWasCalled = true;
                 return ValueTask.FromResult<ErrorOr<string>>($"processed:{message.Name}:{message.Quantity}");
             },
-            CancellationToken.None);
+            ct);
 
         // Assert
         nextWasCalled.Should().BeTrue();
@@ -36,6 +37,7 @@ public class ValidationBehaviorTests
     public async Task Handle_WithValidMessage_InvokesNext()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         IValidator<TestCommand>[] validators =
         [
             new TestCommandNameValidator(),
@@ -53,7 +55,7 @@ public class ValidationBehaviorTests
                 nextWasCalled = true;
                 return ValueTask.FromResult<ErrorOr<string>>($"ok:{message.Name}:{message.Quantity}");
             },
-            CancellationToken.None);
+            ct);
 
         // Assert
         nextWasCalled.Should().BeTrue();
@@ -65,6 +67,7 @@ public class ValidationBehaviorTests
     public async Task Handle_WithValidationFailures_ReturnsValidationErrorsWithoutInvokingNext()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         IValidator<TestCommand>[] validators =
         [
             new TestCommandNameValidator(),
@@ -82,7 +85,7 @@ public class ValidationBehaviorTests
                 nextWasCalled = true;
                 return ValueTask.FromResult<ErrorOr<string>>("should-not-run");
             },
-            CancellationToken.None);
+            ct);
 
         // Assert
         nextWasCalled.Should().BeFalse();

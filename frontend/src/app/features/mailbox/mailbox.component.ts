@@ -95,8 +95,12 @@ export class MailboxPageComponent implements OnInit {
   async openMessage(message: MailboxMessageDto): Promise<void> {
     await this.markAsRead(message);
 
-    if (message.link) {
+    if (message.link && this.isLocalUrl(message.link)) {
       await this.router.navigateByUrl(message.link);
     }
+  }
+
+  private isLocalUrl(url: string): boolean {
+    return url.startsWith('/') && !url.startsWith('//');
   }
 }

@@ -26,7 +26,9 @@ export class LanguageService {
     }
     this.applyLanguage(lang);
     if (syncToServer) {
-      this.http.put(`${environment.apiUrl}/api/users/me/language`, { language: lang }).subscribe();
+      this.http.put(`${environment.apiUrl}/api/users/me/language`, { language: lang }).subscribe({
+        error: (err) => console.error('Language sync failed:', err),
+      });
     }
   }
 

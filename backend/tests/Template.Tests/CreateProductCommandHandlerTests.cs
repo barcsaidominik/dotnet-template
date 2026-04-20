@@ -26,10 +26,11 @@ public class CreateProductCommandHandlerTests
     public async Task Handle_WithValidCommand_CreatesProductAndReturnsId()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new CreateProductCommand("Test Product", 50.00m);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -44,10 +45,11 @@ public class CreateProductCommandHandlerTests
     public async Task Handle_WithEmptyName_ReturnsValidationError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new CreateProductCommand("", 50.00m);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -61,10 +63,11 @@ public class CreateProductCommandHandlerTests
     public async Task Handle_WithNegativePrice_ReturnsValidationError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new CreateProductCommand("Test Product", -10.00m);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -78,12 +81,13 @@ public class CreateProductCommandHandlerTests
     public async Task Handle_WithNoFacility_ReturnsForbiddenError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new CreateProductCommand("Test Product", 50.00m);
         _currentUserService.FacilityId.Returns((Guid?)null);
         var handlerWithNoFacility = new CreateProductCommandHandler(_store, _currentUserService);
 
         // Act
-        var result = await handlerWithNoFacility.Handle(command, CancellationToken.None);
+        var result = await handlerWithNoFacility.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();

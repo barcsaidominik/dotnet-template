@@ -35,9 +35,12 @@ public sealed class ProductsController(ISender sender)
 
     [HttpGet("export")]
     [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
-    public async Task<IActionResult> Export()
+    public async Task<IActionResult> Export(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new ExportProductsToExcelQuery())
+        return await SendAsync(new ExportProductsToExcelQuery(search, sortBy, sortDescending))
             .ToActionResultAsync(file => File(file.Content, file.ContentType, file.FileName));
     }
 

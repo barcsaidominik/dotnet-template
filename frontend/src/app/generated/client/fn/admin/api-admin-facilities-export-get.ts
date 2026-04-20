@@ -9,11 +9,17 @@ import { RequestBuilder } from '../../request-builder';
 
 
 export interface ApiAdminFacilitiesExportGet$Params {
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
 }
 
 export function apiAdminFacilitiesExportGet(http: HttpClient, rootUrl: string, params?: ApiAdminFacilitiesExportGet$Params, context?: HttpContext): Observable<StrictHttpResponse<any>> {
   const rb = new RequestBuilder(rootUrl, apiAdminFacilitiesExportGet.PATH, 'get');
   if (params) {
+    rb.query('search', params.search, {});
+    rb.query('sortBy', params.sortBy, {});
+    rb.query('sortDescending', params.sortDescending, {});
   }
 
   return http.request(

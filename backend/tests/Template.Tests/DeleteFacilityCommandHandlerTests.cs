@@ -22,19 +22,20 @@ public class DeleteFacilityCommandHandlerTests
     public async Task Handle_WhenFacilityHasProducts_ReturnsConflictAndDoesNotDelete()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new DeleteFacilityCommandHandler(store, _facilityProductUsageService);
 
         var facility = Facility.Create("Delete Test Facility");
-        await dbContext.Facilities.AddAsync(facility, CancellationToken.None);
-        await dbContext.SaveChangesAsync(CancellationToken.None);
+        await dbContext.Facilities.AddAsync(facility, ct);
+        await dbContext.SaveChangesAsync(ct);
 
         _facilityProductUsageService.GetProductCountAsync(facility.Id, Arg.Any<CancellationToken>())
             .Returns(2);
 
         // Act
-        var result = await handler.Handle(new DeleteFacilityCommand(facility.Id), CancellationToken.None);
+        var result = await handler.Handle(new DeleteFacilityCommand(facility.Id), ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -46,19 +47,20 @@ public class DeleteFacilityCommandHandlerTests
     public async Task Handle_WhenFacilityHasNoProducts_DeletesFacility()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new DeleteFacilityCommandHandler(store, _facilityProductUsageService);
 
         var facility = Facility.Create("Delete Test Facility");
-        await dbContext.Facilities.AddAsync(facility, CancellationToken.None);
-        await dbContext.SaveChangesAsync(CancellationToken.None);
+        await dbContext.Facilities.AddAsync(facility, ct);
+        await dbContext.SaveChangesAsync(ct);
 
         _facilityProductUsageService.GetProductCountAsync(facility.Id, Arg.Any<CancellationToken>())
             .Returns(0);
 
         // Act
-        var result = await handler.Handle(new DeleteFacilityCommand(facility.Id), CancellationToken.None);
+        var result = await handler.Handle(new DeleteFacilityCommand(facility.Id), ct);
 
         // Assert
         result.IsError.Should().BeFalse();

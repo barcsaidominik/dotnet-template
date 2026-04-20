@@ -22,13 +22,14 @@ public class LoginCommandHandlerTests
     public async Task Handle_WithValidCredentials_ReturnsLoginResult()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new LoginCommand("user@test.com", "Password123!");
         var expectedResult = new LoginResult("token", DateTime.UtcNow.AddHours(1), "FacilityAdmin", "refresh-token", "hu-HU");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(expectedResult);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -39,12 +40,13 @@ public class LoginCommandHandlerTests
     public async Task Handle_WithInvalidCredentials_ReturnsError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new LoginCommand("user@test.com", "WrongPassword!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(AuthErrors.InvalidCredentials);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -55,12 +57,13 @@ public class LoginCommandHandlerTests
     public async Task Handle_WithNotApprovedUser_ReturnsNotApprovedError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new LoginCommand("user@test.com", "Password123!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(AuthErrors.NotApproved);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -71,12 +74,13 @@ public class LoginCommandHandlerTests
     public async Task Handle_WithPasswordChangeRequired_ReturnsPasswordChangeRequiredError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new LoginCommand("user@test.com", "Password123!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(AuthErrors.PasswordChangeRequired);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();
@@ -87,12 +91,13 @@ public class LoginCommandHandlerTests
     public async Task Handle_WithLockedAccount_ReturnsAccountLockedError()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var command = new LoginCommand("user@test.com", "Password123!");
         _authService.LoginAsync(command.Email, command.Password, Arg.Any<CancellationToken>())
             .Returns(AuthErrors.AccountLocked);
 
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = await _handler.Handle(command, ct);
 
         // Assert
         result.IsError.Should().BeTrue();

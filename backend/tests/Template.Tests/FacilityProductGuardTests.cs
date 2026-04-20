@@ -36,7 +36,7 @@ public class FacilityProductGuardTests
     }
 
     [Fact]
-    public void Apply_WithNullFacilityId_ReturnsAllProducts()
+    public void Apply_WithNullFacilityId_ReturnsNoProducts()
     {
         // Arrange
         var facilityId1 = Guid.NewGuid();
@@ -57,7 +57,7 @@ public class FacilityProductGuardTests
         var result = guard.Apply(products);
 
         // Assert
-        result.Should().HaveCount(2);
+        result.Should().BeEmpty("users without FacilityId should not see any products");
     }
 
     private static Product CreateProduct(string name, decimal price, Guid facilityId)

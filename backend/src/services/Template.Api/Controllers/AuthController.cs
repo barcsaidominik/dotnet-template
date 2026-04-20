@@ -1,6 +1,7 @@
 using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Template.Application.Auth.Commands.Login;
 using Template.Application.Auth.Commands.Logout;
 using Template.Application.Auth.Commands.Refresh;
@@ -12,6 +13,7 @@ using Template.Common.Extensions;
 namespace Template.Api.Controllers;
 
 [Route("api/[controller]")]
+[EnableRateLimiting("auth")]
 public sealed class AuthController(ISender sender, IWebHostEnvironment environment)
     : Template.Common.Controllers.ApiController(sender)
 {

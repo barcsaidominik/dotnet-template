@@ -25,6 +25,7 @@ public class GetFacilityUsersQueryHandlerTests
     public async Task Handle_WithSystemAdmin_AllowsAnyFacilityAndDelegatesToService()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var currentUserFacilityId = Guid.NewGuid();
         var requestedFacilityId = Guid.NewGuid();
         var query = new GetFacilityUsersQuery(requestedFacilityId);
@@ -36,7 +37,7 @@ public class GetFacilityUsersQueryHandlerTests
             .Returns(expectedUsers);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, ct);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -47,6 +48,7 @@ public class GetFacilityUsersQueryHandlerTests
     public async Task Handle_WithFacilityAdminAndMatchingFacilityId_DelegatesToService()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var facilityId = Guid.NewGuid();
         var query = new GetFacilityUsersQuery(facilityId);
         var expectedUsers = new List<UserDto>();
@@ -57,7 +59,7 @@ public class GetFacilityUsersQueryHandlerTests
             .Returns(expectedUsers);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, ct);
 
         // Assert
         result.IsError.Should().BeFalse();
@@ -68,6 +70,7 @@ public class GetFacilityUsersQueryHandlerTests
     public async Task Handle_WithFacilityAdminAndWrongFacilityId_ReturnsAccessDenied()
     {
         // Arrange
+        var ct = TestContext.Current.CancellationToken;
         var userFacilityId = Guid.NewGuid();
         var requestedFacilityId = Guid.NewGuid();
         var query = new GetFacilityUsersQuery(requestedFacilityId);
@@ -76,7 +79,7 @@ public class GetFacilityUsersQueryHandlerTests
         _currentUserService.FacilityId.Returns(userFacilityId);
 
         // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        var result = await _handler.Handle(query, ct);
 
         // Assert
         result.IsError.Should().BeTrue();

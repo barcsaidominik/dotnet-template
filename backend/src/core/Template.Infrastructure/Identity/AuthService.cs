@@ -5,17 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
 using Template.Domain.Errors;
+using Template.Infrastructure.Persistence;
 
 namespace Template.Infrastructure.Identity;
 
 public sealed class AuthService(
     UserManager<AppUser> userManager,
     RoleManager<AppRole> roleManager,
-    IJwtTokenService jwtTokenService) : IAuthService
+    IJwtTokenService jwtTokenService,
+    AppDbContext dbContext) : IAuthService
 {
     private readonly UserManager<AppUser> _userManager = userManager;
     private readonly RoleManager<AppRole> _roleManager = roleManager;
     private readonly IJwtTokenService _jwtTokenService = jwtTokenService;
+    private readonly AppDbContext _dbContext = dbContext;
 
     public async Task<ErrorOr<Success>> RegisterAsync(string email, string password, CancellationToken ct = default)
     {
@@ -182,25 +185,29 @@ public sealed class AuthService(
 
     public async Task<ErrorOr<IReadOnlyList<UserDto>>> GetAllUsersAsync(CancellationToken ct = default)
     {
-        var users = await _userManager.Users.ToListAsync(ct);
-        var result = new List<UserDto>();
-        foreach (var user in users)
+        var users = await _userManager.Users.Take(10_000).ToListAsync(ct);
+        var rolesByUserId = await GetRolesByUserIdsAsync(users.Select(u => u.Id).ToList(), ct);
+
+        var result = users.Select(user =>
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            result.Add(new UserDto(user.Id, user.Email!, user.FacilityId, user.IsApproved, roles.FirstOrDefault()));
-        }
+            rolesByUserId.TryGetValue(user.Id, out var roles);
+            return new UserDto(user.Id, user.Email!, user.FacilityId, user.IsApproved, roles?.FirstOrDefault());
+        }).ToList();
+
         return result.AsReadOnly();
     }
 
     public async Task<ErrorOr<IReadOnlyList<UserDto>>> GetFacilityUsersAsync(Guid facilityId, CancellationToken ct = default)
     {
         var users = await _userManager.Users.Where(u => u.FacilityId == facilityId).ToListAsync(ct);
-        var result = new List<UserDto>();
-        foreach (var user in users)
+        var rolesByUserId = await GetRolesByUserIdsAsync(users.Select(u => u.Id).ToList(), ct);
+
+        var result = users.Select(user =>
         {
-            var roles = await _userManager.GetRolesAsync(user);
-            result.Add(new UserDto(user.Id, user.Email!, user.FacilityId, user.IsApproved, roles.FirstOrDefault()));
-        }
+            rolesByUserId.TryGetValue(user.Id, out var roles);
+            return new UserDto(user.Id, user.Email!, user.FacilityId, user.IsApproved, roles?.FirstOrDefault());
+        }).ToList();
+
         return result.AsReadOnly();
     }
 
@@ -289,5 +296,25 @@ public sealed class AuthService(
         var bytes = new byte[64];
         RandomNumberGenerator.Fill(bytes);
         return Convert.ToBase64String(bytes);
+    }
+
+    private async Task<Dictionary<Guid, IList<string>>> GetRolesByUserIdsAsync(List<Guid> userIds, CancellationToken ct)
+    {
+        var userRoles = await _dbContext.UserRoles
+            .Where(ur => userIds.Contains(ur.UserId))
+            .ToListAsync(ct);
+
+        var roleIds = userRoles.Select(ur => ur.RoleId).Distinct().ToList();
+        var roles = await _dbContext.Roles
+            .Where(r => roleIds.Contains(r.Id))
+            .ToDictionaryAsync(r => r.Id, r => r.Name!, ct);
+
+        return userRoles
+            .GroupBy(ur => ur.UserId)
+            .ToDictionary(
+                g => g.Key,
+                g => (IList<string>)g.Select(ur => roles.TryGetValue(ur.RoleId, out var name) ? name : string.Empty)
+                    .Where(n => !string.IsNullOrEmpty(n))
+                    .ToList());
     }
 }

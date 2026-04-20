@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Context;
@@ -9,6 +10,7 @@ namespace Template.Common.Logging;
 
 public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<RequestTelemetryMiddleware> logger, IOptions<RequestTelemetryOptions> options)
 {
+    private static readonly Process _currentProcess = Process.GetCurrentProcess();
     private readonly RequestDelegate _next = next;
     private readonly ILogger<RequestTelemetryMiddleware> _logger = logger;
     private readonly RequestTelemetryOptions _options = options.Value;
@@ -22,8 +24,7 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
         }
 
         var stopwatch = Stopwatch.StartNew();
-        var process = Process.GetCurrentProcess();
-        var cpuBefore = process.TotalProcessorTime;
+        var cpuBefore = _currentProcess.TotalProcessorTime;
 
         context.Response.OnStarting(() =>
         {
@@ -34,7 +35,7 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
         using (LogContext.PushProperty("TraceId", context.TraceIdentifier))
         using (LogContext.PushProperty("RequestMethod", context.Request.Method))
         using (LogContext.PushProperty("RequestPath", context.Request.Path.Value ?? "/"))
-        using (LogContext.PushProperty("QueryString", context.Request.QueryString.Value ?? string.Empty))
+        using (LogContext.PushProperty("QueryString", RedactQueryString(context.Request.QueryString.Value)))
         using (LogContext.PushProperty("RemoteIp", context.Connection.RemoteIpAddress?.ToString()))
         using (LogContext.PushProperty("UserAgent", context.Request.Headers.UserAgent.ToString()))
         using (LogContext.PushProperty("UserId", context.User.FindFirst("sub")?.Value ?? context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
@@ -62,9 +63,9 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
             {
                 stopwatch.Stop();
 
-                var cpuAfter = process.TotalProcessorTime;
+                var cpuAfter = _currentProcess.TotalProcessorTime;
                 var cpuUsedMs = (cpuAfter - cpuBefore).TotalMilliseconds;
-                var workingSetMb = process.WorkingSet64 / (1024d * 1024d);
+                var workingSetMb = _currentProcess.WorkingSet64 / (1024d * 1024d);
                 var endpointName = context.GetEndpoint()?.DisplayName ?? "unknown";
                 var statusCode = wasCanceled
                     ? 499
@@ -140,5 +141,39 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
 
         return _options.ExcludedPaths.Any(excludedPath =>
             requestPath.StartsWith(excludedPath, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string RedactQueryString(string? queryString)
+    {
+        if (string.IsNullOrWhiteSpace(queryString))
+        {
+            return string.Empty;
+        }
+
+        var parsedQuery = QueryHelpers.ParseQuery(queryString);
+        if (parsedQuery.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return string.Join(
+            "&",
+            parsedQuery.Select(pair =>
+            {
+                var value = IsSensitiveQueryKey(pair.Key)
+                    ? "[REDACTED]"
+                    : string.Join(",", pair.Value.Select(static value => value ?? string.Empty));
+
+                return $"{pair.Key}={value}";
+            }));
+    }
+
+    private static bool IsSensitiveQueryKey(string key)
+    {
+        return key.Equals("token", StringComparison.OrdinalIgnoreCase)
+            || key.Equals("refreshToken", StringComparison.OrdinalIgnoreCase)
+            || key.Equals("access_token", StringComparison.OrdinalIgnoreCase)
+            || key.Equals("code", StringComparison.OrdinalIgnoreCase)
+            || key.Equals("password", StringComparison.OrdinalIgnoreCase);
     }
 }

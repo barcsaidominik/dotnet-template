@@ -9,8 +9,11 @@ public sealed class FacilityProductGuard(ICurrentUserService currentUser) : IQue
 
     public IQueryable<Product> Apply(IQueryable<Product> query)
     {
-        return _currentUser.FacilityId.HasValue
-                ? query.Where(p => p.FacilityId == _currentUser.FacilityId.Value)
-                : query;
+        if (!_currentUser.FacilityId.HasValue)
+        {
+            return query.Where(_ => false);
+        }
+
+        return query.Where(p => p.FacilityId == _currentUser.FacilityId.Value);
     }
 }

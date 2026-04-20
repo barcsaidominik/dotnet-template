@@ -68,12 +68,12 @@ export class AuthService {
 
   logout(): void {
     from(this.authApi.apiAuthLogoutPost()).subscribe({
+      error: () => {
+        this.clearSession();
+        this.router.navigate(['/auth/login']);
+      },
       complete: () => {
-        this._accessToken.set(null);
-        this._role.set(null);
-        this._tokenExpiry.set(null);
-        this._facilityId.set(null);
-        this._userId.set(null);
+        this.clearSession();
         this.router.navigate(['/auth/login']);
       },
     });

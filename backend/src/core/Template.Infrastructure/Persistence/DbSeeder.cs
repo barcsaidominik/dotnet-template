@@ -77,8 +77,10 @@ public static class DbSeeder
         if (user.PasswordHash is null)
         {
             var setupToken = await userManager.GeneratePasswordResetTokenAsync(user);
-            logger.LogWarning("Initial SystemAdmin created for {Email}. A setup token was generated - check stdout for the one-time token value.", SYSTEM_ADMIN_EMAIL);
-            Console.WriteLine($"[SETUP] SystemAdmin setup token for {SYSTEM_ADMIN_EMAIL}: {setupToken}");
+            logger.LogWarning(
+                "Initial SystemAdmin created for {Email}. Setup token (one-time use): {SetupToken}",
+                SYSTEM_ADMIN_EMAIL,
+                setupToken);
         }
     }
 }
