@@ -27,9 +27,12 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
 
     [HttpGet("users")]
     [ProducesResponseType(typeof(IReadOnlyList<UserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsers()
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new GetAllUsersQuery()).ToActionResultAsync();
+        return await SendAsync(new GetAllUsersQuery(search, sortBy, sortDescending)).ToActionResultAsync();
     }
 
     [HttpGet("users/export")]
@@ -57,10 +60,13 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
     }
 
     [HttpGet("facilities")]
-    [ProducesResponseType(typeof(IReadOnlyList<FacilityDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetFacilities()
+    [ProducesResponseType(typeof(IReadOnlyList<FacilityWithCountDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFacilities(
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new GetAllFacilitiesQuery()).ToActionResultAsync();
+        return await SendAsync(new GetAllFacilitiesQuery(search, sortBy, sortDescending)).ToActionResultAsync();
     }
 
     [HttpGet("facilities/export")]

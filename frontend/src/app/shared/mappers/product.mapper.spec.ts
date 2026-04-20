@@ -8,6 +8,7 @@ describe('mapProductDto', () => {
       id: '',
       name: '',
       price: 0,
+      quantity: 0,
       facilityId: '',
       createdAt: '',
     });
@@ -26,6 +27,7 @@ describe('mapProductDto', () => {
       id: 'product-1',
       name: 'Widget',
       price: 42.5,
+      quantity: 0,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:30:00Z',
     });

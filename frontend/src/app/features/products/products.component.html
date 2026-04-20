@@ -29,25 +29,66 @@
         <mat-spinner diameter="48"></mat-spinner>
       </div>
     } @else if (products().length > 0) {
+      <div class="table-toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'common.search' | translate }}</mat-label>
+          <input
+            matInput
+            #searchInput
+            [value]="searchTerm()"
+            (keyup.enter)="onSearchChange(searchInput.value)"
+            (blur)="onSearchChange(searchInput.value)"
+          />
+          @if (searchTerm()) {
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              [attr.aria-label]="'common.clearSearch' | translate"
+              (click)="searchInput.value = ''; clearSearch()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <mat-icon matSuffix>search</mat-icon>
+          }
+        </mat-form-field>
+      </div>
+
       <table mat-table [dataSource]="products()">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ 'products.name' | translate }}</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('name')">
+              <span>{{ 'products.name' | translate }}</span>
+              <mat-icon>{{ sortIcon('name') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let product">{{ product.name }}</td>
         </ng-container>
 
         <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef>{{ 'products.price' | translate }}</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('price')">
+              <span>{{ 'products.price' | translate }}</span>
+              <mat-icon>{{ sortIcon('price') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let product">{{ product.price | number: '1.2-2' }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="createdAt">
-          <th mat-header-cell *matHeaderCellDef>{{ 'products.created' | translate }}</th>
-          <td mat-cell *matCellDef="let product">{{ product.createdAt | date: 'short' }}</td>
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef>{{ 'products.quantity' | translate }}</th>
+          <td mat-cell *matCellDef="let product">{{ product.quantity }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>{{ 'products.id' | translate }}</th>
-          <td mat-cell *matCellDef="let product">{{ product.id }}</td>
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('createdAt')">
+              <span>{{ 'products.created' | translate }}</span>
+              <mat-icon>{{ sortIcon('createdAt') }}</mat-icon>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let product">{{ product.createdAt | date: 'short' : '' : lang.dateLocale() }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">

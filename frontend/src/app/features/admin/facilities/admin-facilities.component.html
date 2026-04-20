@@ -17,25 +17,56 @@
 } @else {
   <mat-card>
     <mat-card-content>
-      <table mat-table [dataSource]="facilities()">
+      <div class="table-toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'common.search' | translate }}</mat-label>
+          <input
+            matInput
+            #searchInput
+            [value]="searchTerm()"
+            (keyup.enter)="onSearchChange(searchInput.value)"
+            (blur)="onSearchChange(searchInput.value)"
+          />
+          @if (searchTerm()) {
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              [attr.aria-label]="'common.clearSearch' | translate"
+              (click)="searchInput.value = ''; clearSearch()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <mat-icon matSuffix>search</mat-icon>
+          }
+        </mat-form-field>
+      </div>
+
+      <table mat-table [dataSource]="tableRows()">
         <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.name' | translate }}</th>
-          <td mat-cell *matCellDef="let facility">{{ facility.name }}</td>
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('name')">
+              <span>{{ 'admin.facilities.name' | translate }}</span>
+              <mat-icon>{{ sortIcon('name') }}</mat-icon>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let row">{{ row.facility.name }}</td>
         </ng-container>
 
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.id' | translate }}</th>
-          <td mat-cell *matCellDef="let facility">{{ facility.id }}</td>
+        <ng-container matColumnDef="employeeCount">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.employeeCount' | translate }}</th>
+          <td mat-cell *matCellDef="let row">{{ getEmployeeCount(row.facility.id) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
-          <td mat-cell *matCellDef="let facility">
+          <td mat-cell *matCellDef="let row" class="actions-cell">
             <button
               mat-icon-button
               color="primary"
               [matTooltip]="'admin.facilities.edit' | translate"
-              (click)="openEditDialog(facility)"
+              (click)="openEditDialog(row.facility); $event.stopPropagation()"
             >
               <mat-icon>edit</mat-icon>
             </button>
@@ -43,15 +74,64 @@
               mat-icon-button
               color="warn"
               [matTooltip]="'admin.facilities.delete' | translate"
-              (click)="deleteFacility(facility)"
+              (click)="deleteFacility(row.facility); $event.stopPropagation()"
             >
               <mat-icon>delete</mat-icon>
             </button>
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="expandedDetail">
+          <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">
+            <div class="expanded-users">
+              @if (getUsersForFacility(row.facility.id).length > 0) {
+                <table class="detail-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'admin.users.email' | translate }}</th>
+                      <th>{{ 'admin.users.role' | translate }}</th>
+                      <th>{{ 'admin.users.status' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (user of getUsersForFacility(row.facility.id); track user.id) {
+                      <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role ? ('roles.' + user.role | translate) : '-' }}</td>
+                        <td>
+                          @if (user.isApproved) {
+                            <span class="status-pill approved-pill">
+                              {{ 'admin.users.approved' | translate }}
+                            </span>
+                          } @else {
+                            <span class="status-pill pending-pill">
+                              {{ 'admin.users.pending' | translate }}
+                            </span>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <span class="no-employees">{{ 'admin.facilities.noEmployees' | translate }}</span>
+              }
+            </div>
+          </td>
+        </ng-container>
+
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns; when: isFacilityRow"
+          class="clickable-row"
+          (click)="toggleExpand(row.facility)"
+        ></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: ['expandedDetail']; when: isDetailRow"
+          class="detail-row"
+        ></tr>
       </table>
       @if (facilities().length === 0) {
         <p style="text-align: center; color: #666; padding: 24px">

@@ -13,7 +13,10 @@
     "noData": "Nincs megjeleníthető adat.",
     "actions": "Műveletek",
     "confirm": "Megerősítés",
-    "ok": "OK"
+    "ok": "OK",
+    "toggleTheme": "Téma váltása",
+    "search": "Keresés",
+    "clearSearch": "Keresés törlése"
   },
   "nav": {
     "users": "Felhasználók",
@@ -102,6 +105,7 @@
       "role": "Szerepkör",
       "status": "Státusz",
       "facilityId": "Üzem ID",
+      "facilityName": "Üzem",
       "approved": "Jóváhagyva",
       "pending": "Függőben",
       "approve": "Jóváhagyás",
@@ -142,6 +146,8 @@
       "createFacility": "Üzem létrehozása",
       "name": "Név",
       "id": "ID",
+      "employeeCount": "Dolgozók száma",
+      "noEmployees": "Nincs hozzárendelt alkalmazott.",
       "edit": "Szerkesztés",
       "delete": "Törlés",
       "noFacilities": "Nincs megjeleníthető üzem.",
@@ -205,6 +211,7 @@
       "createProduct": "Termék létrehozása",
       "name": "Név",
       "price": "Ár",
+      "quantity": "Mennyiség",
       "created": "Létrehozva",
       "id": "ID",
       "edit": "Szerkesztés",
@@ -228,12 +235,15 @@
         "price": "Ár",
         "priceRequired": "Az ár megadása kötelező.",
         "priceMin": "Az árnak 0 vagy nagyobbnak kell lennie.",
+        "quantity": "Mennyiség",
+        "quantityMin": "A mennyiség nem lehet negatív.",
         "submit": "Létrehozás"
       },
       "updateDialog": {
         "title": "Termék szerkesztése",
         "name": "Név",
         "price": "Ár",
+        "quantity": "Mennyiség",
         "submit": "Mentés"
       }
     }
@@ -243,6 +253,7 @@
     "createProduct": "Termék létrehozása",
     "name": "Név",
     "price": "Ár",
+    "quantity": "Mennyiség",
     "created": "Létrehozva",
     "id": "ID",
     "noProducts": "Nincs termék.",
@@ -264,10 +275,13 @@
       "price": "Ár",
       "priceRequired": "Az ár megadása kötelező.",
       "priceMin": "Az árnak 0 vagy nagyobbnak kell lennie.",
+      "quantity": "Mennyiség",
+      "quantityMin": "A mennyiség nem lehet negatív.",
       "submit": "Létrehozás"
     }
   },
   "roles": {
+    "SystemAdmin": "Rendszer adminisztrátor",
     "FacilityAdmin": "Üzem adminisztrátor",
     "FacilityEditor": "Üzem szerkesztő",
     "FacilityViewer": "Üzem megtekintő"

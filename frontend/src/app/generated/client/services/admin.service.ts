@@ -37,7 +37,7 @@ import { apiAdminUsersUserIdApprovePost } from '../fn/admin/api-admin-users-user
 import { ApiAdminUsersUserIdApprovePost$Params } from '../fn/admin/api-admin-users-user-id-approve-post';
 import { apiAdminUsersUserIdDelete } from '../fn/admin/api-admin-users-user-id-delete';
 import { ApiAdminUsersUserIdDelete$Params } from '../fn/admin/api-admin-users-user-id-delete';
-import { FacilityDto } from '../models/facility-dto';
+import { FacilityWithCountDto } from '../models/facility-with-count-dto';
 import { QueuedBackgroundJobResult } from '../models/queued-background-job-result';
 import { UserDto } from '../models/user-dto';
 
@@ -178,7 +178,7 @@ export class AdminService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiAdminFacilitiesGet$Plain$Response(params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<FacilityDto>>> {
+  apiAdminFacilitiesGet$Plain$Response(params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<FacilityWithCountDto>>> {
     const obs = apiAdminFacilitiesGet$Plain(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
@@ -189,9 +189,9 @@ export class AdminService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiAdminFacilitiesGet$Plain(params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Promise<Array<FacilityDto>> {
+  apiAdminFacilitiesGet$Plain(params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Promise<Array<FacilityWithCountDto>> {
     const resp = this.apiAdminFacilitiesGet$Plain$Response(params, context);
-    return resp.then((r: StrictHttpResponse<Array<FacilityDto>>): Array<FacilityDto> => r.body);
+    return resp.then((r: StrictHttpResponse<Array<FacilityWithCountDto>>): Array<FacilityWithCountDto> => r.body);
   }
 
   /**
@@ -200,7 +200,7 @@ export class AdminService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiAdminFacilitiesGet$Json$Response(params?: ApiAdminFacilitiesGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<FacilityDto>>> {
+  apiAdminFacilitiesGet$Json$Response(params?: ApiAdminFacilitiesGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<Array<FacilityWithCountDto>>> {
     const obs = apiAdminFacilitiesGet$Json(this.http, this.rootUrl, params, context);
     return firstValueFrom(obs);
   }
@@ -211,9 +211,9 @@ export class AdminService extends BaseService {
    *
    * This method doesn't expect any request body.
    */
-  apiAdminFacilitiesGet$Json(params?: ApiAdminFacilitiesGet$Json$Params, context?: HttpContext): Promise<Array<FacilityDto>> {
+  apiAdminFacilitiesGet$Json(params?: ApiAdminFacilitiesGet$Json$Params, context?: HttpContext): Promise<Array<FacilityWithCountDto>> {
     const resp = this.apiAdminFacilitiesGet$Json$Response(params, context);
-    return resp.then((r: StrictHttpResponse<Array<FacilityDto>>): Array<FacilityDto> => r.body);
+    return resp.then((r: StrictHttpResponse<Array<FacilityWithCountDto>>): Array<FacilityWithCountDto> => r.body);
   }
 
   /** Path part for operation `apiAdminFacilitiesPost()` */

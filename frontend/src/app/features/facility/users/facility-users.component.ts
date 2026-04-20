@@ -94,7 +94,7 @@ export class TokenSetupDialogComponent {
 })
 export class FacilityUsersPageComponent implements OnInit {
   private readonly facilityUsersApi = inject(FacilityUsersService);
-  private readonly auth = inject(AuthService);
+  readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);

@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { ProductsService } from '../../generated/products-client/services/products.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { ProductsPageComponent } from './products.component';
 
 const { downloadBlobFileMock } = vi.hoisted(() => ({
@@ -75,6 +76,10 @@ describe('ProductsPageComponent', () => {
         { provide: TranslateService, useValue: translate },
         { provide: Router, useValue: { events: of(), navigateByUrl: vi.fn() } },
         { provide: AuthService, useValue: auth },
+        {
+          provide: LanguageService,
+          useValue: { currentLanguage: signal('hu-HU'), dateLocale: signal('hu-HU') },
+        },
       ],
     });
   });
@@ -83,7 +88,7 @@ describe('ProductsPageComponent', () => {
     productsApi.apiProductsGet$Json.mockResolvedValue({
       totalCount: 2,
       items: [
-        { id: '1', name: 'Widget', price: 10, facilityId: 'f1', createdAt: '2026-04-19T18:00:00Z' },
+        { id: '1', name: 'Widget', price: 10, quantity: 0, facilityId: 'f1', createdAt: '2026-04-19T18:00:00Z' },
       ],
     });
     const component = TestBed.runInInjectionContext(() => new ProductsPageComponent());
@@ -169,6 +174,7 @@ describe('ProductsPageComponent', () => {
       id: 'product-1',
       name: 'Widget',
       price: 15,
+      quantity: 0,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:00:00Z',
     });

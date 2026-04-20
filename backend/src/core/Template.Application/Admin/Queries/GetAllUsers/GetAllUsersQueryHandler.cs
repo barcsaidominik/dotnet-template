@@ -14,18 +14,44 @@ public sealed class GetAllUsersQueryHandler(IAuthService authService, IMemoryCac
 
     public async ValueTask<ErrorOr<IReadOnlyList<UserDto>>> Handle(GetAllUsersQuery request, CancellationToken ct)
     {
+        IReadOnlyList<UserDto>? users;
+
         if (_cache.TryGetValue(CacheKeys.ALL_USERS, out IReadOnlyList<UserDto>? cached))
         {
-            return cached!.ToList();
+            users = cached!;
         }
-
-        var result = await _authService.GetAllUsersAsync(ct);
-
-        if (!result.IsError)
+        else
         {
-            _cache.Set(CacheKeys.ALL_USERS, result.Value, TimeSpan.FromMinutes(5));
+            var result = await _authService.GetAllUsersAsync(ct);
+            if (result.IsError)
+            {
+                return result;
+            }
+
+            users = result.Value;
+            _cache.Set(CacheKeys.ALL_USERS, users, TimeSpan.FromMinutes(5));
         }
 
-        return result;
+        var filtered = users.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var searchLower = request.Search.ToLowerInvariant();
+            filtered = filtered.Where(u => u.Email.ToLowerInvariant().Contains(searchLower));
+        }
+
+        filtered = ApplySorting(filtered, request.SortBy, request.SortDescending);
+
+        return filtered.ToList().AsReadOnly();
+    }
+
+    private static IEnumerable<UserDto> ApplySorting(IEnumerable<UserDto> users, string? sortBy, bool descending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "role" => descending ? users.OrderByDescending(u => u.Role) : users.OrderBy(u => u.Role),
+            "email" => descending ? users.OrderByDescending(u => u.Email) : users.OrderBy(u => u.Email),
+            _ => users.OrderBy(u => u.Email)
+        };
     }
 }

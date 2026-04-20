@@ -17,15 +17,53 @@
 } @else {
   <mat-card>
     <mat-card-content>
+      <div class="table-toolbar">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'common.search' | translate }}</mat-label>
+          <input
+            matInput
+            #searchInput
+            [value]="searchTerm()"
+            (keyup.enter)="onSearchChange(searchInput.value)"
+            (blur)="onSearchChange(searchInput.value)"
+          />
+          @if (searchTerm()) {
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              [attr.aria-label]="'common.clearSearch' | translate"
+              (click)="searchInput.value = ''; clearSearch()"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          } @else {
+            <mat-icon matSuffix>search</mat-icon>
+          }
+        </mat-form-field>
+      </div>
+
       <table mat-table [dataSource]="users()">
         <ng-container matColumnDef="email">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.email' | translate }}</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('email')">
+              <span>{{ 'admin.users.email' | translate }}</span>
+              <mat-icon>{{ sortIcon('email') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let user">{{ user.email }}</td>
         </ng-container>
 
         <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.role' | translate }}</th>
-          <td mat-cell *matCellDef="let user">{{ user.role ?? '-' }}</td>
+          <th mat-header-cell *matHeaderCellDef>
+            <button class="sort-button" type="button" (click)="toggleSort('role')">
+              <span>{{ 'admin.users.role' | translate }}</span>
+              <mat-icon>{{ sortIcon('role') }}</mat-icon>
+            </button>
+          </th>
+          <td mat-cell *matCellDef="let user">
+            {{ user.role ? ('roles.' + user.role | translate) : '-' }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="isApproved">
@@ -39,9 +77,9 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="facilityId">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.facilityId' | translate }}</th>
-          <td mat-cell *matCellDef="let user">{{ user.facilityId ?? '-' }}</td>
+        <ng-container matColumnDef="facilityName">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.users.facilityName' | translate }}</th>
+          <td mat-cell *matCellDef="let user">{{ getFacilityName(user.facilityId) }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">
@@ -57,14 +95,16 @@
                 <mat-icon>check_circle</mat-icon>
               </button>
             }
-            <button
-              mat-icon-button
-              color="warn"
-              [matTooltip]="'admin.users.delete' | translate"
-              (click)="deleteUser(user)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
+            @if (user.id !== auth.userId()) {
+              <button
+                mat-icon-button
+                color="warn"
+                [matTooltip]="'admin.users.delete' | translate"
+                (click)="deleteUser(user)"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
           </td>
         </ng-container>
 

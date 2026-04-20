@@ -16,10 +16,12 @@ export class AuthService {
   private readonly _role = signal<string | null>(null);
   private readonly _tokenExpiry = signal<Date | null>(null);
   private readonly _facilityId = signal<string | null>(null);
+  private readonly _userId = signal<string | null>(null);
 
   readonly isLoggedIn = computed(() => this._accessToken() !== null);
   readonly role = computed(() => this._role());
   readonly facilityId = computed(() => this._facilityId());
+  readonly userId = computed(() => this._userId());
   readonly isSystemAdmin = computed(() => this._role() === 'SystemAdmin');
   readonly isFacilityAdmin = computed(() => this._role() === 'FacilityAdmin');
   readonly canEditProducts = computed(() =>
@@ -43,6 +45,7 @@ export class AuthService {
     try {
       const payload = JSON.parse(atob(response.token.split('.')[1]));
       this._facilityId.set(payload['facilityId'] ?? null);
+      this._userId.set(payload['sub'] ?? null);
     } catch {
       this._facilityId.set(null);
     }
@@ -70,6 +73,7 @@ export class AuthService {
         this._role.set(null);
         this._tokenExpiry.set(null);
         this._facilityId.set(null);
+        this._userId.set(null);
         this.router.navigate(['/auth/login']);
       },
     });
@@ -80,5 +84,6 @@ export class AuthService {
     this._role.set(null);
     this._tokenExpiry.set(null);
     this._facilityId.set(null);
+    this._userId.set(null);
   }
 }

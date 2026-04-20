@@ -11,6 +11,7 @@ export interface ProductDialogData {
   prefix: string;
   name?: string;
   price?: number;
+  quantity?: number;
   minPrice?: number;
 }
 
@@ -39,6 +40,7 @@ export class ProductDialogComponent {
   readonly form = this.fb.nonNullable.group({
     name: [this.data.name ?? '', Validators.required],
     price: [this.data.price ?? 0, [Validators.required, Validators.min(this.data.minPrice ?? 0)]],
+    quantity: [this.data.quantity ?? 0, [Validators.required, Validators.min(0)]],
   });
 
   confirm(): void {

@@ -983,6 +983,30 @@
         "tags": [
           "Admin"
         ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDescending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1154,6 +1178,30 @@
         "tags": [
           "Admin"
         ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDescending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1162,7 +1210,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FacilityDto"
+                    "$ref": "#/components/schemas/FacilityWithCountDto"
                   }
                 }
               },
@@ -1170,7 +1218,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FacilityDto"
+                    "$ref": "#/components/schemas/FacilityWithCountDto"
                   }
                 }
               },
@@ -1178,7 +1226,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/FacilityDto"
+                    "$ref": "#/components/schemas/FacilityWithCountDto"
                   }
                 }
               }
@@ -1725,6 +1773,28 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDescending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
             }
           }
         ],
@@ -2305,10 +2375,11 @@
           }
         }
       },
-      "FacilityDto": {
+      "FacilityWithCountDto": {
         "required": [
           "id",
-          "name"
+          "name",
+          "employeeCount"
         ],
         "type": "object",
         "properties": {
@@ -2318,6 +2389,14 @@
           },
           "name": {
             "type": "string"
+          },
+          "employeeCount": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       },

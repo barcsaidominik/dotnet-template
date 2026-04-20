@@ -12,6 +12,9 @@ import { PagedResultOfProduct } from '../../models/paged-result-of-product';
 export interface ApiProductsGet$Json$Params {
   page?: (number | string);
   pageSize?: (number | string);
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
 }
 
 export function apiProductsGet$Json(http: HttpClient, rootUrl: string, params?: ApiProductsGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<PagedResultOfProduct>> {
@@ -19,6 +22,9 @@ export function apiProductsGet$Json(http: HttpClient, rootUrl: string, params?: 
   if (params) {
     rb.query('page', params.page, {});
     rb.query('pageSize', params.pageSize, {});
+    rb.query('search', params.search, {});
+    rb.query('sortBy', params.sortBy, {});
+    rb.query('sortDescending', params.sortDescending, {});
   }
 
   return http.request(

@@ -23,6 +23,10 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(p => p.Quantity)
+            .HasDefaultValue(0)
+            .IsRequired();
+
         builder.Property(p => p.CreatedAt)
             .IsRequired();
 

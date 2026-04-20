@@ -1,5 +1,5 @@
 import type { OnInit } from '@angular/core';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,7 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import type { Facility } from '../../../core/models/facility.model';
+import type { User } from '../../../core/models/user.model';
 import { downloadBlobFile } from '../../../shared/utils/file-download.util';
 
 @NgComponent({
@@ -82,6 +83,10 @@ export class FacilityUpdateDialogComponent {
   }
 }
 
+type FacilityTableRow =
+  | { kind: 'facility'; facility: Facility }
+  | { kind: 'detail'; facility: Facility };
+
 @Component({
   selector: 'app-admin-facilities',
   standalone: true,
@@ -94,6 +99,8 @@ export class FacilityUpdateDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
     TranslateModule,
   ],
   templateUrl: './admin-facilities.component.html',
@@ -106,10 +113,37 @@ export class AdminFacilitiesPageComponent implements OnInit {
   private readonly translate = inject(TranslateService);
 
   readonly facilities = signal<Facility[]>([]);
+  readonly allUsers = signal<User[]>([]);
+  readonly expandedFacilityId = signal<string | null>(null);
   readonly isLoading = signal(true);
   readonly isExporting = signal(false);
+  readonly searchTerm = signal('');
+  readonly sortBy = signal<string | null>(null);
+  readonly sortDescending = signal(false);
 
-  readonly displayedColumns = ['name', 'id', 'actions'];
+  readonly usersByFacility = computed(() => {
+    const map = new Map<string, User[]>();
+    for (const user of this.allUsers()) {
+      if (user.facilityId) {
+        const list = map.get(user.facilityId) ?? [];
+        list.push(user);
+        map.set(user.facilityId, list);
+      }
+    }
+    return map;
+  });
+
+  readonly displayedColumns = ['name', 'employeeCount', 'actions'];
+  readonly tableRows = computed<FacilityTableRow[]>(() =>
+    this.facilities().flatMap((facility) =>
+      this.expandedFacilityId() === facility.id
+        ? [
+            { kind: 'facility', facility } satisfies FacilityTableRow,
+            { kind: 'detail', facility } satisfies FacilityTableRow,
+          ]
+        : [{ kind: 'facility', facility } satisfies FacilityTableRow]
+    )
+  );
 
   ngOnInit(): void {
     this.loadFacilities();
@@ -117,7 +151,8 @@ export class AdminFacilitiesPageComponent implements OnInit {
 
   private loadFacilities(): void {
     this.isLoading.set(true);
-    from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
+    const facilitiesParams = this.buildFacilitiesQueryParams();
+    from(this.adminApi.apiAdminFacilitiesGet$Json(facilitiesParams)).subscribe({
       next: (facilities) => {
         this.facilities.set(facilities);
         this.isLoading.set(false);
@@ -131,6 +166,61 @@ export class AdminFacilitiesPageComponent implements OnInit {
         );
       },
     });
+    from(this.adminApi.apiAdminUsersGet$Json()).subscribe({
+      next: (users) => this.allUsers.set(users),
+    });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value.trim());
+    this.loadFacilities();
+  }
+
+  clearSearch(): void {
+    if (!this.searchTerm()) {
+      return;
+    }
+
+    this.searchTerm.set('');
+    this.loadFacilities();
+  }
+
+  toggleSort(column: 'name'): void {
+    if (this.sortBy() !== column) {
+      this.sortBy.set(column);
+      this.sortDescending.set(false);
+    } else if (!this.sortDescending()) {
+      this.sortDescending.set(true);
+    } else {
+      this.sortBy.set(null);
+      this.sortDescending.set(false);
+    }
+
+    this.loadFacilities();
+  }
+
+  sortIcon(column: string): string {
+    if (this.sortBy() !== column) {
+      return 'unfold_more';
+    }
+
+    return this.sortDescending() ? 'south' : 'north';
+  }
+
+  readonly isFacilityRow = (_index: number, row: FacilityTableRow): boolean => row.kind === 'facility';
+  readonly isDetailRow = (_index: number, row: FacilityTableRow): boolean => row.kind === 'detail';
+
+  toggleExpand(facility: Facility): void {
+    const current = this.expandedFacilityId();
+    this.expandedFacilityId.set(current === facility.id ? null : facility.id);
+  }
+
+  getEmployeeCount(facilityId: string): number {
+    return this.usersByFacility().get(facilityId)?.length ?? 0;
+  }
+
+  getUsersForFacility(facilityId: string): User[] {
+    return this.usersByFacility().get(facilityId) ?? [];
   }
 
   openCreateDialog(): void {
@@ -235,5 +325,20 @@ export class AdminFacilitiesPageComponent implements OnInit {
         );
       },
     });
+  }
+
+  private buildFacilitiesQueryParams(): { search?: string; sortBy?: string; sortDescending?: boolean } {
+    const params: { search?: string; sortBy?: string; sortDescending?: boolean } = {};
+
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy() ?? undefined;
+      params.sortDescending = this.sortDescending();
+    }
+
+    return params;
   }
 }

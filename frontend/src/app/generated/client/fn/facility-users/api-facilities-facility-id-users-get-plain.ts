@@ -11,12 +11,18 @@ import { UserDto } from '../../models/user-dto';
 
 export interface ApiFacilitiesFacilityIdUsersGet$Plain$Params {
   facilityId: string;
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
 }
 
 export function apiFacilitiesFacilityIdUsersGet$Plain(http: HttpClient, rootUrl: string, params: ApiFacilitiesFacilityIdUsersGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<UserDto>>> {
   const rb = new RequestBuilder(rootUrl, apiFacilitiesFacilityIdUsersGet$Plain.PATH, 'get');
   if (params) {
     rb.path('facilityId', params.facilityId, {});
+    rb.query('search', params.search, {});
+    rb.query('sortBy', params.sortBy, {});
+    rb.query('sortDescending', params.sortDescending, {});
   }
 
   return http.request(

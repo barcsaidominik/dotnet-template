@@ -43,6 +43,7 @@ public sealed class ExportProductOrderPdfQueryHandler(
             product.Id,
             product.Name,
             product.Price,
+            product.Quantity,
             product.FacilityId,
             facilityName ?? product.FacilityId.ToString(),
             requestedByEmail,

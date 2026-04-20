@@ -13,6 +13,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { timer } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { MailboxService } from '../../core/mailbox/mailbox.service';
+import { ThemeService } from '../../core/theme/theme.service';
 import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 interface NavItem {
@@ -44,6 +45,7 @@ interface NavItem {
 export class AppShellComponent implements OnInit {
   readonly auth = inject(AuthService);
   readonly mailbox = inject(MailboxService);
+  readonly theme = inject(ThemeService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);

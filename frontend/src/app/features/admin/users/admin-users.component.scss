@@ -18,8 +18,37 @@
   padding: 32px;
 }
 
+.table-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.search-field {
+  width: min(100%, 320px);
+}
+
 table {
   width: 100%;
+}
+
+.sort-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sort-button mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
 
 .approved-chip {

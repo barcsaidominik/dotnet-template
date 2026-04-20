@@ -18,4 +18,6 @@ public interface IAuthService
     Task<ErrorOr<LoginResult>> RefreshAsync(string refreshToken, CancellationToken ct = default);
     Task<ErrorOr<Success>> LogoutAsync(string refreshToken, CancellationToken ct = default);
     Task<ErrorOr<Updated>> UpdatePreferredLanguageAsync(Guid userId, string language, CancellationToken ct = default);
+    Task<string?> GetUserPreferredLanguageAsync(Guid userId, CancellationToken ct = default);
+    Task<IReadOnlyDictionary<Guid, int>> GetUserCountsByFacilityAsync(CancellationToken ct = default);
 }

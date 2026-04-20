@@ -7,14 +7,20 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-import { FacilityDto } from '../../models/facility-dto';
+import { FacilityWithCountDto } from '../../models/facility-with-count-dto';
 
 export interface ApiAdminFacilitiesGet$Plain$Params {
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
 }
 
-export function apiAdminFacilitiesGet$Plain(http: HttpClient, rootUrl: string, params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<FacilityDto>>> {
+export function apiAdminFacilitiesGet$Plain(http: HttpClient, rootUrl: string, params?: ApiAdminFacilitiesGet$Plain$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<FacilityWithCountDto>>> {
   const rb = new RequestBuilder(rootUrl, apiAdminFacilitiesGet$Plain.PATH, 'get');
   if (params) {
+    rb.query('search', params.search, {});
+    rb.query('sortBy', params.sortBy, {});
+    rb.query('sortDescending', params.sortDescending, {});
   }
 
   return http.request(
@@ -22,7 +28,7 @@ export function apiAdminFacilitiesGet$Plain(http: HttpClient, rootUrl: string, p
   ).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<FacilityDto>>;
+      return r as StrictHttpResponse<Array<FacilityWithCountDto>>;
     })
   );
 }

@@ -4,4 +4,5 @@
 export interface UpdateProductRequest {
   name: string;
   price: (number | string);
+  quantity: (number | string);
 }

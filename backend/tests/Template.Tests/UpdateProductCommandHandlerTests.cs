@@ -26,7 +26,7 @@ public class UpdateProductCommandHandlerTests
         await dbContext.Products.AddAsync(product);
         await dbContext.SaveChangesAsync();
 
-        var command = new UpdateProductCommand(product.Id, "Updated", 20m);
+        var command = new UpdateProductCommand(product.Id, "Updated", 20m, 5);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -49,7 +49,7 @@ public class UpdateProductCommandHandlerTests
         var store = new EntityStore<Product>(dbContext, []);
         var handler = new UpdateProductCommandHandler(store);
 
-        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", 20m);
+        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", 20m, 5);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -75,7 +75,7 @@ public class UpdateProductCommandHandlerTests
         await dbContext.Products.AddAsync(product);
         await dbContext.SaveChangesAsync();
 
-        var command = new UpdateProductCommand(product.Id, "", 20m);
+        var command = new UpdateProductCommand(product.Id, "", 20m, 5);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);

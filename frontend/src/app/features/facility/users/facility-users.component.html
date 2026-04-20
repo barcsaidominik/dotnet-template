@@ -51,14 +51,16 @@
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef>{{ 'common.actions' | translate }}</th>
           <td mat-cell *matCellDef="let user">
-            <button
-              mat-icon-button
-              color="warn"
-              [matTooltip]="'facility.users.remove' | translate"
-              (click)="removeUser(user)"
-            >
-              <mat-icon>person_remove</mat-icon>
-            </button>
+            @if (user.id !== auth.userId()) {
+              <button
+                mat-icon-button
+                color="warn"
+                [matTooltip]="'facility.users.remove' | translate"
+                (click)="removeUser(user)"
+              >
+                <mat-icon>person_remove</mat-icon>
+              </button>
+            }
           </td>
         </ng-container>
 

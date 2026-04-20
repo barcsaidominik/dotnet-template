@@ -16,6 +16,9 @@ export interface paths {
                 query?: {
                     page?: number | string;
                     pageSize?: number | string;
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -290,6 +293,11 @@ export interface components {
             name: string;
             /** Format: double */
             price: number | string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            quantity: number | string;
         };
         ExcelImportErrorDto: {
             /** Format: int32 */
@@ -319,6 +327,8 @@ export interface components {
             name?: string;
             /** Format: double */
             price?: number | string;
+            /** Format: int32 */
+            quantity?: number | string;
             /** Format: uuid */
             facilityId?: string;
             /** Format: uuid */
@@ -337,6 +347,8 @@ export interface components {
             name: string;
             /** Format: double */
             price: number | string;
+            /** Format: int32 */
+            quantity: number | string;
         };
     };
     responses: never;

@@ -16,7 +16,7 @@ public class ClosedXmlExcelWorkbookServiceTests
         var createdAtUtc = new DateTime(2026, 04, 19, 18, 30, 00, DateTimeKind.Utc);
         IReadOnlyList<ProductExcelExportRowDto> rows =
         [
-            new(Guid.NewGuid(), "Widget", 19.99m, Guid.NewGuid(), createdAtUtc)
+            new(Guid.NewGuid(), "Widget", 19.99m, 10, Guid.NewGuid(), createdAtUtc)
         ];
 
         // Act
@@ -29,11 +29,13 @@ public class ClosedXmlExcelWorkbookServiceTests
         worksheet.Cell(1, 1).GetString().Should().Be("Product ID");
         worksheet.Cell(1, 2).GetString().Should().Be("Name");
         worksheet.Cell(1, 3).GetString().Should().Be("Price");
+        worksheet.Cell(1, 4).GetString().Should().Be("Quantity");
         worksheet.Cell(2, 1).GetString().Should().Be(rows[0].Id.ToString());
         worksheet.Cell(2, 2).GetString().Should().Be("Widget");
         worksheet.Cell(2, 3).GetValue<decimal>().Should().Be(19.99m);
-        worksheet.Cell(2, 4).GetString().Should().Be(rows[0].FacilityId.ToString());
-        worksheet.Cell(2, 5).GetDateTime().Should().Be(createdAtUtc);
+        worksheet.Cell(2, 4).GetValue<int>().Should().Be(10);
+        worksheet.Cell(2, 5).GetString().Should().Be(rows[0].FacilityId.ToString());
+        worksheet.Cell(2, 6).GetDateTime().Should().Be(createdAtUtc);
     }
 
     [Fact]

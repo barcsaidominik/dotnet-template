@@ -46,6 +46,7 @@ public class ProductOrderPdfServiceTests
             Guid.NewGuid(),
             "Widget / Demo",
             42.75m,
+            5,
             Guid.NewGuid(),
             "Central Facility",
             "admin@template.io",

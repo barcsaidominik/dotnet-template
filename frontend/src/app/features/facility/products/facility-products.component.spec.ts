@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ProductsService } from '../../../generated/products-client/services/products.service';
+import { LanguageService } from '../../../core/i18n/language.service';
 import { FacilityProductsPageComponent } from './facility-products.component';
 
 const { downloadBlobFileMock } = vi.hoisted(() => ({
@@ -68,17 +70,23 @@ describe('FacilityProductsPageComponent', () => {
         { provide: MatSnackBar, useValue: snackBar },
         { provide: TranslateService, useValue: translate },
         { provide: Router, useValue: { events: of(), navigateByUrl: vi.fn() } },
+        {
+          provide: LanguageService,
+          useValue: { currentLanguage: signal('hu-HU'), dateLocale: signal('hu-HU') },
+        },
       ],
     });
   });
 
-  it('loads facility products on init with the fixed page size', async () => {
+  it('loads facility products on init with default pagination', async () => {
     productsApi.apiProductsGet$Json.mockResolvedValue({
+      totalCount: 1,
       items: [
         {
           id: '1',
           name: 'Facility Widget',
           price: 12.5,
+          quantity: 0,
           facilityId: 'facility-1',
           createdAt: '2026-04-19T18:00:00Z',
         },
@@ -90,8 +98,9 @@ describe('FacilityProductsPageComponent', () => {
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(productsApi.apiProductsGet$Json).toHaveBeenCalledWith({ page: 1, pageSize: 1000 });
+    expect(productsApi.apiProductsGet$Json).toHaveBeenCalledWith({ page: 1, pageSize: 20 });
     expect(component.products()).toHaveLength(1);
+    expect(component.totalCount()).toBe(1);
     expect(component.isLoading()).toBe(false);
   });
 
@@ -101,10 +110,11 @@ describe('FacilityProductsPageComponent', () => {
         of({
           name: 'Created Product',
           price: 15,
+          quantity: 0,
         }),
     });
     productsApi.apiProductsPost$Json.mockResolvedValue('new-id');
-    productsApi.apiProductsGet$Json.mockResolvedValue({ items: [] });
+    productsApi.apiProductsGet$Json.mockResolvedValue({ totalCount: 0, items: [] });
     const component = TestBed.runInInjectionContext(() => new FacilityProductsPageComponent());
 
     component.openCreateDialog();
@@ -116,6 +126,7 @@ describe('FacilityProductsPageComponent', () => {
       body: {
         name: 'Created Product',
         price: 15,
+        quantity: 0,
       },
     });
     expect(snackBar.open).toHaveBeenCalledWith('facility.products.productCreated', 'common.close', {
@@ -129,16 +140,18 @@ describe('FacilityProductsPageComponent', () => {
         of({
           name: 'Updated Product',
           price: 22,
+          quantity: 5,
         }),
     });
     productsApi.apiProductsIdPut.mockResolvedValue(undefined);
-    productsApi.apiProductsGet$Json.mockResolvedValue({ items: [] });
+    productsApi.apiProductsGet$Json.mockResolvedValue({ totalCount: 0, items: [] });
     const component = TestBed.runInInjectionContext(() => new FacilityProductsPageComponent());
 
     component.openEditDialog({
       id: 'product-1',
       name: 'Old Product',
       price: 20,
+      quantity: 2,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:00:00Z',
     });
@@ -151,6 +164,7 @@ describe('FacilityProductsPageComponent', () => {
       body: {
         name: 'Updated Product',
         price: 22,
+        quantity: 5,
       },
     });
     expect(snackBar.open).toHaveBeenCalledWith('facility.products.productUpdated', 'common.close', {
@@ -164,7 +178,7 @@ describe('FacilityProductsPageComponent', () => {
       skippedCount: 1,
       errors: [{ rowNumber: 2, message: 'Invalid' }],
     });
-    productsApi.apiProductsGet$Json.mockResolvedValue({ items: [] });
+    productsApi.apiProductsGet$Json.mockResolvedValue({ totalCount: 0, items: [] });
     const component = TestBed.runInInjectionContext(() => new FacilityProductsPageComponent());
     const file = new File(['xlsx'], 'facility-products.xlsx');
     const fileInput = {
@@ -200,6 +214,7 @@ describe('FacilityProductsPageComponent', () => {
       id: 'product-1',
       name: 'Facility Widget',
       price: 15,
+      quantity: 0,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:00:00Z',
     });

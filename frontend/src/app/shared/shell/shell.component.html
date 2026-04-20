@@ -12,6 +12,9 @@
     >
       <mat-icon>mail</mat-icon>
     </button>
+    <button mat-icon-button (click)="theme.toggle()" [title]="'common.toggleTheme' | translate">
+      <mat-icon>{{ theme.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
     <app-language-switcher />
     <button mat-icon-button (click)="auth.logout()" [title]="'common.logout' | translate">
       <mat-icon>logout</mat-icon>

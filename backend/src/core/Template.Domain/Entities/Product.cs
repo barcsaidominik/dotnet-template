@@ -11,6 +11,10 @@ public class Product : Entity
     {
         get; private set;
     }
+    public int Quantity
+    {
+        get; private set;
+    }
     public Guid FacilityId
     {
         get; private set;
@@ -20,7 +24,7 @@ public class Product : Entity
     {
     }
 
-    public static ErrorOr<Product> Create(string name, decimal price, Guid facilityId)
+    public static ErrorOr<Product> Create(string name, decimal price, Guid facilityId, int quantity = 0)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -37,15 +41,21 @@ public class Product : Entity
             return ProductErrors.InvalidFacility;
         }
 
+        if (quantity < 0)
+        {
+            return ProductErrors.InvalidQuantity;
+        }
+
         return new Product
         {
             Name = name,
             Price = price,
+            Quantity = quantity,
             FacilityId = facilityId
         };
     }
 
-    public ErrorOr<Updated> Update(string name, decimal price)
+    public ErrorOr<Updated> Update(string name, decimal price, int quantity)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -57,8 +67,14 @@ public class Product : Entity
             return ProductErrors.InvalidPrice;
         }
 
+        if (quantity < 0)
+        {
+            return ProductErrors.InvalidQuantity;
+        }
+
         Name = name;
         Price = price;
+        Quantity = quantity;
 
         return Result.Updated;
     }

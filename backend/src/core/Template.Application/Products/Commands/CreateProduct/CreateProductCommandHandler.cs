@@ -17,7 +17,7 @@ public sealed class CreateProductCommandHandler(IEntityStore<Product> store, ICu
             return Error.Forbidden("Product.NoFacility", "User is not assigned to a facility");
         }
 
-        var productResult = Product.Create(request.Name, request.Price, _currentUser.FacilityId.Value);
+        var productResult = Product.Create(request.Name, request.Price, _currentUser.FacilityId.Value, request.Quantity);
         if (productResult.IsError)
         {
             return productResult.Errors;

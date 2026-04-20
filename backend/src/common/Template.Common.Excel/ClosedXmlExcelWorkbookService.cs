@@ -1,3 +1,4 @@
+using System.Globalization;
 using ClosedXML.Excel;
 using ErrorOr;
 using Template.Application.Common.Dtos;
@@ -7,17 +8,17 @@ namespace Template.Common.Excel;
 
 public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
 {
-    public byte[] ExportUsers(IReadOnlyList<UserExcelExportRowDto> rows)
+    public byte[] ExportUsers(IReadOnlyList<UserExcelExportRowDto> rows, CultureInfo? culture = null)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Users");
 
-        worksheet.Cell(1, 1).Value = "User ID";
-        worksheet.Cell(1, 2).Value = "Email";
-        worksheet.Cell(1, 3).Value = "Role";
-        worksheet.Cell(1, 4).Value = "Approval Status";
-        worksheet.Cell(1, 5).Value = "Facility ID";
-        worksheet.Cell(1, 6).Value = "Preferred Language";
+        worksheet.Cell(1, 1).Value = L("UserID", culture);
+        worksheet.Cell(1, 2).Value = L("Email", culture);
+        worksheet.Cell(1, 3).Value = L("Role", culture);
+        worksheet.Cell(1, 4).Value = L("ApprovalStatus", culture);
+        worksheet.Cell(1, 5).Value = L("FacilityID", culture);
+        worksheet.Cell(1, 6).Value = L("PreferredLanguage", culture);
 
         for (var index = 0; index < rows.Count; index++)
         {
@@ -35,13 +36,13 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
         return BuildWorkbook(workbook, worksheet);
     }
 
-    public byte[] ExportFacilities(IReadOnlyList<FacilityExcelExportRowDto> rows)
+    public byte[] ExportFacilities(IReadOnlyList<FacilityExcelExportRowDto> rows, CultureInfo? culture = null)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Facilities");
 
-        worksheet.Cell(1, 1).Value = "Facility ID";
-        worksheet.Cell(1, 2).Value = "Name";
+        worksheet.Cell(1, 1).Value = L("FacilityID", culture);
+        worksheet.Cell(1, 2).Value = L("Name", culture);
 
         for (var index = 0; index < rows.Count; index++)
         {
@@ -55,16 +56,17 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
         return BuildWorkbook(workbook, worksheet);
     }
 
-    public byte[] ExportProducts(IReadOnlyList<ProductExcelExportRowDto> rows)
+    public byte[] ExportProducts(IReadOnlyList<ProductExcelExportRowDto> rows, CultureInfo? culture = null)
     {
         using var workbook = new XLWorkbook();
         var worksheet = workbook.Worksheets.Add("Products");
 
-        worksheet.Cell(1, 1).Value = "Product ID";
-        worksheet.Cell(1, 2).Value = "Name";
-        worksheet.Cell(1, 3).Value = "Price";
-        worksheet.Cell(1, 4).Value = "Facility ID";
-        worksheet.Cell(1, 5).Value = "Created At (UTC)";
+        worksheet.Cell(1, 1).Value = L("ProductID", culture);
+        worksheet.Cell(1, 2).Value = L("Name", culture);
+        worksheet.Cell(1, 3).Value = L("Price", culture);
+        worksheet.Cell(1, 4).Value = L("Quantity", culture);
+        worksheet.Cell(1, 5).Value = L("FacilityID", culture);
+        worksheet.Cell(1, 6).Value = L("CreatedAtUTC", culture);
 
         for (var index = 0; index < rows.Count; index++)
         {
@@ -74,9 +76,10 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
             worksheet.Cell(rowNumber, 1).Value = row.Id.ToString();
             worksheet.Cell(rowNumber, 2).Value = row.Name;
             worksheet.Cell(rowNumber, 3).Value = row.Price;
-            worksheet.Cell(rowNumber, 4).Value = row.FacilityId.ToString();
-            worksheet.Cell(rowNumber, 5).Value = row.CreatedAtUtc;
-            worksheet.Cell(rowNumber, 5).Style.DateFormat.Format = "yyyy-mm-dd hh:mm:ss";
+            worksheet.Cell(rowNumber, 4).Value = row.Quantity;
+            worksheet.Cell(rowNumber, 5).Value = row.FacilityId.ToString();
+            worksheet.Cell(rowNumber, 6).Value = row.CreatedAtUtc;
+            worksheet.Cell(rowNumber, 6).Style.DateFormat.Format = "yyyy-mm-dd hh:mm:ss";
         }
 
         return BuildWorkbook(workbook, worksheet);
@@ -102,6 +105,7 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
                 var rowNumber = row.RowNumber();
                 var name = row.Cell(1).GetString().Trim();
                 var priceCell = row.Cell(2);
+                var quantityCell = row.Cell(3);
 
                 if (string.IsNullOrWhiteSpace(name) && priceCell.IsEmpty())
                 {
@@ -118,7 +122,21 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
                     return Error.Validation("ProductImport.PriceInvalid", $"Row {rowNumber}: price must be a valid decimal number.");
                 }
 
-                rows.Add(new ProductExcelImportRowDto(rowNumber, name, price));
+                var quantity = 0;
+                if (!quantityCell.IsEmpty())
+                {
+                    if (!TryReadInt(quantityCell, out quantity))
+                    {
+                        return Error.Validation("ProductImport.QuantityInvalid", $"Row {rowNumber}: quantity must be a valid integer.");
+                    }
+
+                    if (quantity < 0)
+                    {
+                        return Error.Validation("ProductImport.QuantityNegative", $"Row {rowNumber}: quantity cannot be negative.");
+                    }
+                }
+
+                rows.Add(new ProductExcelImportRowDto(rowNumber, name, price, quantity));
             }
 
             return rows.AsReadOnly();
@@ -152,5 +170,36 @@ public sealed class ClosedXmlExcelWorkbookService : IExcelWorkbookService
         }
 
         return decimal.TryParse(cell.GetString(), out value);
+    }
+
+    private static bool TryReadInt(IXLCell cell, out int value)
+    {
+        if (cell.TryGetValue<int>(out value))
+        {
+            return true;
+        }
+
+        return int.TryParse(cell.GetString(), out value);
+    }
+
+    private static string L(string key, CultureInfo? culture)
+    {
+        var isHungarian = culture?.Name == "hu-HU";
+
+        return key switch
+        {
+            "UserID" => isHungarian ? "Felhaszn\u00e1l\u00f3 ID" : "User ID",
+            "Email" => "Email",
+            "Role" => isHungarian ? "Szerepk\u00f6r" : "Role",
+            "ApprovalStatus" => isHungarian ? "J\u00f3v\u00e1hagy\u00e1si st\u00e1tusz" : "Approval Status",
+            "FacilityID" => isHungarian ? "\u00dczem ID" : "Facility ID",
+            "PreferredLanguage" => isHungarian ? "Prefer\u00e1lt nyelv" : "Preferred Language",
+            "Name" => isHungarian ? "Megnevez\u00e9s" : "Name",
+            "ProductID" => isHungarian ? "Term\u00e9k ID" : "Product ID",
+            "Price" => isHungarian ? "\u00c1r" : "Price",
+            "Quantity" => isHungarian ? "Mennyis\u00e9g" : "Quantity",
+            "CreatedAtUTC" => isHungarian ? "L\u00e9trehozva (UTC)" : "Created At (UTC)",
+            _ => key
+        };
     }
 }

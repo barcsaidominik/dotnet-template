@@ -23,9 +23,14 @@ public sealed class ProductsController(ISender sender)
 {
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<Product>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new GetProductsQuery(page, pageSize)).ToActionResultAsync();
+        return await SendAsync(new GetProductsQuery(page, pageSize, search, sortBy, sortDescending)).ToActionResultAsync();
     }
 
     [HttpGet("export")]
@@ -70,7 +75,7 @@ public sealed class ProductsController(ISender sender)
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
     {
-        return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price))
+        return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price, request.Quantity))
             .ToActionResultAsync(_ => NoContent());
     }
 

@@ -23,6 +23,7 @@ import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import type { User } from '../../../core/models/user.model';
 import type { Facility } from '../../../core/models/facility.model';
 import { downloadBlobFile } from '../../../shared/utils/file-download.util';
@@ -123,6 +124,8 @@ export class AdminTokenSetupDialogComponent {
     MatDialogModule,
     MatCardModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
     TranslateModule,
   ],
   templateUrl: './admin-users.component.html',
@@ -134,21 +137,32 @@ export class AdminUsersPageComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
+  readonly auth = inject(AuthService);
 
   readonly users = signal<User[]>([]);
   readonly facilities = signal<Facility[]>([]);
   readonly isLoading = signal(true);
   readonly isExporting = signal(false);
+  readonly searchTerm = signal('');
+  readonly sortBy = signal<string | null>(null);
+  readonly sortDescending = signal(false);
 
-  readonly displayedColumns = ['email', 'role', 'isApproved', 'facilityId', 'actions'];
+  readonly displayedColumns = ['email', 'role', 'isApproved', 'facilityName', 'actions'];
 
   ngOnInit(): void {
     this.loadData();
   }
 
+  getFacilityName(facilityId: string | null): string {
+    if (!facilityId) {
+      return '-';
+    }
+    return this.facilities().find((f) => f.id === facilityId)?.name ?? '-';
+  }
+
   private loadData(): void {
     this.isLoading.set(true);
-    from(this.adminApi.apiAdminUsersGet$Json()).subscribe({
+    from(this.adminApi.apiAdminUsersGet$Json(this.buildUsersQueryParams())).subscribe({
       next: (users) => {
         this.users.set(users);
         this.isLoading.set(false);
@@ -165,6 +179,42 @@ export class AdminUsersPageComponent implements OnInit {
     from(this.adminApi.apiAdminFacilitiesGet$Json()).subscribe({
       next: (facilities) => this.facilities.set(facilities),
     });
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value.trim());
+    this.loadData();
+  }
+
+  clearSearch(): void {
+    if (!this.searchTerm()) {
+      return;
+    }
+
+    this.searchTerm.set('');
+    this.loadData();
+  }
+
+  toggleSort(column: 'email' | 'role'): void {
+    if (this.sortBy() !== column) {
+      this.sortBy.set(column);
+      this.sortDescending.set(false);
+    } else if (!this.sortDescending()) {
+      this.sortDescending.set(true);
+    } else {
+      this.sortBy.set(null);
+      this.sortDescending.set(false);
+    }
+
+    this.loadData();
+  }
+
+  sortIcon(column: string): string {
+    if (this.sortBy() !== column) {
+      return 'unfold_more';
+    }
+
+    return this.sortDescending() ? 'south' : 'north';
   }
 
   openApproveDialog(user: User): void {
@@ -275,5 +325,20 @@ export class AdminUsersPageComponent implements OnInit {
         this.snackBar.open(msg, this.translate.instant('common.close'), { duration: 4000 });
       },
     });
+  }
+
+  private buildUsersQueryParams(): { search?: string; sortBy?: string; sortDescending?: boolean } {
+    const params: { search?: string; sortBy?: string; sortDescending?: boolean } = {};
+
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy() ?? undefined;
+      params.sortDescending = this.sortDescending();
+    }
+
+    return params;
   }
 }

@@ -267,6 +267,23 @@ public sealed class AuthService(
         return Result.Updated;
     }
 
+    public async Task<string?> GetUserPreferredLanguageAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        return user?.PreferredLanguage;
+    }
+
+    public async Task<IReadOnlyDictionary<Guid, int>> GetUserCountsByFacilityAsync(CancellationToken ct = default)
+    {
+        var counts = await _userManager.Users
+            .Where(u => u.FacilityId != null)
+            .GroupBy(u => u.FacilityId!.Value)
+            .Select(g => new { FacilityId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.FacilityId, x => x.Count, ct);
+
+        return counts;
+    }
+
     private static string GenerateRefreshToken()
     {
         var bytes = new byte[64];

@@ -10,6 +10,8 @@ import { MatCardModule } from '@angular/material/card';
 import type { PageEvent } from '@angular/material/paginator';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { TranslateModule } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
@@ -31,6 +33,8 @@ import { ProductsBaseComponent } from '../../shared/products/products-base.compo
     MatCardModule,
     MatPaginatorModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatInputModule,
     TranslateModule,
   ],
   templateUrl: './products.component.html',
@@ -48,10 +52,9 @@ export class ProductsPageComponent extends ProductsBaseComponent {
   override loadProducts(): void {
     this.isLoading.set(true);
     from(
-      this.productsApi.apiProductsGet$Json({
-        page: this.page() + 1,
-        pageSize: this.pageSize(),
-      })
+      this.productsApi.apiProductsGet$Json(
+        this.buildProductsQueryParams(this.page() + 1, this.pageSize())
+      )
     ).subscribe({
       next: (result) => {
         this.totalCount.set(Number(result.totalCount ?? 0));

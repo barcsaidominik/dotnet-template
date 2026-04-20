@@ -7,16 +7,42 @@ using Template.Domain.Entities;
 
 namespace Template.Application.Admin.Queries.GetAllFacilities;
 
-public sealed class GetAllFacilitiesQueryHandler(IEntityStore<Facility> store) : IRequestHandler<GetAllFacilitiesQuery, ErrorOr<IReadOnlyList<FacilityDto>>>
+public sealed class GetAllFacilitiesQueryHandler(
+    IEntityStore<Facility> store,
+    IAuthService authService) : IRequestHandler<GetAllFacilitiesQuery, ErrorOr<IReadOnlyList<FacilityWithCountDto>>>
 {
     private readonly IEntityStore<Facility> _store = store;
+    private readonly IAuthService _authService = authService;
 
-    public async ValueTask<ErrorOr<IReadOnlyList<FacilityDto>>> Handle(GetAllFacilitiesQuery request, CancellationToken ct)
+    public async ValueTask<ErrorOr<IReadOnlyList<FacilityWithCountDto>>> Handle(GetAllFacilitiesQuery request, CancellationToken ct)
     {
-        var facilities = await _store.GetQuery(asNoTracking: true, skipGuards: true)
-            .Select(f => new FacilityDto(f.Id, f.Name))
-            .ToListAsync(ct);
+        var facilitiesQuery = _store.GetQuery(asNoTracking: true, skipGuards: true);
 
-        return facilities.AsReadOnly();
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var searchLower = request.Search.ToLowerInvariant();
+            facilitiesQuery = facilitiesQuery.Where(f => f.Name.ToLower().Contains(searchLower));
+        }
+
+        var facilities = await facilitiesQuery.ToListAsync(ct);
+        var userCounts = await _authService.GetUserCountsByFacilityAsync(ct);
+
+        var result = facilities.Select(f => new FacilityWithCountDto(
+            f.Id,
+            f.Name,
+            userCounts.GetValueOrDefault(f.Id, 0)));
+
+        result = ApplySorting(result, request.SortBy, request.SortDescending);
+
+        return result.ToList().AsReadOnly();
+    }
+
+    private static IEnumerable<FacilityWithCountDto> ApplySorting(IEnumerable<FacilityWithCountDto> facilities, string? sortBy, bool descending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "name" => descending ? facilities.OrderByDescending(f => f.Name) : facilities.OrderBy(f => f.Name),
+            _ => facilities.OrderBy(f => f.Name)
+        };
     }
 }

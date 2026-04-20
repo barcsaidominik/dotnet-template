@@ -19,9 +19,13 @@ public sealed class FacilityUsersController(ISender sender)
 {
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<UserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetUsers(Guid facilityId)
+    public async Task<IActionResult> GetUsers(
+        Guid facilityId,
+        [FromQuery] string? search = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = false)
     {
-        return await SendAsync(new GetFacilityUsersQuery(facilityId)).ToActionResultAsync();
+        return await SendAsync(new GetFacilityUsersQuery(facilityId, search, sortBy, sortDescending)).ToActionResultAsync();
     }
 
     [HttpPost]

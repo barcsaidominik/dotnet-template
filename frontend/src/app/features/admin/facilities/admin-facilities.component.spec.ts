@@ -21,6 +21,7 @@ describe('AdminFacilitiesPageComponent', () => {
     apiAdminFacilitiesFacilityIdPut: ReturnType<typeof vi.fn>;
     apiAdminFacilitiesFacilityIdDelete: ReturnType<typeof vi.fn>;
     apiAdminFacilitiesExportGet$Response: ReturnType<typeof vi.fn>;
+    apiAdminUsersGet$Json: ReturnType<typeof vi.fn>;
   };
   let dialog: {
     open: ReturnType<typeof vi.fn>;
@@ -41,6 +42,7 @@ describe('AdminFacilitiesPageComponent', () => {
       apiAdminFacilitiesFacilityIdPut: vi.fn(),
       apiAdminFacilitiesFacilityIdDelete: vi.fn(),
       apiAdminFacilitiesExportGet$Response: vi.fn(),
+      apiAdminUsersGet$Json: vi.fn().mockResolvedValue([]),
     };
     dialog = {
       open: vi.fn(),

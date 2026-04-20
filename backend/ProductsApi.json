@@ -42,6 +42,28 @@
               "format": "int32",
               "default": 20
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDescending",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -446,6 +468,15 @@
               "string"
             ],
             "format": "double"
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32",
+            "default": 0
           }
         }
       },
@@ -566,6 +597,14 @@
             ],
             "format": "double"
           },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
           "facilityId": {
             "type": "string",
             "format": "uuid"
@@ -615,7 +654,8 @@
       "UpdateProductRequest": {
         "required": [
           "name",
-          "price"
+          "price",
+          "quantity"
         ],
         "type": "object",
         "properties": {
@@ -629,6 +669,14 @@
               "string"
             ],
             "format": "double"
+          },
+          "quantity": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
           }
         }
       }

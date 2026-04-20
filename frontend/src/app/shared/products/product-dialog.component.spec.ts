@@ -41,23 +41,24 @@ describe('ProductDialogComponent', () => {
   it('form initialises empty for create mode', () => {
     const component = setup({ mode: 'create', prefix: 'products' });
 
-    expect(component.form.getRawValue()).toEqual({ name: '', price: 0 });
+    expect(component.form.getRawValue()).toEqual({ name: '', price: 0, quantity: 0 });
   });
 
-  it('form is pre-populated with name and price for update mode', () => {
+  it('form is pre-populated with name, price and quantity for update mode', () => {
     const component = setup({
       mode: 'update',
       prefix: 'facility.products',
       name: 'Widget',
       price: 9.99,
+      quantity: 5,
     });
 
-    expect(component.form.getRawValue()).toEqual({ name: 'Widget', price: 9.99 });
+    expect(component.form.getRawValue()).toEqual({ name: 'Widget', price: 9.99, quantity: 5 });
   });
 
   it('confirm() does nothing when form is invalid', () => {
     const component = setup({ mode: 'create', prefix: 'products' });
-    component.form.setValue({ name: '', price: 0 });
+    component.form.setValue({ name: '', price: 0, quantity: 0 });
 
     component.confirm();
 
@@ -66,10 +67,10 @@ describe('ProductDialogComponent', () => {
 
   it('confirm() closes dialog with form values when form is valid', () => {
     const component = setup({ mode: 'create', prefix: 'products' });
-    component.form.setValue({ name: 'Widget', price: 5 });
+    component.form.setValue({ name: 'Widget', price: 5, quantity: 3 });
 
     component.confirm();
 
-    expect(dialogRef.close).toHaveBeenCalledWith({ name: 'Widget', price: 5 });
+    expect(dialogRef.close).toHaveBeenCalledWith({ name: 'Widget', price: 5, quantity: 3 });
   });
 });

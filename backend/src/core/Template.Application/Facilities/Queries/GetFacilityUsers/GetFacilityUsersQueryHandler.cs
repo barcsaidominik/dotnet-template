@@ -21,6 +21,32 @@ public sealed class GetFacilityUsersQueryHandler(
             return FacilityErrors.AccessDenied;
         }
 
-        return await _authService.GetFacilityUsersAsync(request.FacilityId, ct);
+        var result = await _authService.GetFacilityUsersAsync(request.FacilityId, ct);
+        if (result.IsError)
+        {
+            return result;
+        }
+
+        var users = result.Value.AsEnumerable();
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            var searchLower = request.Search.ToLowerInvariant();
+            users = users.Where(u => u.Email.ToLowerInvariant().Contains(searchLower));
+        }
+
+        users = ApplySorting(users, request.SortBy, request.SortDescending);
+
+        return users.ToList().AsReadOnly();
+    }
+
+    private static IEnumerable<UserDto> ApplySorting(IEnumerable<UserDto> users, string? sortBy, bool descending)
+    {
+        return sortBy?.ToLowerInvariant() switch
+        {
+            "role" => descending ? users.OrderByDescending(u => u.Role) : users.OrderBy(u => u.Role),
+            "email" => descending ? users.OrderByDescending(u => u.Email) : users.OrderBy(u => u.Email),
+            _ => users.OrderBy(u => u.Email)
+        };
     }
 }

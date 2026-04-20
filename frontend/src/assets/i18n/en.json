@@ -13,7 +13,10 @@
     "noData": "No data to display.",
     "actions": "Actions",
     "confirm": "Confirm",
-    "ok": "OK"
+    "ok": "OK",
+    "toggleTheme": "Toggle theme",
+    "search": "Search",
+    "clearSearch": "Clear search"
   },
   "nav": {
     "users": "Users",
@@ -102,6 +105,7 @@
       "role": "Role",
       "status": "Status",
       "facilityId": "Facility ID",
+      "facilityName": "Facility",
       "approved": "Approved",
       "pending": "Pending",
       "approve": "Approve",
@@ -142,6 +146,8 @@
       "createFacility": "Create Facility",
       "name": "Name",
       "id": "ID",
+      "employeeCount": "Employees",
+      "noEmployees": "No employees assigned.",
       "edit": "Edit",
       "delete": "Delete",
       "noFacilities": "No facilities found.",
@@ -205,6 +211,7 @@
       "createProduct": "Create Product",
       "name": "Name",
       "price": "Price",
+      "quantity": "Quantity",
       "created": "Created",
       "id": "ID",
       "edit": "Edit",
@@ -228,12 +235,15 @@
         "price": "Price",
         "priceRequired": "Price is required.",
         "priceMin": "Price must be 0 or greater.",
+        "quantity": "Quantity",
+        "quantityMin": "Quantity cannot be negative.",
         "submit": "Create"
       },
       "updateDialog": {
         "title": "Edit Product",
         "name": "Name",
         "price": "Price",
+        "quantity": "Quantity",
         "submit": "Save"
       }
     }
@@ -243,6 +253,7 @@
     "createProduct": "Create Product",
     "name": "Name",
     "price": "Price",
+    "quantity": "Quantity",
     "created": "Created",
     "id": "ID",
     "noProducts": "No products found.",
@@ -264,10 +275,13 @@
       "price": "Price",
       "priceRequired": "Price is required.",
       "priceMin": "Price must be 0 or greater.",
+      "quantity": "Quantity",
+      "quantityMin": "Quantity cannot be negative.",
       "submit": "Create"
     }
   },
   "roles": {
+    "SystemAdmin": "System Admin",
     "FacilityAdmin": "Facility Admin",
     "FacilityEditor": "Facility Editor",
     "FacilityViewer": "Facility Viewer"

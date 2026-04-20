@@ -39,7 +39,7 @@ public sealed class ImportProductsFromExcelCommandHandler(
 
         foreach (var row in importRowsResult.Value)
         {
-            var productResult = Product.Create(row.Name, row.Price, _currentUserService.FacilityId.Value);
+            var productResult = Product.Create(row.Name, row.Price, _currentUserService.FacilityId.Value, row.Quantity);
             if (productResult.IsError)
             {
                 errors.AddRange(productResult.Errors.Select(error => new ExcelImportErrorDto(row.RowNumber, error.Description)));

@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
@@ -13,6 +13,7 @@ export class LanguageService {
   private static readonly STORAGE_KEY = 'preferredLanguage';
 
   readonly currentLanguage = signal<string>(LanguageService.DEFAULT);
+  readonly dateLocale = computed(() => this.currentLanguage());
 
   initialize(): void {
     const stored = localStorage.getItem(LanguageService.STORAGE_KEY) ?? LanguageService.DEFAULT;

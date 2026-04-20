@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { from } from 'rxjs';
+import { LanguageService } from '../../core/i18n/language.service';
 import { ProductsService } from '../../generated/products-client/services/products.service';
 import type { ProductImportResultDto } from '../../generated/products-client/models/product-import-result-dto';
 import type { Product } from '../../core/models/product.model';
@@ -26,13 +27,17 @@ export abstract class ProductsBaseComponent implements OnInit {
   protected readonly dialog = inject(MatDialog);
   protected readonly snackBar = inject(MatSnackBar);
   protected readonly translate = inject(TranslateService);
+  readonly lang = inject(LanguageService);
 
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(true);
   readonly isExporting = signal(false);
   readonly isImporting = signal(false);
   readonly downloadingProductId = signal<string | null>(null);
-  readonly displayedColumns = ['name', 'price', 'createdAt', 'id', 'actions'];
+  readonly displayedColumns = ['name', 'price', 'quantity', 'createdAt', 'actions'];
+  readonly searchTerm = signal('');
+  readonly sortBy = signal<string | null>(null);
+  readonly sortDescending = signal(false);
 
   ngOnInit(): void {
     this.loadProducts();
@@ -43,19 +48,55 @@ export abstract class ProductsBaseComponent implements OnInit {
 
   abstract loadProducts(): void;
 
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value.trim());
+    this.loadProducts();
+  }
+
+  clearSearch(): void {
+    if (!this.searchTerm()) {
+      return;
+    }
+
+    this.searchTerm.set('');
+    this.loadProducts();
+  }
+
+  toggleSort(column: 'name' | 'price' | 'createdAt'): void {
+    if (this.sortBy() !== column) {
+      this.sortBy.set(column);
+      this.sortDescending.set(false);
+    } else if (!this.sortDescending()) {
+      this.sortDescending.set(true);
+    } else {
+      this.sortBy.set(null);
+      this.sortDescending.set(false);
+    }
+
+    this.loadProducts();
+  }
+
+  sortIcon(column: string): string {
+    if (this.sortBy() !== column) {
+      return 'unfold_more';
+    }
+
+    return this.sortDescending() ? 'south' : 'north';
+  }
+
   openCreateDialog(): void {
     const ref = this.dialog.open(ProductDialogComponent, {
       width: '360px',
       data: { mode: 'create', prefix: this.i18nPrefix } as ProductDialogData,
     });
 
-    ref.afterClosed().subscribe((result: { name: string; price: number } | undefined) => {
+    ref.afterClosed().subscribe((result: { name: string; price: number; quantity: number } | undefined) => {
       if (!result) {
         return;
       }
       from(
         this.productsApi.apiProductsPost$Json({
-          body: { name: result.name, price: result.price },
+          body: { name: result.name, price: result.price, quantity: result.quantity },
         })
       ).subscribe({
         next: () => {
@@ -155,5 +196,38 @@ export abstract class ProductsBaseComponent implements OnInit {
       skippedCount: result.skippedCount,
       errorCount: result.errors.length,
     });
+  }
+
+  protected buildProductsQueryParams(
+    page: number,
+    pageSize: number
+  ): {
+    page: number;
+    pageSize: number;
+    search?: string;
+    sortBy?: string;
+    sortDescending?: boolean;
+  } {
+    const params: {
+      page: number;
+      pageSize: number;
+      search?: string;
+      sortBy?: string;
+      sortDescending?: boolean;
+    } = {
+      page,
+      pageSize,
+    };
+
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy() ?? undefined;
+      params.sortDescending = this.sortDescending();
+    }
+
+    return params;
   }
 }

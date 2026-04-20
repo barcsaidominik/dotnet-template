@@ -625,7 +625,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -795,7 +799,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -808,9 +816,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["FacilityDto"][];
-                        "application/json": components["schemas"]["FacilityDto"][];
-                        "text/json": components["schemas"]["FacilityDto"][];
+                        "text/plain": components["schemas"]["FacilityWithCountDto"][];
+                        "application/json": components["schemas"]["FacilityWithCountDto"][];
+                        "text/json": components["schemas"]["FacilityWithCountDto"][];
                     };
                 };
             };
@@ -1281,7 +1289,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    search?: string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
                 header?: never;
                 path: {
                     facilityId: string;
@@ -1719,10 +1731,12 @@ export interface components {
             userId: string;
             setupToken: string;
         };
-        FacilityDto: {
+        FacilityWithCountDto: {
             /** Format: uuid */
             id: string;
             name: string;
+            /** Format: int32 */
+            employeeCount: number | string;
         };
         LoginCommand: {
             email: string;

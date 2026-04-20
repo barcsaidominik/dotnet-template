@@ -21,7 +21,7 @@ public sealed class UpdateProductCommandHandler(IEntityStore<Product> store) : I
             return ProductErrors.NotFound;
         }
 
-        var updateResult = product.Update(request.Name, request.Price);
+        var updateResult = product.Update(request.Name, request.Price, request.Quantity);
         if (updateResult.IsError)
         {
             return updateResult.Errors;

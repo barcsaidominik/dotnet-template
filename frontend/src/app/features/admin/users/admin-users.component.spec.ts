@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { AdminUsersPageComponent } from './admin-users.component';
 
 const { downloadBlobFileMock } = vi.hoisted(() => ({
@@ -68,6 +70,7 @@ describe('AdminUsersPageComponent', () => {
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
         { provide: TranslateService, useValue: translate },
+        { provide: AuthService, useValue: { userId: signal('current-admin-id') } },
       ],
     });
   });

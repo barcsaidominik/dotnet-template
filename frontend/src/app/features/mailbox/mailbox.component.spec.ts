@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 import { MailboxService } from '../../core/mailbox/mailbox.service';
+import { LanguageService } from '../../core/i18n/language.service';
 import { MailboxPageComponent } from './mailbox.component';
 
 describe('MailboxPageComponent', () => {
@@ -50,6 +51,10 @@ describe('MailboxPageComponent', () => {
         { provide: Router, useValue: router },
         { provide: MatSnackBar, useValue: snackBar },
         { provide: TranslateService, useValue: translate },
+        {
+          provide: LanguageService,
+          useValue: { currentLanguage: signal('hu-HU'), dateLocale: signal('hu-HU') },
+        },
       ],
     });
   });

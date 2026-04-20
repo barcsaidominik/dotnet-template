@@ -10,11 +10,17 @@ import { RequestBuilder } from '../../request-builder';
 import { UserDto } from '../../models/user-dto';
 
 export interface ApiAdminUsersGet$Json$Params {
+  search?: string;
+  sortBy?: string;
+  sortDescending?: boolean;
 }
 
 export function apiAdminUsersGet$Json(http: HttpClient, rootUrl: string, params?: ApiAdminUsersGet$Json$Params, context?: HttpContext): Observable<StrictHttpResponse<Array<UserDto>>> {
   const rb = new RequestBuilder(rootUrl, apiAdminUsersGet$Json.PATH, 'get');
   if (params) {
+    rb.query('search', params.search, {});
+    rb.query('sortBy', params.sortBy, {});
+    rb.query('sortDescending', params.sortDescending, {});
   }
 
   return http.request(
