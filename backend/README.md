@@ -114,20 +114,7 @@ YARP-alapú gateway ami kéréseket irányít a backend szolgáltatásokhoz.
    - Admin létrehoz létesítmény felhasználót `RequiresPasswordChange = true`-val
    - Visszaad `setupToken`-t a `/api/Auth/set-password` folyamathoz
 
-## Deployment modok
-
-### InProcess (Monolitikus)
-
-Products funkcionalitas a `Template.Api`-on belul fut.
-
-**Konfiguráció:**
-```json
-{
-  "ProductsService": {
-    "Mode": "InProcess"
-  }
-}
-```
+## Deployment mod
 
 ### Proxy (Microservice-ek)
 
@@ -211,7 +198,6 @@ OpenAPI specifikációk a frontend által használva:
 | `JwtSettings__Issuer` | JWT kibocsátó | `template-api` |
 | `JwtSettings__Audience` | JWT célközönség | `template-frontend` |
 | `InternalServiceAuth__Token` | Szolgáltatás-közötti auth token (min. 32 karakter) | - |
-| `ProductsService__Mode` | Deployment mód: `InProcess` vagy `Proxy` | `InProcess` |
 | `ProductsService__GrpcBaseUrl` | Products gRPC endpoint (Proxy mod) | - |
 | `ASPNETCORE_ENVIRONMENT` | Környezet: Development, Staging, Production | `Development` |
 

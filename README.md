@@ -93,7 +93,6 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 - Secretek felülírják a környezeti változókat ha mindkettő létezik
 
 ### Microservice-ek és kommunikáció
-- **InProcess mod:** Monolitikus deployment
 - **Proxy mod:** Gateway API YARP routing-gal külön szolgáltatásokhoz
 - **gRPC:** Szolgáltatások közti kommunikáció Polly retry policy-kkal
 - **Belső szolgáltatás hitelesítés:** Token alapú service-to-service auth
