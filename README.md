@@ -1,5 +1,8 @@
 # .NET Template Projekt
 
+> **Megjegyzés:** Ez a projekt jelenleg nem rendelkezik nyílt forráskódú licenccel.
+> Minden jog fenntartva. Használat, másolás, módosítás kizárólag a szerző írásbeli engedélyével engedélyezett.
+
 Egy production-ready full-stack sablon, ami modern .NET és Angular fejlesztési mintákat mutat be valós funkcionalitással.
 
 Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enterprise-szintű implementációs mintákat mutat be: hitelesítés, jogosultságkezelés, háttérfeladatok, PDF/Excel generálás, microservice-ek, gRPC és még sok más.
