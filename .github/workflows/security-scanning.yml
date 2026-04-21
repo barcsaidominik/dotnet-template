@@ -1,0 +1,122 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  # Run weekly even without code changes --
+  # catches newly disclosed CVEs in unchanged dependencies.
+  schedule:
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+  security-events: write   # required for CodeQL to upload SARIF results
+  pull-requests: write     # required for gitleaks PR annotation
+
+jobs:
+
+  # ── 1. CodeQL (SAST) ──────────────────────────────────────────────────────
+  # Analyses C# source code for security vulnerabilities using
+  # GitHub's CodeQL engine (OWASP-aligned query suite).
+  codeql:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: csharp
+          # security-and-quality includes both the security-extended
+          # query pack and additional code-quality checks.
+          queries: security-and-quality
+
+      # CodeQL requires a successful build to trace the compilation.
+      - name: Build (for CodeQL tracing)
+        run: dotnet build backend/Template.slnx --no-restore
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:csharp"
+          # Results are uploaded to the GitHub Security tab as SARIF.
+
+  # ── 2. NuGet vulnerability audit (SCA) ───────────────────────────────────
+  # Uses the built-in dotnet CLI audit command -- no third-party action
+  # needed. Fails the job if any HIGH or CRITICAL vulnerability is found
+  # in the dependency graph.
+  nuget-audit:
+    name: NuGet dependency audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore packages
+        run: dotnet restore backend/Template.slnx
+
+      - name: Audit NuGet packages
+        # --severity high  → only fail on High and Critical advisories
+        # --vulnerable     → only list packages with known vulnerabilities
+        run: |
+          dotnet list backend/Template.slnx package \
+            --vulnerable \
+            --include-transitive \
+            --format json \
+            | tee nuget-audit.json
+
+          # Exit non-zero if any HIGH or CRITICAL vulnerability found.
+          CRITICAL=$(cat nuget-audit.json \
+            | jq '[.. | objects | select(.severity? == "High" or .severity? == "Critical")] | length')
+
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::error::Found $CRITICAL High/Critical NuGet vulnerability(s). See nuget-audit.json."
+            exit 1
+          fi
+
+      - name: Upload audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-audit-report
+          path: nuget-audit.json
+
+  # ── 3. Secret scanning (gitleaks) ────────────────────────────────────────
+  # Scans the entire commit history for accidentally committed secrets
+  # (API keys, passwords, connection strings, etc.).
+  # GitHub's built-in secret scanning covers the same ground for
+  # public repositories and GitHub Advanced Security customers; gitleaks
+  # provides the same capability for all repository types in CI.
+  secret-scan:
+    name: Secret scanning (gitleaks)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history needed to scan all commits
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITLEAKS_LICENSE is only required for private repositories
+          # on paid gitleaks plans. Public repos run for free.
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
