@@ -55,7 +55,7 @@
     "simple-git-hooks": "^2.13.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.58.2",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{ts,html}": [
