@@ -99,7 +99,7 @@ export class FacilityProductsPageComponent extends ProductsBaseComponent {
       from(
         this.productsApi.apiProductsIdPut({
           id: product.id,
-          body: { name: result.name, price: result.price, quantity: result.quantity },
+          body: { name: result.name, price: result.price, quantity: result.quantity, rowVersion: product.rowVersion },
         })
       ).subscribe({
         next: () => {

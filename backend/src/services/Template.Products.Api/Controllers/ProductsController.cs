@@ -76,9 +76,10 @@ public sealed class ProductsController(ISender sender)
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductRequest request)
     {
-        return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price, request.Quantity))
+        return await SendAsync(new UpdateProductCommand(id, request.Name, request.Price, request.Quantity, request.RowVersion))
             .ToActionResultAsync(_ => NoContent());
     }
 

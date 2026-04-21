@@ -270,7 +270,7 @@ export class AdminFacilitiesPageComponent implements OnInit {
         from(
           this.adminApi.apiAdminFacilitiesFacilityIdPut({
             facilityId: facility.id,
-            body: { name },
+            body: { name, rowVersion: facility.rowVersion ?? 0 },
           })
         ).subscribe({
           next: () => {

@@ -44,6 +44,9 @@ services:
       JwtSettings__Secret: "${TEMPLATE_JWT_SECRET}"
       InternalServiceAuth__Token: "${TEMPLATE_INTERNAL_SERVICE_TOKEN}"
       ProductsService__GrpcBaseUrl: "http://products-api:8081"
+    secrets:
+      - jwt_secret
+      - internal_service_token
     depends_on:
       db:
         condition: service_healthy
@@ -64,6 +67,9 @@ services:
       InternalServiceAuth__Token: "${TEMPLATE_INTERNAL_SERVICE_TOKEN}"
       Kestrel__Endpoints__Http__Url: "http://0.0.0.0:8080"
       Kestrel__Endpoints__Grpc__Url: "http://0.0.0.0:8081"
+    secrets:
+      - jwt_secret
+      - internal_service_token
     depends_on:
       db:
         condition: service_healthy
@@ -80,3 +86,9 @@ services:
 
 volumes:
   dataprotection-keys:
+
+secrets:
+  jwt_secret:
+    file: ./secrets/jwt_secret.txt
+  internal_service_token:
+    file: ./secrets/internal_service_token.txt

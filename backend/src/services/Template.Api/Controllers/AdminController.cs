@@ -115,9 +115,10 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> UpdateFacility(Guid facilityId, [FromBody] UpdateFacilityRequest request)
     {
-        return await SendAsync(new UpdateFacilityCommand(facilityId, request.Name))
+        return await SendAsync(new UpdateFacilityCommand(facilityId, request.Name, request.RowVersion))
             .ToActionResultAsync(_ => NoContent());
     }
 

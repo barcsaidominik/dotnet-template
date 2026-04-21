@@ -418,6 +418,26 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -640,6 +660,14 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "rowVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "uint32"
           }
         }
       },
@@ -679,7 +707,8 @@
         "required": [
           "name",
           "price",
-          "quantity"
+          "quantity",
+          "rowVersion"
         ],
         "type": "object",
         "properties": {
@@ -701,6 +730,14 @@
               "string"
             ],
             "format": "int32"
+          },
+          "rowVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "uint32"
           }
         }
       }

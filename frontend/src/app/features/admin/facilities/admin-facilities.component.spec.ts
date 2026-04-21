@@ -71,6 +71,8 @@ describe('AdminFacilitiesPageComponent', () => {
       {
         id: 'facility-1',
         name: 'Main Facility',
+        employeeCount: 5,
+        rowVersion: 1,
       },
     ]);
     const component = TestBed.runInInjectionContext(() => new AdminFacilitiesPageComponent());
@@ -115,6 +117,8 @@ describe('AdminFacilitiesPageComponent', () => {
       {
         id: 'facility-1',
         name: 'Old Facility',
+        employeeCount: 3,
+        rowVersion: 42,
       },
     ]);
 
@@ -124,7 +128,7 @@ describe('AdminFacilitiesPageComponent', () => {
 
     expect(adminApi.apiAdminFacilitiesFacilityIdPut).toHaveBeenCalledWith({
       facilityId: 'facility-1',
-      body: { name: 'Updated Facility' },
+      body: { name: 'Updated Facility', rowVersion: 42 },
     });
     expect(component.facilities()[0]?.name).toBe('Updated Facility');
   });
@@ -137,6 +141,8 @@ describe('AdminFacilitiesPageComponent', () => {
       {
         id: 'facility-1',
         name: 'Main Facility',
+        employeeCount: 0,
+        rowVersion: 1,
       },
     ]);
 
@@ -163,6 +169,8 @@ describe('AdminFacilitiesPageComponent', () => {
       {
         id: 'facility-1',
         name: 'Main Facility',
+        employeeCount: 0,
+        rowVersion: 1,
       },
     ]);
 

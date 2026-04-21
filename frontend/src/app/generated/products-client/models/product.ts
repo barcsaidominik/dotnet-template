@@ -8,4 +8,5 @@ export interface Product {
   name?: string;
   price?: (number | string);
   quantity?: (number | string);
+  rowVersion?: (number | string);
 }

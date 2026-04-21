@@ -9,4 +9,5 @@ public static class ProductErrors
     public static readonly Error InvalidPrice = Error.Validation("Product.InvalidPrice", "Price must be positive");
     public static readonly Error InvalidFacility = Error.Validation("Product.InvalidFacility", "Facility ID must be provided");
     public static readonly Error InvalidQuantity = Error.Validation("Product.InvalidQuantity", "Quantity cannot be negative");
+    public static readonly Error ConcurrencyConflict = Error.Conflict("Product.ConcurrencyConflict", "The product was modified by another user.");
 }

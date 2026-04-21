@@ -10,4 +10,5 @@ public static class FacilityErrors
     public static readonly Error InvalidName = Error.Validation("Facility.InvalidName", "Facility name cannot be empty.");
     public static readonly Error HasProducts = Error.Conflict("Facility.HasProducts", "Facility cannot be deleted while products still reference it.");
     public static readonly Error AccessDenied = Error.Forbidden("Facility.AccessDenied", "Facility.AccessDenied");
+    public static readonly Error ConcurrencyConflict = Error.Conflict("Facility.ConcurrencyConflict", "The facility was modified by another user.");
 }

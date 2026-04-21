@@ -1013,6 +1013,17 @@ export interface paths {
                         "text/json": components["schemas"]["ProblemDetails"];
                     };
                 };
+                /** @description Conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
             };
         };
         post?: never;
@@ -1853,6 +1864,8 @@ export interface components {
             name: string;
             /** Format: int32 */
             employeeCount: number | string;
+            /** Format: uint32 */
+            rowVersion: number | string;
         };
         LoginCommand: {
             email: string;
@@ -1921,6 +1934,8 @@ export interface components {
         };
         UpdateFacilityRequest: {
             name: string;
+            /** Format: uint32 */
+            rowVersion: number | string;
         };
         UpdateLanguageRequest: {
             language: string;

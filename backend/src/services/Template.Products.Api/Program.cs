@@ -6,6 +6,7 @@ using Scalar.AspNetCore;
 using Serilog;
 using Template.Application;
 using Template.Common;
+using Template.Common.Configuration;
 using Template.Common.Email;
 using Template.Common.Excel;
 using Template.Common.Logging;
@@ -28,6 +29,9 @@ public class Program
         try
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Docker secrets support (overrides environment variables if secrets exist)
+            builder.Configuration.AddDockerSecrets();
 
             builder.Host.UseSerilog((context, services, configuration) =>
             {

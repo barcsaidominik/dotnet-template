@@ -13,5 +13,10 @@ public class FacilityConfiguration : IEntityTypeConfiguration<Facility>
         builder.Property(f => f.Id).ValueGeneratedNever();
         builder.Property(f => f.Name).HasMaxLength(200).IsRequired();
         builder.Property(f => f.CreatedAt).IsRequired();
+        builder.Property(f => f.RowVersion)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .IsRowVersion()
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

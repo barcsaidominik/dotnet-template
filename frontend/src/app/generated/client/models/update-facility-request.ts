@@ -3,4 +3,5 @@
 
 export interface UpdateFacilityRequest {
   name: string;
+  rowVersion: (number | string);
 }

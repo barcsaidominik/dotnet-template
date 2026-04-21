@@ -89,6 +89,7 @@ describe('FacilityProductsPageComponent', () => {
           quantity: 0,
           facilityId: 'facility-1',
           createdAt: '2026-04-19T18:00:00Z',
+          rowVersion: 1,
         },
       ],
     });
@@ -154,6 +155,7 @@ describe('FacilityProductsPageComponent', () => {
       quantity: 2,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:00:00Z',
+      rowVersion: 7,
     });
     await Promise.resolve();
     await Promise.resolve();
@@ -165,6 +167,7 @@ describe('FacilityProductsPageComponent', () => {
         name: 'Updated Product',
         price: 22,
         quantity: 5,
+        rowVersion: 7,
       },
     });
     expect(snackBar.open).toHaveBeenCalledWith('facility.products.productUpdated', 'common.close', {
@@ -217,6 +220,7 @@ describe('FacilityProductsPageComponent', () => {
       quantity: 0,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:00:00Z',
+      rowVersion: 1,
     });
 
     expect(component.downloadingProductId()).toBe('product-1');

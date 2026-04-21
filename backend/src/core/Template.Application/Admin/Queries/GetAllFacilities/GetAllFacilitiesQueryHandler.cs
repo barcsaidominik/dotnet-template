@@ -30,7 +30,8 @@ public sealed class GetAllFacilitiesQueryHandler(
         var result = facilities.Select(f => new FacilityWithCountDto(
             f.Id,
             f.Name,
-            userCounts.GetValueOrDefault(f.Id, 0)));
+            userCounts.GetValueOrDefault(f.Id, 0),
+            f.RowVersion));
 
         result = ApplySorting(result, request.SortBy, request.SortDescending);
 

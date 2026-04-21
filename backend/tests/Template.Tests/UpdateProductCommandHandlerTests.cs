@@ -30,7 +30,7 @@ public class UpdateProductCommandHandlerTests
         await dbContext.Products.AddAsync(product, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var command = new UpdateProductCommand(product.Id, "Updated", 20m, 5);
+        var command = new UpdateProductCommand(product.Id, "Updated", 20m, 5, product.RowVersion);
 
         // Act
         var result = await handler.Handle(command, ct);
@@ -54,7 +54,7 @@ public class UpdateProductCommandHandlerTests
         var store = new EntityStore<Product>(dbContext, []);
         var handler = new UpdateProductCommandHandler(store, _cache);
 
-        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", 20m, 5);
+        var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", 20m, 5, 0);
 
         // Act
         var result = await handler.Handle(command, ct);
@@ -81,7 +81,7 @@ public class UpdateProductCommandHandlerTests
         await dbContext.Products.AddAsync(product, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var command = new UpdateProductCommand(product.Id, "", 20m, 5);
+        var command = new UpdateProductCommand(product.Id, "", 20m, 5, product.RowVersion);
 
         // Act
         var result = await handler.Handle(command, ct);

@@ -7,6 +7,7 @@ interface ProductLikeDto {
   quantity?: number | string | null;
   facilityId?: string | null;
   createdAt?: string | null;
+  rowVersion?: number | string | null;
 }
 
 export function mapProductDto(dto: ProductLikeDto): Product {
@@ -17,5 +18,6 @@ export function mapProductDto(dto: ProductLikeDto): Product {
     quantity: typeof dto.quantity === 'number' ? dto.quantity : parseInt(dto.quantity ?? '0', 10),
     facilityId: dto.facilityId ?? '',
     createdAt: dto.createdAt ?? '',
+    rowVersion: typeof dto.rowVersion === 'number' ? dto.rowVersion : parseInt(dto.rowVersion ?? '0', 10),
   };
 }

@@ -24,7 +24,7 @@ public class UpdateFacilityCommandHandlerTests
         await dbContext.Facilities.AddAsync(facility, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var command = new UpdateFacilityCommand(facility.Id, "Updated");
+        var command = new UpdateFacilityCommand(facility.Id, "Updated", facility.RowVersion);
 
         // Act
         var result = await handler.Handle(command, ct);
@@ -47,7 +47,7 @@ public class UpdateFacilityCommandHandlerTests
         var store = new EntityStore<Facility>(dbContext, []);
         var handler = new UpdateFacilityCommandHandler(store);
 
-        var command = new UpdateFacilityCommand(Guid.NewGuid(), "Updated");
+        var command = new UpdateFacilityCommand(Guid.NewGuid(), "Updated", 0);
 
         // Act
         var result = await handler.Handle(command, ct);
@@ -71,7 +71,7 @@ public class UpdateFacilityCommandHandlerTests
         await dbContext.Facilities.AddAsync(facility, ct);
         await dbContext.SaveChangesAsync(ct);
 
-        var command = new UpdateFacilityCommand(facility.Id, "");
+        var command = new UpdateFacilityCommand(facility.Id, "", facility.RowVersion);
 
         // Act
         var result = await handler.Handle(command, ct);

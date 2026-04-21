@@ -30,7 +30,16 @@ public sealed class UpdateProductCommandHandler(IEntityStore<Product> store, IMe
             return updateResult.Errors;
         }
 
-        await _store.SaveChangesAsync(ct);
+        product.RowVersion = request.RowVersion;
+
+        try
+        {
+            await _store.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ProductErrors.ConcurrencyConflict;
+        }
 
         _cache.Remove(CacheKeys.FacilityProducts(product.FacilityId));
 

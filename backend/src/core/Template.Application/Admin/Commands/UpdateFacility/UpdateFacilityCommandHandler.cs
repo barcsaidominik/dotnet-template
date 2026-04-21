@@ -27,7 +27,16 @@ public sealed class UpdateFacilityCommandHandler(IEntityStore<Facility> store) :
             return updateResult.Errors;
         }
 
-        await _store.SaveChangesAsync(ct);
+        facility.RowVersion = request.RowVersion;
+
+        try
+        {
+            await _store.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return FacilityErrors.ConcurrencyConflict;
+        }
 
         return Result.Updated;
     }

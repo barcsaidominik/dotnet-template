@@ -1,153 +1,356 @@
 # Frontend
 
-Az alkalmazás frontendje Angular alapú admin- és üzemi felület, generált API klienssel, többnyelvűséggel, sötét móddal és szigorú code style workflow-val.
+Angular 20 frontend with standalone components, signals, Material Design, and generated OpenAPI clients.
 
-## Stack
+## Tech Stack
 
-- `Angular 20`
-- `Angular Material`
-- `RxJS`
-- `@ngx-translate`
-- `Vitest`
-- `ESLint`
-- `Prettier`
-- `ng-openapi-gen`
+| Component | Technology |
+|-----------|-----------|
+| **Framework** | Angular 20 |
+| **UI Library** | Angular Material 20 |
+| **Architecture** | Standalone components, Signals |
+| **State Management** | RxJS, Angular Signals |
+| **Routing** | Angular Router with guards |
+| **i18n** | ngx-translate (Hungarian, English) |
+| **API Client** | Generated from OpenAPI (ng-openapi-gen) |
+| **Testing** | Vitest 3 |
+| **Linting** | ESLint 9 + typescript-eslint |
+| **Formatting** | Prettier 3 |
+| **Git Hooks** | simple-git-hooks + lint-staged |
 
-## Mit tud a frontend?
+## Features
 
-- login / regisztráció / jelszóbeállítás
-- admin users oldal
-- admin facilities oldal
-- facility users oldal
-- facility products oldal
-- public products oldal
-- mailbox oldal és unread badge
-- magyar / angol nyelvváltás
-- dark mode
-- Excel export / import UI
-- PDF letöltés
+### Authentication & User Management
+- Login, registration, password setup
+- JWT + refresh token handling
+- Auth guard and role guard
+- Automatic token refresh on 401
+- Admin user approval workflow
 
-## Fejlesztői workflow
+### Admin Pages (SystemAdmin role)
+- **Users:** List, approve, assign roles, delete, Excel export, update email
+- **Facilities:** CRUD, assign users, Excel export
+- **Audit Log:** Filter by entity type, action, date range, user
 
-### Telepítés
+### Facility Pages (FacilityAdmin role)
+- **Users:** Create facility users, assign roles, remove users
+- **Products:** CRUD with pagination, sort, search, Excel import/export, PDF generation
 
-```powershell
+### Products (FacilityEditor/FacilityViewer roles)
+- Read-only product list with pagination and sorting
+
+### Mailbox
+- In-app messaging
+- Unread count badge
+- Mark as read/unread
+- Real-time updates
+
+### i18n
+- Hungarian and English translations
+- Date locale synchronization
+- Backend preference sync
+- Language switcher in shell
+
+### Theme
+- Light and dark mode
+- Persistent user preference
+- Material Design 3
+
+## Development
+
+### Prerequisites
+- Node.js 20+
+- npm 10+
+
+### Install Dependencies
+
+```bash
 npm install
 ```
 
-### Fejlesztői szerver
+### Development Server
 
-```powershell
+```bash
 npm start
 ```
 
-Lokálisan a frontend a [proxy.conf.json](proxy.conf.json) alapján a gateway felé proxyz.
+Application runs at http://localhost:4200 with proxy to backend gateway (http://localhost:8080).
+
+**Proxy configuration:** [proxy.conf.json](proxy.conf.json)
 
 ### Build
 
-```powershell
+```bash
 npm run build
 ```
 
-### Tesztek
+Production build outputs to `dist/` directory.
 
-```powershell
+### Testing
+
+```bash
+npm run test
+```
+
+**Current status:** 88/88 passing (Vitest unit tests)
+
+**Run once:**
+```bash
 npm run test:run
 ```
 
-### Style ellenőrzés
+### Code Quality
 
-```powershell
+**Lint:**
+```bash
+npm run lint
+npm run lint:fix
+```
+
+**Format:**
+```bash
+npm run format
+npm run format:check
+```
+
+**Full style check:**
+```bash
 npm run style:check
 ```
 
-## API kliens generálás
+## OpenAPI Client Generation
 
-A frontend nem kézzel karbantartott HTTP rétegre támaszkodik, hanem a backend OpenAPI leírásaiból generálja az API klienst.
+The frontend uses generated TypeScript clients from backend OpenAPI specs.
 
-Teljes újragenerálás:
+### Generate All Clients
 
-```powershell
+```bash
 npm run generate:api
 ```
 
-Kapcsolódó fájlok:
-- [OPENAPI_PLAYBOOK.md](OPENAPI_PLAYBOOK.md)
-- [ng-openapi-gen.json](ng-openapi-gen.json)
-- [ng-openapi-gen-products.json](ng-openapi-gen-products.json)
+This runs:
+1. `generate:types` - Generates TypeScript types from `Api.json`
+2. `generate:client` - Generates Angular services from `Api.json`
+3. `generate:products` - Generates types and services from `ProductsApi.json`
 
-Generált kód helye:
-- `src/app/generated`
+### Manual Steps
 
-## Fontos scriptek
+**Core API:**
+```bash
+npm run generate:types
+npm run generate:client
+```
 
-- `npm start`: fejlesztői szerver
-- `npm run build`: production build
-- `npm run test:run`: Vitest futtatás
-- `npm run lint`: ESLint
-- `npm run lint:fix`: automatikus javítás
-- `npm run format`: Prettier formázás
-- `npm run format:check`: formázás ellenőrzés
-- `npm run style:check`: teljes style gate
-- `npm run generate:api`: backend API kliens generálás
+**Products API:**
+```bash
+npm run generate:products
+```
 
-## Code style és git hook
+**Configuration files:**
+- [ng-openapi-gen.json](ng-openapi-gen.json) - Core API config
+- [ng-openapi-gen-products.json](ng-openapi-gen-products.json) - Products API config
 
-A frontendhez külön szigorú styling workflow van bevezetve:
-- [.editorconfig](.editorconfig)
-- [eslint.config.js](eslint.config.js)
-- [.prettierrc.json](.prettierrc.json)
+**Generated code location:**
+- `src/app/generated/client/` - Core API services
+- `src/app/generated/products-client/` - Products API services
+- `src/app/generated/api.types.ts` - Core API types
+- `src/app/generated/products.api.types.ts` - Products API types
 
-Commit előtt a `simple-git-hooks` + `lint-staged` automatikusan futtatja a szükséges ellenőrzéseket a staged fájlokon.
+**Automated generation:**
+```powershell
+.\scripts\Refresh-OpenApi.ps1
+```
+(Starts backend services, fetches specs, generates clients)
 
-## Fő route-ok
+## Project Structure
 
-- `/auth/login`
-- `/auth/register`
-- `/auth/set-password`
-- `/admin/users`
-- `/admin/facilities`
-- `/facility/users`
-- `/facility/products`
-- `/products`
-- `/mailbox`
+```
+src/app/
+├── core/                   ← Core services and guards
+│   ├── auth/               ← Auth service, guards, interceptors
+│   ├── i18n/               ← Language service
+│   └── theme/              ← Theme service
+├── features/               ← Feature modules
+│   ├── admin/              ← Admin pages (users, facilities, audit-log)
+│   ├── auth/               ← Auth pages (login, register, set-password)
+│   ├── facility/           ← Facility pages (users, products)
+│   ├── mailbox/            ← Mailbox page
+│   └── products/           ← Products page (FacilityEditor/Viewer)
+├── generated/              ← Generated OpenAPI clients
+│   ├── client/             ← Core API client
+│   ├── products-client/    ← Products API client
+│   ├── api.types.ts        ← Core API types
+│   └── products.api.types.ts  ← Products API types
+├── shared/                 ← Shared components and utilities
+│   ├── components/         ← Reusable components
+│   ├── shell/              ← Shell layout with nav
+│   └── utils/              ← Utility functions, mappers
+└── app.routes.ts           ← Application routing
+```
 
-A route definíciók itt találhatók:
-- [app.routes.ts](src/app/app.routes.ts)
+## Routes
 
-## Többnyelvűség és megjelenés
+| Path | Component | Guard | Description |
+|------|-----------|-------|-------------|
+| `/auth/login` | AuthLoginComponent | - | Login page |
+| `/auth/register` | AuthRegisterComponent | - | Registration page |
+| `/auth/set-password` | AuthSetPasswordComponent | - | Password setup (facility users) |
+| `/admin/users` | AdminUsersPageComponent | authGuard, roleGuard(SystemAdmin) | User management |
+| `/admin/facilities` | AdminFacilitiesPageComponent | authGuard, roleGuard(SystemAdmin) | Facility management |
+| `/admin/audit-log` | AdminAuditLogPageComponent | authGuard, roleGuard(SystemAdmin) | Audit log viewer |
+| `/facility/users` | FacilityUsersPageComponent | authGuard, roleGuard(FacilityAdmin) | Facility user management |
+| `/facility/products` | FacilityProductsPageComponent | authGuard, roleGuard(FacilityAdmin) | Facility product management |
+| `/products` | ProductsPageComponent | authGuard, roleGuard(FacilityEditor, FacilityViewer) | Product list (read-only) |
+| `/mailbox` | MailboxPageComponent | authGuard | Mailbox messages |
 
-### I18n
+**Route definitions:** [app.routes.ts](src/app/app.routes.ts)
 
-A projekt jelenleg magyar és angol nyelvet támogat.
+## i18n (Internationalization)
 
-Fordítási fájlok:
-- [hu.json](src/assets/i18n/hu.json)
-- [en.json](src/assets/i18n/en.json)
+**Supported languages:**
+- Hungarian (hu)
+- English (en)
 
-### Theme
+**Translation files:**
+- [src/assets/i18n/hu.json](src/assets/i18n/hu.json)
+- [src/assets/i18n/en.json](src/assets/i18n/en.json)
 
-A felület támogat világos és sötét megjelenést is, a fő shell komponensből vezérelve.
+**Usage in templates:**
+```html
+<h1>{{ 'auth.login.title' | translate }}</h1>
+```
 
-## Tesztelés
+**Usage in code:**
+```typescript
+this.translateService.instant('auth.login.success');
+```
 
-A frontend tesztcsomag a stabil üzleti és UI logikákra fókuszál:
-- auth service és guardok
-- i18n
-- mailbox
-- shell
-- products és facility products
-- admin users és admin facilities
-- facility users
-- util és mapper réteg
+**Language switching:**
+- User can switch via shell dropdown
+- Preference saved to backend
+- Date locale synced automatically
 
-Jelenlegi állapot:
-- `88/88` zöld
+## Theme System
 
-## Mikor jó ez a frontend alap?
+**ThemeService:**
+- Light/dark mode toggle
+- Persistent preference (localStorage)
+- Material Design 3 theming
 
-Ez a frontend akkor erős kiindulópont, ha:
-- Angular + Material adminfelületet szeretnél gyorsan indítani,
-- fontos a generált API kliens,
-- kell többnyelvűség és sötét mód,
-- és szeretnél rögtön egy tesztelhető, formázásban fegyelmezett alapot.
+**Usage:**
+```typescript
+this.themeService.toggleTheme();
+this.themeService.isDark(); // Signal<boolean>
+```
+
+## Code Style & Git Hooks
+
+**Configuration:**
+- [.editorconfig](.editorconfig) - Editor settings
+- [eslint.config.js](eslint.config.js) - ESLint rules
+- [.prettierrc.json](.prettierrc.json) - Prettier formatting
+
+**Pre-commit hook:**
+- Runs `lint-staged` on staged files
+- ESLint + Prettier on `.ts` and `.html`
+- Prettier only on `.scss`, `.css`, `.json`, `.js`, `.md`
+
+**Setup:**
+```bash
+npm run prepare
+```
+
+## Testing Strategy
+
+**Vitest configuration:** [vitest.config.ts](vitest.config.ts)
+
+**Test coverage:**
+- Auth service and guards
+- Language service
+- Theme service
+- Mailbox components and service
+- Admin pages (users, facilities)
+- Facility pages (users, products)
+- Products page
+- Shell component
+- Mappers and utilities
+
+**Run tests:**
+```bash
+npm run test          # Watch mode
+npm run test:run      # Run once
+```
+
+## Docker
+
+**Dockerfile:** [Dockerfile](Dockerfile)
+
+**Build:**
+```bash
+docker build -t template-frontend .
+```
+
+**Run:**
+```bash
+docker run -p 80:80 template-frontend
+```
+
+**Docker Compose:**
+```bash
+docker compose up -d --build
+```
+
+Frontend is served via nginx with reverse proxy to backend gateway.
+
+**nginx configuration:** [nginx.conf](nginx.conf)
+
+## Security Headers (nginx)
+
+- `Content-Security-Policy` - Restricts resource loading
+- `X-Frame-Options: DENY` - Prevents clickjacking
+- `X-Content-Type-Options: nosniff` - Prevents MIME sniffing
+- `Referrer-Policy: strict-origin-when-cross-origin` - Referrer control
+- `Permissions-Policy` - Disables unnecessary browser features
+
+## Environment Configuration
+
+Frontend uses Angular's environment system.
+
+**Development:**
+- API proxy to `http://localhost:8080`
+- Source maps enabled
+- Development mode
+
+**Production:**
+- API base URL: `/api` (served by nginx)
+- Optimized build
+- AOT compilation
+
+## NPM Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `npm start` | Development server (http://localhost:4200) |
+| `npm run build` | Production build |
+| `npm run watch` | Watch mode build |
+| `npm run test` | Vitest watch mode |
+| `npm run test:run` | Vitest run once |
+| `npm run lint` | ESLint check |
+| `npm run lint:fix` | ESLint auto-fix |
+| `npm run format` | Prettier format |
+| `npm run format:check` | Prettier check |
+| `npm run style:check` | Full style gate (format + lint) |
+| `npm run generate:api` | Generate all OpenAPI clients |
+| `npm run generate:types` | Generate Core API types |
+| `npm run generate:client` | Generate Core API services |
+| `npm run generate:products` | Generate Products API client |
+| `npm run prepare` | Setup git hooks |
+
+## Notes
+
+- **Standalone components:** No NgModules, uses Angular 20 standalone APIs
+- **Signals:** State management with Angular Signals where applicable
+- **Material Design 3:** Latest Material components and theming
+- **OpenAPI-first:** All API communication via generated clients
+- **Type-safe:** Full TypeScript coverage with strict mode
+- **Test coverage:** 88 unit tests covering core functionality

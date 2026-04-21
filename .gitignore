@@ -370,3 +370,6 @@ dist/
 .env.local
 **/appsettings.Development.local.json
 **/appsettings.Local.json
+
+# Docker secrets (keep folder structure, ignore actual secrets)
+secrets/*.txt

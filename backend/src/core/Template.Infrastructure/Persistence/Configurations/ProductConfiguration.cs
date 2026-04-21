@@ -37,5 +37,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             .WithMany()
             .HasForeignKey(p => p.FacilityId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(p => p.RowVersion)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .IsRowVersion()
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

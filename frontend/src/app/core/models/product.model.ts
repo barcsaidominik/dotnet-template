@@ -5,4 +5,5 @@ export interface Product {
   quantity: number;
   facilityId: string;
   createdAt: string;
+  rowVersion: number;
 }

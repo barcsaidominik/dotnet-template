@@ -29,6 +29,21 @@ public sealed class ResourceGuardOptions
         get; set;
     } = 5;
 
+    public int CpuThresholdPercent
+    {
+        get; set;
+    } = 90;
+
+    public int MemoryThresholdPercent
+    {
+        get; set;
+    } = 95;
+
+    public int CircuitBreakerDurationSeconds
+    {
+        get; set;
+    } = 30;
+
     public string[] ExcludedPaths
     {
         get; set;

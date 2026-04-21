@@ -11,6 +11,7 @@ describe('mapProductDto', () => {
       quantity: 0,
       facilityId: '',
       createdAt: '',
+      rowVersion: 0,
     });
   });
 
@@ -21,6 +22,7 @@ describe('mapProductDto', () => {
       price: 42.5,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:30:00Z',
+      rowVersion: 5,
     });
 
     expect(result).toEqual({
@@ -30,6 +32,7 @@ describe('mapProductDto', () => {
       quantity: 0,
       facilityId: 'facility-1',
       createdAt: '2026-04-19T18:30:00Z',
+      rowVersion: 5,
     });
   });
 

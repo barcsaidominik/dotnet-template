@@ -5,4 +5,5 @@ export interface FacilityWithCountDto {
   employeeCount: (number | string);
   id: string;
   name: string;
+  rowVersion: (number | string);
 }

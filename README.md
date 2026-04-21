@@ -1,186 +1,140 @@
-# Template App
+# .NET Template Project
 
-Bemutatható full-stack sablonprojekt modern .NET és Angular stackkel, több szolgáltatásra bontható backenddel, generált API klienssel, háttérjobokkal, dokumentum-exporttal és többnyelvű felülettel.
+A production-ready full-stack template demonstrating modern .NET and Angular development patterns with real-world features.
 
-## Mi ez a projekt?
+This is a **demonstration template**, not a business application. Each feature showcases enterprise-grade implementation patterns including authentication, authorization, background jobs, PDF/Excel generation, microservices, gRPC, and more.
 
-Ez a repository egy olyan induló alap, ami egyszerre alkalmas:
-- új üzleti alkalmazások gyors indítására,
-- referenciaprojektként történő bemutatásra,
-- és fokozatos monolit -> microservice átmenet demonstrálására.
+## Tech Stack
 
-A megoldás jelenleg:
-- `ASP.NET Core` + `Angular` alapú,
-- `Clean Architecture` szemléletet követ,
-- `CQRS` és `Mediator` mintát használ,
-- `PostgreSQL`-re épül,
-- támogat `JWT` + refresh token autentikációt,
-- tartalmaz `gRPC` service-to-service kommunikációt,
-- és Docker Compose alatt több szolgáltatásként is futtatható.
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | .NET 10, ASP.NET Core Web API |
+| **Frontend** | Angular 20, Standalone Components, Signals |
+| **Architecture** | Clean Architecture, CQRS (Mediator) |
+| **Database** | PostgreSQL 17, EF Core |
+| **Authentication** | ASP.NET Core Identity, JWT + Refresh Tokens |
+| **Background Jobs** | TickerQ (EF Core store) |
+| **Document Generation** | QuestPDF (PDF), ClosedXML (Excel) |
+| **Communication** | gRPC, YARP Reverse Proxy |
+| **Resilience** | Polly (retry policies) |
 
-## Fő képességek
+## Quick Start
 
-### Backend
-- felhasználókezelés több szerepkörrel
-- regisztráció, jóváhagyás, jelszóbeállítás, bejelentkezés, refresh token
-- üzemek és termékek kezelése
-- Excel export / import
-- PDF generálás
-- postaláda / értesítési felület
-- háttérjobok `TickerQ`-val
-- request telemetry és resource guard middleware
-- OpenAPI alapú kliensgenerálás
-- belső `gRPC` hívás a service boundary-k között
+1. **Clone and configure environment:**
+   ```bash
+   git clone <repository-url>
+   cd dotnet-template
+   cp .env.example .env
+   ```
 
-### Frontend
-- Angular 20 alapú admin/facility/public felületek
-- generált TypeScript API kliens
-- magyar és angol lokalizáció
-- sötét mód
-- admin, facility és public termékoldalak
-- postaláda badge + részletes postaláda oldal
-- szigorú ESLint + Prettier + git hook alapú code style
-- Vitest alapú frontend unit tesztek
+2. **Create Docker secrets:**
+   ```bash
+   mkdir -p secrets
+   echo "your-jwt-secret-at-least-32-characters-long" > secrets/jwt_secret.txt
+   echo "your-internal-service-token-here" > secrets/internal_service_token.txt
+   ```
 
-### Minőség és üzemeltetés
-- backend unit + integration tesztek
-- frontend unit tesztek
-- Docker Compose alapú többkonténeres futtatás
-- külön secret- és configkezelési minta
-- strukturált logolás és érzékeny query paraméterek redakciója
+3. **Start all services:**
+   ```bash
+   docker compose up -d --build
+   ```
 
-## Architektúra röviden
+4. **Access the application:**
+   - Frontend: http://localhost
+   - API Documentation (Scalar): http://localhost:8080/scalar/v1
+   - TickerQ Dashboard: http://localhost:8080/admin/tickerq (SystemAdmin role required)
 
-### Backend szolgáltatások
-- `Template.Gateway.Api`: reverse proxy bejárat
-- `Template.Api`: core API, auth, admin, facility users, mailbox, orchestráció
-- `Template.Products.Api`: külön products service, REST + gRPC végpontokkal
+## Features
 
-### Core rétegek
-- `Template.Domain`: entitások, invariánsok, hibák
-- `Template.Application`: use case-ek, CQRS handlerek, validációs pipeline
-- `Template.Infrastructure`: EF Core, identity, külső integrációk, szolgáltatásimplementációk
-- `Template.Grpc`: közös proto/stub projekt
+### Authentication & Authorization
+- **Registration flow:** Register → Admin approval → Role assignment
+- **JWT authentication:** 15-minute access tokens with 7-day refresh tokens
+- **Role-based access:** SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer
+- **Secure token storage:** SHA-256 hashed refresh tokens, DataProtection key persistence
 
-### Common csomagok
-- email
-- excel
-- jobs
-- pdf
-- templating
-- shared common elemek
+### User Management
+- Admin user approval workflow
+- Facility-based user organization
+- Role management and updates
+- Excel export with localization
 
-## Gyors indítás
+### Facilities & Products
+- Multi-tenant facility structure
+- Product CRUD with pagination, sorting, and search
+- Excel import/export (localized)
+- PDF order generation (QuestPDF + Scriban templates)
+- In-memory caching with smart invalidation
 
-### 1. Docker Compose
+### Microservices & Communication
+- **InProcess mode:** Monolithic deployment
+- **Proxy mode:** Gateway API with YARP routing to separate services
+- **gRPC:** Inter-service communication with Polly retry policies
+- **Internal service authentication:** Token-based service-to-service auth
 
-1. Másold a [.env.example](.env.example) fájlt `.env` néven.
-2. Töltsd ki legalább a JWT és a belső service token értékeket.
-3. Indítsd el:
+### Background Jobs
+- TickerQ integration with EF Core storage
+- Dashboard UI for job monitoring
+- Cron-based scheduling demo
+- Long-running operation example
 
-```powershell
-docker compose up -d --build
+### Audit & Monitoring
+- Entity change tracking (Facilities, Products)
+- Audit log with filtering (entity type, action, date range, user)
+- Serilog with Syslog RFC 5424 format
+- Health checks (liveness, readiness)
+- Request telemetry (CPU, RAM, query redaction)
+
+### Mailbox
+- In-app messaging system
+- Unread count tracking
+- Real-time updates
+
+### Security
+- Rate limiting (10 req/min on auth endpoints)
+- BOLA protection with QueryGuard
+- Constant-time token comparison (gRPC)
+- Query string redaction (passwords, tokens)
+- CSP, X-Frame-Options, Referrer-Policy headers
+
+### Developer Experience
+- Clean Architecture with clear separation
+- ErrorOr result pattern
+- FluentValidation with pipeline behavior
+- OpenAPI/Scalar documentation
+- Hot reload support
+- 133 backend tests (unit + integration)
+- 88 frontend Vitest tests
+
+## Project Structure
+
 ```
-
-Compose alatt a fő elemek:
-- `db`
-- `gateway api`
-- `core api`
-- `products api`
-- `frontend`
-
-### 2. Lokális fejlesztés
-
-Backend:
-
-```powershell
-dotnet restore backend/Template.slnx
-dotnet build backend/Template.slnx
-dotnet test backend/tests/Template.Tests/Template.Tests.csproj
-```
-
-Frontend:
-
-```powershell
-cd frontend
-npm install
-npm run generate:api
-npm start
-```
-
-Ha a backend OpenAPI leírása változik, a frontend kliens frissítése:
-
-```powershell
-cd frontend
-npm run generate:api
-```
-
-## Repository felépítése
-
-```text
 dotnet-template/
-|- backend/
-|  |- src/common/
-|  |- src/core/
-|  |- src/services/
-|  |- tests/
-|  |- SECRETS_SETUP.md
-|- frontend/
-|  |- src/
-|  |- OPENAPI_PLAYBOOK.md
-|- docker-compose.yml
-|- .env.example
-|- todo.md
+├── backend/              ← .NET 10 backend services
+├── frontend/             ← Angular 20 frontend
+├── docker-compose.yml    ← Multi-container orchestration
+├── .env.example          ← Environment variable template
+└── secrets/              ← Docker secrets (create manually)
 ```
 
-## Fontos workflow-k
+## Documentation
 
-### Auth és onboarding
-- regisztráció
-- admin jóváhagyás
-- setup link / jelszóbeállítás
-- JWT + refresh token
+- [Backend README](backend/README.md) - Architecture, deployment modes, API details
+- [Frontend README](frontend/README.md) - Angular setup, i18n, testing
 
-### Admin műveletek
-- felhasználók listázása és jóváhagyása
-- üzemek kezelése
-- facility user létrehozás
-- exportok
+## Default Credentials
 
-### Products
-- külön products service
-- import/export/PDF
-- facility és public nézetek
-- gRPC alapú facility-ellenőrzés törlés előtt
+After first run, a system admin is seeded:
+- **Email:** `admin@example.com`
+- **Password:** `Admin123!`
 
-### Mailbox és háttérfolyamatok
-- postaláda események
-- háttérjobok `TickerQ`-val
-- adminból ütemezhető demo jobok
+**Change this immediately in production.**
 
-## Quality bar
+## License
 
-Jelenlegi fontosabb ellenőrzések:
-- backend tesztek: `114/114` zöld
-- frontend tesztek: `88/88` zöld
-- frontend production build: sikeres
+This template is for demonstration purposes. Adjust licensing for your use case.
 
-Frontend style gate:
-- `npm run style:check`
-- pre-commit hook `lint-staged`-del
+## Notes
 
-## További dokumentáció
-
-- backend részletes leírás: [backend/README.md](backend/README.md)
-- frontend részletes leírás: [frontend/README.md](frontend/README.md)
-- secret setup: [backend/SECRETS_SETUP.md](backend/SECRETS_SETUP.md)
-- OpenAPI workflow: [frontend/OPENAPI_PLAYBOOK.md](frontend/OPENAPI_PLAYBOOK.md)
-- aktuális backlog/lezárások: [todo.md](todo.md)
-
-## Mikor jó választás ez a template?
-
-Ez a projekt akkor különösen erős kiindulópont, ha:
-- gyorsan szeretnél indulni enterprise jellegű .NET + Angular alappal,
-- fontos a tiszta rétegzés és a későbbi szétválaszthatóság,
-- kell adminfelület, auth, export, dokumentumkezelés és auditálható működés,
-- és nem nulláról akarod minden alkalommal újra felépíteni a platformrészeket.
+- **QuestPDF:** Community license (free for open-source and evaluation). Purchase required for commercial use.
+- **Data Protection Keys:** Persisted to `/app/keys` volume for token consistency across restarts
+- **Database Migrations:** Auto-applied on startup in Development mode

@@ -21,5 +21,10 @@ public sealed class MailboxMessageConfiguration : IEntityTypeConfiguration<Mailb
         builder.Property(message => message.CreatedAt).IsRequired();
         builder.Property(message => message.ReadAtUtc);
         builder.HasIndex(message => new { message.RecipientUserId, message.IsRead, message.CreatedAt });
+        builder.Property(message => message.RowVersion)
+            .HasColumnName("xmin")
+            .HasColumnType("xid")
+            .IsRowVersion()
+            .ValueGeneratedOnAddOrUpdate();
     }
 }

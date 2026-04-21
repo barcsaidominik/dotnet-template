@@ -1584,6 +1584,26 @@
                 }
               }
             }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -2686,7 +2706,8 @@
         "required": [
           "id",
           "name",
-          "employeeCount"
+          "employeeCount",
+          "rowVersion"
         ],
         "type": "object",
         "properties": {
@@ -2704,6 +2725,14 @@
               "string"
             ],
             "format": "int32"
+          },
+          "rowVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "uint32"
           }
         }
       },
@@ -2956,12 +2985,21 @@
       },
       "UpdateFacilityRequest": {
         "required": [
-          "name"
+          "name",
+          "rowVersion"
         ],
         "type": "object",
         "properties": {
           "name": {
             "type": "string"
+          },
+          "rowVersion": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "uint32"
           }
         }
       },
