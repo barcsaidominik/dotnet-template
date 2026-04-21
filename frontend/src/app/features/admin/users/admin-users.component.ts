@@ -2,6 +2,7 @@ import type { OnInit } from '@angular/core';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -112,6 +113,36 @@ export class AdminTokenSetupDialogComponent {
   setupLink = '';
 }
 
+@NgComponent({
+  selector: 'app-user-update-dialog',
+  standalone: true,
+  imports: [
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    TranslateModule,
+  ],
+  templateUrl: './user-update-dialog.component.html',
+  styleUrls: ['./user-update-dialog.component.scss'],
+})
+export class UserUpdateDialogComponent {
+  readonly dialogRef = ngInject(MatDialogRef<UserUpdateDialogComponent>);
+  readonly data = ngInject<{ email: string }>(MAT_DIALOG_DATA);
+  private readonly fb = ngInject(FormBuilder);
+
+  readonly form = this.fb.nonNullable.group({
+    email: [this.data.email, [Validators.required, Validators.email]],
+  });
+
+  confirm(): void {
+    if (this.form.valid) {
+      this.dialogRef.close(this.form.getRawValue());
+    }
+  }
+}
+
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -135,6 +166,7 @@ export class AdminTokenSetupDialogComponent {
 export class AdminUsersPageComponent implements OnInit {
   private readonly adminApi = inject(AdminService);
   private readonly facilityUsersApi = inject(FacilityUsersService);
+  private readonly http = inject(HttpClient);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService);
@@ -313,6 +345,42 @@ export class AdminUsersPageComponent implements OnInit {
         );
       },
     });
+  }
+
+  openEditDialog(user: User): void {
+    const ref = this.dialog.open(UserUpdateDialogComponent, {
+      width: '360px',
+      data: { email: user.email },
+    });
+
+    ref
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (!result) {
+          return;
+        }
+        this.http
+          .put(`/api/Admin/users/${user.id}`, { email: result.email })
+          .subscribe({
+            next: () => {
+              this.snackBar.open(
+                this.translate.instant('admin.users.userUpdated'),
+                this.translate.instant('common.close'),
+                { duration: 3000 }
+              );
+              this.users.update((list) =>
+                list.map((u) => (u.id === user.id ? { ...u, email: result.email } : u))
+              );
+            },
+            error: () =>
+              this.snackBar.open(
+                this.translate.instant('admin.users.failedToUpdate'),
+                this.translate.instant('common.close'),
+                { duration: 4000 }
+              ),
+          });
+      });
   }
 
   deleteUser(user: User): void {

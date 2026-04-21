@@ -18,4 +18,8 @@ public interface ICurrentUserService
     {
         get;
     }
+    string? Email
+    {
+        get;
+    }
 }

@@ -756,7 +756,54 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["UpdateUserRequest"];
+                    "text/json": components["schemas"]["UpdateUserRequest"];
+                    "application/*+json": components["schemas"]["UpdateUserRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Bad Request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Not Found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ProblemDetails"];
+                        "application/json": components["schemas"]["ProblemDetails"];
+                        "text/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+            };
+        };
         post?: never;
         delete: {
             parameters: {
@@ -1036,6 +1083,54 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/Admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    entityType?: string;
+                    entityId?: string;
+                    action?: string;
+                    userId?: string;
+                    from?: string;
+                    to?: string;
+                    page?: number | string;
+                    pageSize?: number | string;
+                    sortBy?: string;
+                    sortDescending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["PagedResultOfAuditEntryDto"];
+                        "application/json": components["schemas"]["PagedResultOfAuditEntryDto"];
+                        "text/json": components["schemas"]["PagedResultOfAuditEntryDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1727,6 +1822,19 @@ export interface components {
             facilityId: string;
             role: string;
         };
+        AuditEntryDto: {
+            /** Format: int64 */
+            id: number | string;
+            entityType: string;
+            entityId: string;
+            action: string;
+            /** Format: uuid */
+            userId: null | string;
+            userEmail: null | string;
+            changesJson: null | string;
+            /** Format: date-time */
+            occurredAt: string;
+        };
         CreateFacilityCommand: {
             name: string;
         };
@@ -1770,6 +1878,15 @@ export interface components {
             /** Format: int32 */
             unreadCount: number | string;
         };
+        PagedResultOfAuditEntryDto: {
+            items: components["schemas"]["AuditEntryDto"][];
+            /** Format: int32 */
+            totalCount: number | string;
+            /** Format: int32 */
+            page: number | string;
+            /** Format: int32 */
+            pageSize: number | string;
+        };
         ProblemDetails: {
             type?: null | string;
             title?: null | string;
@@ -1810,6 +1927,9 @@ export interface components {
         };
         UpdateRoleRequest: {
             role: string;
+        };
+        UpdateUserRequest: {
+            email: string;
         };
         UserDto: {
             /** Format: uuid */

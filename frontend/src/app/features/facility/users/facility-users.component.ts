@@ -20,6 +20,7 @@ import { from } from 'rxjs';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
 import { AuthService } from '../../../core/auth/auth.service';
 import type { User } from '../../../core/models/user.model';
+import type { ApiFacilitiesFacilityIdUsersGet$Json$Params } from '../../../generated/client/fn/facility-users/api-facilities-facility-id-users-get-json';
 
 const FACILITY_ROLES = [
   { value: 'FacilityAdmin', label: 'Facility Admin' },
@@ -88,6 +89,7 @@ export class TokenSetupDialogComponent {
     MatTooltipModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatInputModule,
     TranslateModule,
   ],
   templateUrl: './facility-users.component.html',
@@ -103,6 +105,9 @@ export class FacilityUsersPageComponent implements OnInit {
 
   readonly users = signal<User[]>([]);
   readonly isLoading = signal(true);
+  readonly searchTerm = signal('');
+  readonly sortBy = signal<string | null>(null);
+  readonly sortDescending = signal(false);
   readonly facilityRoles = FACILITY_ROLES;
 
   readonly displayedColumns = ['email', 'role', 'isApproved', 'actions'];
@@ -122,7 +127,7 @@ export class FacilityUsersPageComponent implements OnInit {
       return;
     }
     this.isLoading.set(true);
-    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json({ facilityId: fid })).subscribe(
+    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json(this.buildQueryParams())).subscribe(
       {
         next: (users) => {
           this.users.set(users);
@@ -138,6 +143,59 @@ export class FacilityUsersPageComponent implements OnInit {
         },
       }
     );
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm.set(value.trim());
+    this.loadUsers();
+  }
+
+  clearSearch(): void {
+    if (!this.searchTerm()) {
+      return;
+    }
+
+    this.searchTerm.set('');
+    this.loadUsers();
+  }
+
+  toggleSort(column: 'email' | 'role'): void {
+    if (this.sortBy() !== column) {
+      this.sortBy.set(column);
+      this.sortDescending.set(false);
+    } else if (!this.sortDescending()) {
+      this.sortDescending.set(true);
+    } else {
+      this.sortBy.set(null);
+      this.sortDescending.set(false);
+    }
+
+    this.loadUsers();
+  }
+
+  sortIcon(column: string): string {
+    if (this.sortBy() !== column) {
+      return 'unfold_more';
+    }
+
+    return this.sortDescending() ? 'south' : 'north';
+  }
+
+  private buildQueryParams(): ApiFacilitiesFacilityIdUsersGet$Json$Params {
+    const params: ApiFacilitiesFacilityIdUsersGet$Json$Params = {
+      facilityId: this.facilityId,
+    };
+
+    if (this.searchTerm()) {
+      params.search = this.searchTerm();
+    }
+
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy() ?? undefined;
+      params.sortDescending = this.sortDescending();
+    }
+
+    return params;
   }
 
   openCreateDialog(): void {

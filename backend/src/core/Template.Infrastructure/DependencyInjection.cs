@@ -54,8 +54,12 @@ public static class DependencyInjection
         services.AddSingleton<IFrontendSettings>(serviceProvider =>
             serviceProvider.GetRequiredService<IOptions<FrontendSettings>>().Value);
 
+        services.AddSingleton<AuditInterceptor>();
+
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
-            options.UseNpgsql(serviceProvider.GetRequiredService<IOptions<DatabaseSettings>>().Value.DefaultConnection));
+            options
+                .UseNpgsql(serviceProvider.GetRequiredService<IOptions<DatabaseSettings>>().Value.DefaultConnection)
+                .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
         services.AddIdentity<AppUser, AppRole>(options =>
         {
@@ -79,6 +83,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IMailboxService, MailboxService>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddSingleton<ITemplateRenderer>(
             new EmbeddedScribanTemplateRenderer(typeof(AppDbContext).Assembly));
         services.AddScoped<IProductOrderPdfService, ProductOrderPdfService>();

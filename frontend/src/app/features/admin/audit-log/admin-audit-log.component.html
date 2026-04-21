@@ -1,0 +1,132 @@
+<div class="header-row">
+  <h2>{{ 'admin.auditLog.title' | translate }}</h2>
+</div>
+
+<mat-card class="filter-card">
+  <mat-card-content>
+    <div class="filters">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.auditLog.entityType' | translate }}</mat-label>
+        <mat-select [value]="entityTypeFilter()" (selectionChange)="entityTypeFilter.set($event.value); applyFilters()">
+          <mat-option value="">{{ 'admin.auditLog.allTypes' | translate }}</mat-option>
+          @for (type of entityTypes; track type) {
+            <mat-option [value]="type">{{ type }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.auditLog.action' | translate }}</mat-label>
+        <mat-select [value]="actionFilter()" (selectionChange)="actionFilter.set($event.value); applyFilters()">
+          <mat-option value="">{{ 'admin.auditLog.allActions' | translate }}</mat-option>
+          @for (action of actions; track action) {
+            <mat-option [value]="action">{{ 'admin.auditLog.actions.' + action | translate }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.auditLog.from' | translate }}</mat-label>
+        <input
+          matInput
+          type="date"
+          [value]="fromFilter()"
+          (change)="fromFilter.set($any($event.target).value); applyFilters()"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'admin.auditLog.to' | translate }}</mat-label>
+        <input
+          matInput
+          type="date"
+          [value]="toFilter()"
+          (change)="toFilter.set($any($event.target).value); applyFilters()"
+        />
+      </mat-form-field>
+
+      @if (entityTypeFilter() || actionFilter() || fromFilter() || toFilter()) {
+        <button mat-stroked-button (click)="clearFilters()">
+          <mat-icon>filter_alt_off</mat-icon>
+          {{ 'admin.auditLog.clearFilters' | translate }}
+        </button>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>
+
+@if (isLoading()) {
+  <div class="spinner-wrap">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+} @else {
+  <mat-card>
+    <mat-card-content>
+      <table mat-table [dataSource]="entries()">
+        <ng-container matColumnDef="occurredAt">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.occurredAt' | translate }}</th>
+          <td mat-cell *matCellDef="let entry" class="timestamp-cell">
+            {{ entry.occurredAt | date: 'yyyy-MM-dd HH:mm:ss' : 'UTC' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="entityType">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.entityType' | translate }}</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.entityType }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="entityId">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.entityId' | translate }}</th>
+          <td mat-cell *matCellDef="let entry" [matTooltip]="entry.entityId" class="id-cell">
+            {{ entry.entityId | slice: 0 : 8 }}...
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.action' | translate }}</th>
+          <td mat-cell *matCellDef="let entry">
+            <span class="action-badge action-{{ entry.action | lowercase }}">
+              {{ 'admin.auditLog.actions.' + entry.action | translate }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="userEmail">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.userEmail' | translate }}</th>
+          <td mat-cell *matCellDef="let entry">{{ entry.userEmail ?? '-' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="changes">
+          <th mat-header-cell *matHeaderCellDef>{{ 'admin.auditLog.changes' | translate }}</th>
+          <td mat-cell *matCellDef="let entry">
+            @if (entry.changesJson) {
+              <span
+                class="changes-text"
+                [matTooltip]="entry.changesJson"
+                matTooltipClass="changes-tooltip"
+              >{{ truncateChanges(entry.changesJson) }}</span>
+            } @else {
+              <span>-</span>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      @if (entries().length === 0) {
+        <p class="no-data">{{ 'admin.auditLog.noEntries' | translate }}</p>
+      }
+
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page() - 1"
+        [pageSizeOptions]="[25, 50, 100]"
+        showFirstLastButtons
+        (page)="onPageChange($event)"
+      />
+    </mat-card-content>
+  </mat-card>
+}

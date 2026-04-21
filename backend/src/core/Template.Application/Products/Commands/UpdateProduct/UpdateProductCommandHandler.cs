@@ -1,15 +1,18 @@
 using ErrorOr;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Template.Application.Common;
 using Template.Application.Common.Interfaces;
 using Template.Domain.Entities;
 using Template.Domain.Errors;
 
 namespace Template.Application.Products.Commands.UpdateProduct;
 
-public sealed class UpdateProductCommandHandler(IEntityStore<Product> store) : IRequestHandler<UpdateProductCommand, ErrorOr<Updated>>
+public sealed class UpdateProductCommandHandler(IEntityStore<Product> store, IMemoryCache cache) : IRequestHandler<UpdateProductCommand, ErrorOr<Updated>>
 {
     private readonly IEntityStore<Product> _store = store;
+    private readonly IMemoryCache _cache = cache;
 
     public async ValueTask<ErrorOr<Updated>> Handle(UpdateProductCommand request, CancellationToken ct)
     {
@@ -28,6 +31,8 @@ public sealed class UpdateProductCommandHandler(IEntityStore<Product> store) : I
         }
 
         await _store.SaveChangesAsync(ct);
+
+        _cache.Remove(CacheKeys.FacilityProducts(product.FacilityId));
 
         return Result.Updated;
     }

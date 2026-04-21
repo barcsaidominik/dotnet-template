@@ -1,3 +1,6 @@
+using Serilog;
+using Template.Common.Logging;
+
 namespace Template.Gateway.Api;
 
 public class Program
@@ -5,6 +8,16 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Host.UseSerilog((context, services, configuration) =>
+        {
+            configuration
+                .ReadFrom.Configuration(context.Configuration)
+                .ReadFrom.Services(services)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.With<SyslogSeverityEnricher>();
+        });
 
         var allowedOrigins = builder.Configuration
             .GetSection("Cors:AllowedOrigins")

@@ -82,7 +82,7 @@ public sealed class AuthService(
         var roles = await _userManager.GetRolesAsync(user);
 
         var refreshToken = GenerateRefreshToken();
-        user.RefreshToken = refreshToken;
+        user.RefreshToken = HashToken(refreshToken);
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
@@ -138,6 +138,34 @@ public sealed class AuthService(
 
         await _userManager.DeleteAsync(user);
         return Result.Success;
+    }
+
+    public async Task<ErrorOr<Updated>> UpdateUserAsync(Guid userId, string email, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user is null)
+        {
+            return AuthErrors.UserNotFound;
+        }
+
+        var existingWithEmail = await _userManager.FindByEmailAsync(email);
+        if (existingWithEmail is not null && existingWithEmail.Id != userId)
+        {
+            return FacilityErrors.UserAlreadyExists;
+        }
+
+        user.Email = email;
+        user.UserName = email;
+        user.NormalizedEmail = email.ToUpperInvariant();
+        user.NormalizedUserName = email.ToUpperInvariant();
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return result.Errors.Select(e => Error.Validation(e.Code, e.Description)).ToList();
+        }
+
+        return Result.Updated;
     }
 
     public async Task<ErrorOr<Success>> UpdateUserRoleAsync(Guid userId, string newRole, CancellationToken ct = default)
@@ -225,7 +253,8 @@ public sealed class AuthService(
 
     public async Task<ErrorOr<LoginResult>> RefreshAsync(string refreshToken, CancellationToken ct = default)
     {
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken, ct);
+        var hashedToken = HashToken(refreshToken);
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == hashedToken, ct);
         if (user is null || user.RefreshTokenExpiry <= DateTime.UtcNow)
         {
             return AuthErrors.InvalidCredentials;
@@ -234,7 +263,7 @@ public sealed class AuthService(
         var roles = await _userManager.GetRolesAsync(user);
 
         var newRefreshToken = GenerateRefreshToken();
-        user.RefreshToken = newRefreshToken;
+        user.RefreshToken = HashToken(newRefreshToken);
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
@@ -244,7 +273,8 @@ public sealed class AuthService(
 
     public async Task<ErrorOr<Success>> LogoutAsync(string refreshToken, CancellationToken ct = default)
     {
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken, ct);
+        var hashedToken = HashToken(refreshToken);
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == hashedToken, ct);
         if (user is null)
         {
             return Result.Success;
@@ -296,6 +326,12 @@ public sealed class AuthService(
         var bytes = new byte[64];
         RandomNumberGenerator.Fill(bytes);
         return Convert.ToBase64String(bytes);
+    }
+
+    private static string HashToken(string token)
+    {
+        var bytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token));
+        return Convert.ToHexString(bytes);
     }
 
     private async Task<Dictionary<Guid, IList<string>>> GetRolesByUserIdsAsync(List<Guid> userIds, CancellationToken ct)

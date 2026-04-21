@@ -55,6 +55,7 @@ describe('AppShellComponent', () => {
     expect(component.navItems()).toEqual([
       { label: 'nav.users', route: '/admin/users', icon: 'people' },
       { label: 'nav.facilities', route: '/admin/facilities', icon: 'business' },
+      { label: 'nav.auditLog', route: '/admin/audit-log', icon: 'history' },
       { label: 'nav.mailbox', route: '/mailbox', icon: 'mail' },
     ]);
   });

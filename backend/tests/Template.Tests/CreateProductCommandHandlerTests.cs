@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Caching.Memory;
 using NSubstitute;
 using Template.Application.Common.Interfaces;
 using Template.Application.Products.Commands.CreateProduct;
@@ -11,6 +12,7 @@ public class CreateProductCommandHandlerTests
 {
     private readonly IEntityStore<Product> _store;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IMemoryCache _cache;
     private readonly CreateProductCommandHandler _handler;
     private readonly Guid _facilityId = Guid.NewGuid();
 
@@ -18,8 +20,9 @@ public class CreateProductCommandHandlerTests
     {
         _store = Substitute.For<IEntityStore<Product>>();
         _currentUserService = Substitute.For<ICurrentUserService>();
+        _cache = new MemoryCache(new MemoryCacheOptions());
         _currentUserService.FacilityId.Returns(_facilityId);
-        _handler = new CreateProductCommandHandler(_store, _currentUserService);
+        _handler = new CreateProductCommandHandler(_store, _currentUserService, _cache);
     }
 
     [Fact]
@@ -84,7 +87,7 @@ public class CreateProductCommandHandlerTests
         var ct = TestContext.Current.CancellationToken;
         var command = new CreateProductCommand("Test Product", 50.00m);
         _currentUserService.FacilityId.Returns((Guid?)null);
-        var handlerWithNoFacility = new CreateProductCommandHandler(_store, _currentUserService);
+        var handlerWithNoFacility = new CreateProductCommandHandler(_store, _currentUserService, _cache);
 
         // Act
         var result = await handlerWithNoFacility.Handle(command, ct);

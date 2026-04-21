@@ -1,6 +1,7 @@
 using ErrorOr;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Template.Application.Products.Commands.UpdateProduct;
 using Template.Domain.Entities;
 using Template.Domain.Errors;
@@ -10,6 +11,8 @@ namespace Template.Tests;
 
 public class UpdateProductCommandHandlerTests
 {
+    private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+
     [Fact]
     public async Task Handle_WithExistingProduct_UpdatesAndReturnsUpdated()
     {
@@ -17,7 +20,7 @@ public class UpdateProductCommandHandlerTests
         var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Product>(dbContext, []);
-        var handler = new UpdateProductCommandHandler(store);
+        var handler = new UpdateProductCommandHandler(store, _cache);
 
         var facilityId = Guid.NewGuid();
         var productResult = Product.Create("Original", 10m, facilityId);
@@ -49,7 +52,7 @@ public class UpdateProductCommandHandlerTests
         var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Product>(dbContext, []);
-        var handler = new UpdateProductCommandHandler(store);
+        var handler = new UpdateProductCommandHandler(store, _cache);
 
         var command = new UpdateProductCommand(Guid.NewGuid(), "Updated", 20m, 5);
 
@@ -68,7 +71,7 @@ public class UpdateProductCommandHandlerTests
         var ct = TestContext.Current.CancellationToken;
         await using var dbContext = CreateDbContext();
         var store = new EntityStore<Product>(dbContext, []);
-        var handler = new UpdateProductCommandHandler(store);
+        var handler = new UpdateProductCommandHandler(store, _cache);
 
         var facilityId = Guid.NewGuid();
         var productResult = Product.Create("Original", 10m, facilityId);

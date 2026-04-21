@@ -7,10 +7,12 @@ using Template.Application.Admin.Commands.CreateFacility;
 using Template.Application.Admin.Commands.DeleteFacility;
 using Template.Application.Admin.Commands.DeleteUser;
 using Template.Application.Admin.Commands.UpdateFacility;
+using Template.Application.Admin.Commands.UpdateUser;
 using Template.Application.Admin.Queries.ExportFacilitiesToExcel;
 using Template.Application.Admin.Queries.ExportUsersToExcel;
 using Template.Application.Admin.Queries.GetAllFacilities;
 using Template.Application.Admin.Queries.GetAllUsers;
+using Template.Application.Admin.Queries.GetAuditLogs;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
 using Template.Common.Extensions;
@@ -60,6 +62,16 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
     public async Task<IActionResult> DeleteUser(Guid userId)
     {
         return await SendAsync(new DeleteUserCommand(userId)).ToActionResultAsync();
+    }
+
+    [HttpPut("users/{userId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateUser(Guid userId, [FromBody] UpdateUserRequest request)
+    {
+        return await SendAsync(new UpdateUserCommand(userId, request.Email))
+            .ToActionResultAsync(_ => NoContent());
     }
 
     [HttpGet("facilities")]
@@ -115,5 +127,24 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
     {
         var result = await _backgroundJobScheduler.ScheduleDemoLongRunningOperationAsync(cancellationToken);
         return Accepted(result);
+    }
+
+    [HttpGet("audit")]
+    [ProducesResponseType(typeof(PagedResult<AuditEntryDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAuditLog(
+        [FromQuery] string? entityType = null,
+        [FromQuery] string? entityId = null,
+        [FromQuery] string? action = null,
+        [FromQuery] Guid? userId = null,
+        [FromQuery] DateTime? from = null,
+        [FromQuery] DateTime? to = null,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDescending = true)
+    {
+        return await SendAsync(new GetAuditLogsQuery(
+            entityType, entityId, action, userId, from, to, page, pageSize, sortBy, sortDescending))
+            .ToActionResultAsync();
     }
 }

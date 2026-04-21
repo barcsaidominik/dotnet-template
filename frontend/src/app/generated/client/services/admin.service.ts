@@ -9,6 +9,10 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { apiAdminAuditGet$Json } from '../fn/admin/api-admin-audit-get-json';
+import { ApiAdminAuditGet$Json$Params } from '../fn/admin/api-admin-audit-get-json';
+import { apiAdminAuditGet$Plain } from '../fn/admin/api-admin-audit-get-plain';
+import { ApiAdminAuditGet$Plain$Params } from '../fn/admin/api-admin-audit-get-plain';
 import { apiAdminFacilitiesExportGet } from '../fn/admin/api-admin-facilities-export-get';
 import { ApiAdminFacilitiesExportGet$Params } from '../fn/admin/api-admin-facilities-export-get';
 import { apiAdminFacilitiesFacilityIdDelete } from '../fn/admin/api-admin-facilities-facility-id-delete';
@@ -37,7 +41,10 @@ import { apiAdminUsersUserIdApprovePost } from '../fn/admin/api-admin-users-user
 import { ApiAdminUsersUserIdApprovePost$Params } from '../fn/admin/api-admin-users-user-id-approve-post';
 import { apiAdminUsersUserIdDelete } from '../fn/admin/api-admin-users-user-id-delete';
 import { ApiAdminUsersUserIdDelete$Params } from '../fn/admin/api-admin-users-user-id-delete';
+import { apiAdminUsersUserIdPut } from '../fn/admin/api-admin-users-user-id-put';
+import { ApiAdminUsersUserIdPut$Params } from '../fn/admin/api-admin-users-user-id-put';
 import { FacilityWithCountDto } from '../models/facility-with-count-dto';
+import { PagedResultOfAuditEntryDto } from '../models/paged-result-of-audit-entry-dto';
 import { QueuedBackgroundJobResult } from '../models/queued-background-job-result';
 import { UserDto } from '../models/user-dto';
 
@@ -141,6 +148,31 @@ export class AdminService extends BaseService {
    */
   apiAdminUsersUserIdApprovePost(params: ApiAdminUsersUserIdApprovePost$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiAdminUsersUserIdApprovePost$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiAdminUsersUserIdPut()` */
+  static readonly ApiAdminUsersUserIdPutPath = '/api/Admin/users/{userId}';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminUsersUserIdPut()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAdminUsersUserIdPut$Response(params: ApiAdminUsersUserIdPut$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiAdminUsersUserIdPut(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminUsersUserIdPut$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAdminUsersUserIdPut(params: ApiAdminUsersUserIdPut$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiAdminUsersUserIdPut$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
@@ -383,6 +415,53 @@ export class AdminService extends BaseService {
   apiAdminJobsDemoLongRunningPost$Json(params?: ApiAdminJobsDemoLongRunningPost$Json$Params, context?: HttpContext): Promise<QueuedBackgroundJobResult> {
     const resp = this.apiAdminJobsDemoLongRunningPost$Json$Response(params, context);
     return resp.then((r: StrictHttpResponse<QueuedBackgroundJobResult>): QueuedBackgroundJobResult => r.body);
+  }
+
+  /** Path part for operation `apiAdminAuditGet()` */
+  static readonly ApiAdminAuditGetPath = '/api/Admin/audit';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminAuditGet$Plain()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminAuditGet$Plain$Response(params?: ApiAdminAuditGet$Plain$Params, context?: HttpContext): Promise<StrictHttpResponse<PagedResultOfAuditEntryDto>> {
+    const obs = apiAdminAuditGet$Plain(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminAuditGet$Plain$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminAuditGet$Plain(params?: ApiAdminAuditGet$Plain$Params, context?: HttpContext): Promise<PagedResultOfAuditEntryDto> {
+    const resp = this.apiAdminAuditGet$Plain$Response(params, context);
+    return resp.then((r: StrictHttpResponse<PagedResultOfAuditEntryDto>): PagedResultOfAuditEntryDto => r.body);
+  }
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAdminAuditGet$Json()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminAuditGet$Json$Response(params?: ApiAdminAuditGet$Json$Params, context?: HttpContext): Promise<StrictHttpResponse<PagedResultOfAuditEntryDto>> {
+    const obs = apiAdminAuditGet$Json(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAdminAuditGet$Json$Response()` instead.
+   *
+   * This method doesn't expect any request body.
+   */
+  apiAdminAuditGet$Json(params?: ApiAdminAuditGet$Json$Params, context?: HttpContext): Promise<PagedResultOfAuditEntryDto> {
+    const resp = this.apiAdminAuditGet$Json$Response(params, context);
+    return resp.then((r: StrictHttpResponse<PagedResultOfAuditEntryDto>): PagedResultOfAuditEntryDto => r.body);
   }
 
 }

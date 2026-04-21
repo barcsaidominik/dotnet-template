@@ -51,6 +51,13 @@ export const routes: Routes = [
                 (m) => m.AdminFacilitiesPageComponent
               ),
           },
+          {
+            path: 'audit-log',
+            loadComponent: () =>
+              import('./features/admin/audit-log/admin-audit-log.component').then(
+                (m) => m.AdminAuditLogPageComponent
+              ),
+          },
           { path: '', redirectTo: 'users', pathMatch: 'full' },
         ],
       },

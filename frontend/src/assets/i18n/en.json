@@ -22,7 +22,8 @@
     "users": "Users",
     "facilities": "Facilities",
     "products": "Products",
-    "mailbox": "Mailbox"
+    "mailbox": "Mailbox",
+    "auditLog": "Audit Log"
   },
   "mailbox": {
     "title": "Mailbox",
@@ -139,7 +140,16 @@
         "title": "Invitation Sent",
         "message": "An invitation email has been sent to the specified email address.",
         "message2": "The user can set their password and activate their account by clicking the link in the email."
-      }
+      },
+      "updateDialog": {
+        "title": "Edit User",
+        "email": "Email",
+        "emailRequired": "Email is required.",
+        "emailInvalid": "Invalid email.",
+        "submit": "Save"
+      },
+      "userUpdated": "User updated",
+      "failedToUpdate": "Failed to update user"
     },
     "facilities": {
       "title": "Facilities",
@@ -171,6 +181,27 @@
         "title": "Edit Facility",
         "name": "Name",
         "submit": "Save"
+      }
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "entityType": "Entity Type",
+      "entityId": "Entity ID",
+      "action": "Action",
+      "occurredAt": "Timestamp",
+      "userEmail": "User",
+      "changes": "Changes",
+      "from": "From",
+      "to": "To",
+      "allTypes": "All Types",
+      "allActions": "All Actions",
+      "clearFilters": "Clear Filters",
+      "noEntries": "No audit log entries found.",
+      "failedToLoad": "Failed to load audit log",
+      "actions": {
+        "Created": "Created",
+        "Updated": "Updated",
+        "Deleted": "Deleted"
       }
     }
   },

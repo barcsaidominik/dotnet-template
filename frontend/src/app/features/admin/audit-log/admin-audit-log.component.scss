@@ -1,0 +1,100 @@
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filter-card {
+  margin-bottom: 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+
+  mat-form-field {
+    width: 180px;
+  }
+}
+
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+table {
+  width: 100%;
+}
+
+.timestamp-cell {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.id-cell {
+  font-family: monospace;
+  font-size: 13px;
+  cursor: default;
+}
+
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.action-created {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.action-updated {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.action-deleted {
+  background: #fce4ec;
+  color: #c62828;
+}
+
+.changes-text {
+  font-family: monospace;
+  font-size: 12px;
+  cursor: default;
+  color: inherit;
+}
+
+.no-data {
+  text-align: center;
+  color: #666;
+  padding: 24px;
+}
+
+:host-context(.dark-mode) {
+  .action-created {
+    background: rgba(46, 125, 50, 0.2);
+    color: #81c784;
+  }
+
+  .action-updated {
+    background: rgba(21, 101, 192, 0.2);
+    color: #64b5f6;
+  }
+
+  .action-deleted {
+    background: rgba(198, 40, 40, 0.2);
+    color: #ef9a9a;
+  }
+
+  .no-data {
+    color: rgba(255, 255, 255, 0.6);
+  }
+}

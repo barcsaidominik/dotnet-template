@@ -22,7 +22,8 @@
     "users": "Felhasználók",
     "facilities": "Üzemek",
     "products": "Termékek",
-    "mailbox": "Postaláda"
+    "mailbox": "Postaláda",
+    "auditLog": "Audit napló"
   },
   "mailbox": {
     "title": "Postaláda",
@@ -139,7 +140,16 @@
         "title": "Meghívó elküldve",
         "message": "A meghívó emailt elküldtük a megadott email címre.",
         "message2": "A felhasználó az emailben kapott linkre kattintva beállíthatja jelszavát és aktiválhatja fiókját."
-      }
+      },
+      "updateDialog": {
+        "title": "Felhasználó szerkesztése",
+        "email": "Email",
+        "emailRequired": "Az email cím megadása kötelező.",
+        "emailInvalid": "Érvénytelen email cím.",
+        "submit": "Mentés"
+      },
+      "userUpdated": "Felhasználó frissítve",
+      "failedToUpdate": "Nem sikerült frissíteni a felhasználót"
     },
     "facilities": {
       "title": "Üzemek",
@@ -171,6 +181,27 @@
         "title": "Üzem szerkesztése",
         "name": "Név",
         "submit": "Mentés"
+      }
+    },
+    "auditLog": {
+      "title": "Audit napló",
+      "entityType": "Entitás típusa",
+      "entityId": "Entitás ID",
+      "action": "Művelet",
+      "occurredAt": "Időbélyeg",
+      "userEmail": "Felhasználó",
+      "changes": "Változások",
+      "from": "Dátumtól",
+      "to": "Dátumig",
+      "allTypes": "Összes típus",
+      "allActions": "Összes művelet",
+      "clearFilters": "Szűrők törlése",
+      "noEntries": "Nincs naplóbejegyzés.",
+      "failedToLoad": "Nem sikerült betölteni az audit naplót",
+      "actions": {
+        "Created": "Létrehozva",
+        "Updated": "Módosítva",
+        "Deleted": "Törölve"
       }
     }
   },

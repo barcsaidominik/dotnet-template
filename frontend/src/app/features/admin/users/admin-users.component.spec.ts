@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { provideHttpClient } from '@angular/common/http';
 import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -65,6 +66,7 @@ describe('AdminUsersPageComponent', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
         { provide: AdminService, useValue: adminApi },
         { provide: FacilityUsersService, useValue: facilityUsersApi },
         { provide: MatDialog, useValue: dialog },

@@ -98,6 +98,13 @@
             @if (user.id !== auth.userId()) {
               <button
                 mat-icon-button
+                [matTooltip]="'common.edit' | translate"
+                (click)="openEditDialog(user)"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                mat-icon-button
                 color="warn"
                 [matTooltip]="'admin.users.delete' | translate"
                 (click)="deleteUser(user)"

@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<MailboxMessage> MailboxMessages => Set<MailboxMessage>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Facility> Facilities => Set<Facility>();
+    public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

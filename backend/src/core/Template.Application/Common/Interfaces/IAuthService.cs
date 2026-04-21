@@ -11,6 +11,7 @@ public interface IAuthService
     Task<ErrorOr<CreateUserResult>> CreateFacilityUserAsync(string email, Guid facilityId, string role, CancellationToken ct = default);
     Task<ErrorOr<Success>> ApproveUserAsync(Guid userId, Guid facilityId, string role, CancellationToken ct = default);
     Task<ErrorOr<Success>> DeleteUserAsync(Guid userId, CancellationToken ct = default);
+    Task<ErrorOr<Updated>> UpdateUserAsync(Guid userId, string email, CancellationToken ct = default);
     Task<ErrorOr<Success>> UpdateUserRoleAsync(Guid userId, string newRole, CancellationToken ct = default);
     Task<ErrorOr<IReadOnlyList<UserDto>>> GetAllUsersAsync(CancellationToken ct = default);
     Task<ErrorOr<IReadOnlyList<UserDto>>> GetFacilityUsersAsync(Guid facilityId, CancellationToken ct = default);

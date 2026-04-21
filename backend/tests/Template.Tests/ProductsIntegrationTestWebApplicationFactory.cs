@@ -134,8 +134,10 @@ public sealed class ProductsIntegrationTestWebApplicationFactory : WebApplicatio
             services.RemoveAll<IFrontendSettings>();
             services.AddSingleton(_ => Substitute.For<IFrontendSettings>());
 
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseInMemoryDatabase(_databaseName));
+            services.AddDbContext<AppDbContext>((serviceProvider, options) =>
+                options
+                    .UseInMemoryDatabase(_databaseName)
+                    .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
         });
     }
 

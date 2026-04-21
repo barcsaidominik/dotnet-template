@@ -81,6 +81,8 @@ export type { ApiAdminUsersExportGet$Params as ApiAdminUsersExportGet$Params } f
 export { apiAdminUsersExportGet as apiAdminUsersExportGet } from './fn/admin/api-admin-users-export-get';
 export type { ApiAdminUsersUserIdApprovePost$Params as ApiAdminUsersUserIdApprovePost$Params } from './fn/admin/api-admin-users-user-id-approve-post';
 export { apiAdminUsersUserIdApprovePost as apiAdminUsersUserIdApprovePost } from './fn/admin/api-admin-users-user-id-approve-post';
+export type { ApiAdminUsersUserIdPut$Params as ApiAdminUsersUserIdPut$Params } from './fn/admin/api-admin-users-user-id-put';
+export { apiAdminUsersUserIdPut as apiAdminUsersUserIdPut } from './fn/admin/api-admin-users-user-id-put';
 export type { ApiAdminUsersUserIdDelete$Params as ApiAdminUsersUserIdDelete$Params } from './fn/admin/api-admin-users-user-id-delete';
 export { apiAdminUsersUserIdDelete as apiAdminUsersUserIdDelete } from './fn/admin/api-admin-users-user-id-delete';
 export type { ApiAdminFacilitiesGet$Plain$Params as ApiAdminFacilitiesGet$Plain$Params } from './fn/admin/api-admin-facilities-get-plain';
@@ -101,6 +103,10 @@ export type { ApiAdminJobsDemoLongRunningPost$Plain$Params as ApiAdminJobsDemoLo
 export { apiAdminJobsDemoLongRunningPost$Plain as apiAdminJobsDemoLongRunningPost$Plain } from './fn/admin/api-admin-jobs-demo-long-running-post-plain';
 export type { ApiAdminJobsDemoLongRunningPost$Json$Params as ApiAdminJobsDemoLongRunningPost$Json$Params } from './fn/admin/api-admin-jobs-demo-long-running-post-json';
 export { apiAdminJobsDemoLongRunningPost$Json as apiAdminJobsDemoLongRunningPost$Json } from './fn/admin/api-admin-jobs-demo-long-running-post-json';
+export type { ApiAdminAuditGet$Plain$Params as ApiAdminAuditGet$Plain$Params } from './fn/admin/api-admin-audit-get-plain';
+export { apiAdminAuditGet$Plain as apiAdminAuditGet$Plain } from './fn/admin/api-admin-audit-get-plain';
+export type { ApiAdminAuditGet$Json$Params as ApiAdminAuditGet$Json$Params } from './fn/admin/api-admin-audit-get-json';
+export { apiAdminAuditGet$Json as apiAdminAuditGet$Json } from './fn/admin/api-admin-audit-get-json';
 export type { ApiAuthRegisterPost$Params as ApiAuthRegisterPost$Params } from './fn/auth/api-auth-register-post';
 export { apiAuthRegisterPost as apiAuthRegisterPost } from './fn/auth/api-auth-register-post';
 export type { ApiAuthLoginPost$Plain$Params as ApiAuthLoginPost$Plain$Params } from './fn/auth/api-auth-login-post-plain';

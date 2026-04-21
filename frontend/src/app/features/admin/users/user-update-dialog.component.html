@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>{{ 'admin.users.updateDialog.title' | translate }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" style="width: 100%">
+      <mat-label>{{ 'admin.users.updateDialog.email' | translate }}</mat-label>
+      <input matInput formControlName="email" type="email" />
+      @if (form.controls.email.hasError('required')) {
+        <mat-error>{{ 'admin.users.updateDialog.emailRequired' | translate }}</mat-error>
+      }
+      @if (form.controls.email.hasError('email')) {
+        <mat-error>{{ 'admin.users.updateDialog.emailInvalid' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="form.invalid">
+    {{ 'admin.users.updateDialog.submit' | translate }}
+  </button>
+</mat-dialog-actions>
