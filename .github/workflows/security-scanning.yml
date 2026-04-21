@@ -41,6 +41,11 @@ jobs:
           # query pack and additional code-quality checks.
           queries: security-and-quality
 
+      # Restore must run before build — CodeQL traces the compilation,
+      # not the restore, so these are kept as separate steps.
+      - name: Restore packages
+        run: dotnet restore backend/Template.slnx
+
       # CodeQL requires a successful build to trace the compilation.
       - name: Build (for CodeQL tracing)
         run: dotnet build backend/Template.slnx --no-restore
