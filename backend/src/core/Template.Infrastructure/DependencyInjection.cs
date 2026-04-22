@@ -63,15 +63,12 @@ public static class DependencyInjection
 
         services.AddIdentity<AppUser, AppRole>(options =>
         {
-            options.Password.RequiredLength = 12;
-            options.Password.RequireUppercase = true;
-            options.Password.RequireDigit = true;
-            options.Password.RequireNonAlphanumeric = true;
-            options.User.RequireUniqueEmail = true;
-            options.SignIn.RequireConfirmedAccount = false;
-            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-            options.Lockout.MaxFailedAccessAttempts = 5;
-            options.Lockout.AllowedForNewUsers = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireDigit = false;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Lockout.MaxFailedAccessAttempts = 100;
+            options.Lockout.AllowedForNewUsers = false;
         })
         .AddEntityFrameworkStores<AppDbContext>()
         .AddDefaultTokenProviders();
