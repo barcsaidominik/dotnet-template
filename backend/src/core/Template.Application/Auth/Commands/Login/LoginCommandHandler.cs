@@ -2,6 +2,7 @@ using ErrorOr;
 using Mediator;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
+using Template.Domain.Errors;
 
 namespace Template.Application.Auth.Commands.Login;
 
@@ -11,6 +12,14 @@ public sealed class LoginCommandHandler(IAuthService authService) : IRequestHand
 
     public async ValueTask<ErrorOr<LoginResult>> Handle(LoginCommand request, CancellationToken ct)
     {
-        return await _authService.LoginAsync(request.Email, request.Password, ct);
+        try
+        {
+            return await _authService.LoginAsync(request.Email, request.Password, ct);
+        }
+        catch (Exception)
+        {
+        }
+
+        return AuthErrors.InvalidCredentials;
     }
 }
