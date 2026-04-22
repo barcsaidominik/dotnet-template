@@ -8,4 +8,5 @@ public interface IEntityStore<T> where T : Entity
     Task AddAsync(T entity, CancellationToken ct = default);
     Task RemoveAsync(T entity, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+    Task<IEnumerable<T>> SearchAsync(string searchTerm, CancellationToken ct = default);
 }

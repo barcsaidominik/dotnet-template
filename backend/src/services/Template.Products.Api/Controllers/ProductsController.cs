@@ -2,6 +2,7 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Template.Application.Common.Dtos;
+using Template.Application.Common.Interfaces;
 using Template.Application.Products.Commands.CreateProduct;
 using Template.Application.Products.Commands.ImportProductsFromExcel;
 using Template.Application.Products.Commands.UpdateProduct;
@@ -18,9 +19,11 @@ namespace Template.Products.Api.Controllers;
 
 [Route("api/[controller]")]
 [Authorize(Roles = Roles.FACILITY_ADMIN + "," + Roles.FACILITY_EDITOR + "," + Roles.FACILITY_VIEWER)]
-public sealed class ProductsController(ISender sender)
+public sealed class ProductsController(ISender sender, IEntityStore<Product> store)
     : Template.Common.Controllers.ApiController(sender)
 {
+    private readonly IEntityStore<Product> _store = store;
+
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<Product>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(
@@ -102,5 +105,12 @@ public sealed class ProductsController(ISender sender)
 
         return await SendAsync(new ImportProductsFromExcelCommand(memoryStream.ToArray(), request.File.FileName))
             .ToActionResultAsync();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string term, CancellationToken ct)
+    {
+        var results = await _store.SearchAsync(term, ct);
+        return Ok(results);
     }
 }
