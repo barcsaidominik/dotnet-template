@@ -82,7 +82,7 @@ public sealed class AuthService(
         var roles = await _userManager.GetRolesAsync(user);
 
         var refreshToken = GenerateRefreshToken();
-        user.RefreshToken = HashToken(refreshToken);
+        user.RefreshToken = refreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
