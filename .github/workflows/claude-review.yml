@@ -18,77 +18,98 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Only collect changes in backend C# source and project files.
-      # Cap at 20 000 characters to stay well within the model's context.
       - name: Collect diff
         id: diff
+        shell: bash
         run: |
-          git diff origin/${{ github.base_ref }}...HEAD \
+          set -euo pipefail
+
+          git diff "origin/${{ github.base_ref }}...HEAD" \
             -- 'backend/**/*.cs' 'backend/**/*.csproj' \
             | head -c 20000 > pr_diff.txt
 
-          LINES=$(wc -l < pr_diff.txt)
-          echo "lines=$LINES" >> "$GITHUB_OUTPUT"
+          lines=$(wc -l < pr_diff.txt | tr -d ' ')
+          echo "lines=$lines" >> "$GITHUB_OUTPUT"
 
-      # Skip the review entirely if the diff is empty
-      # (e.g. only frontend or documentation changes).
       - name: Run Claude security review
         if: steps.diff.outputs.lines > 0
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        shell: bash
         run: |
-          DIFF=$(cat pr_diff.txt)
+          set -euo pipefail
 
-          # Use jq to build the JSON payload safely — avoids shell injection
-          # when the diff contains quotes, backslashes or other special chars.
-          PAYLOAD=$(jq -n --arg diff "$DIFF" '{
+          diff_content=$(cat pr_diff.txt)
+
+          payload=$(jq -n --arg diff "$diff_content" '{
             model: "claude-sonnet-4-6",
             max_tokens: 1500,
             system: "You are a security-focused code reviewer specialising in ASP.NET Core. Be concise, practical and actionable. Do not repeat the diff.",
-            messages: [{
-              role: "user",
-              content: (
-                "Review the following pull request diff. Identify issues in these categories only if they are genuinely present:\n\n"
-                + "**Security**\n"
-                + "- Authentication / authorisation mistakes (e.g. missing [Authorize], wrong middleware order)\n"
-                + "- Input validation gaps (missing FluentValidation, unvalidated ModelState)\n"
-                + "- Hardcoded secrets, API keys or connection strings\n"
-                + "- SQL injection risk (raw FromSqlRaw with string interpolation)\n"
-                + "- Sensitive data in logs\n"
-                + "- JWT / token handling problems\n\n"
-                + "**Code quality**\n"
-                + "- Exception swallowing (empty catch blocks)\n"
-                + "- Blocking async calls (.Result, .Wait())\n"
-                + "- Obvious null-reference risks\n\n"
-                + "If no issues are found in a category, omit it. "
-                + "End with a one-line summary verdict.\n\n"
-                + "Diff:\n" + $diff
-              )
-            }]
+            messages: [
+              {
+                role: "user",
+                content: (
+                  "Review the following pull request diff. Identify issues in these categories only if they are genuinely present:\n\n"
+                  + "## Security\n"
+                  + "- Authentication / authorisation mistakes (e.g. missing [Authorize], wrong middleware order)\n"
+                  + "- Input validation gaps (missing FluentValidation, unvalidated ModelState)\n"
+                  + "- Hardcoded secrets, API keys or connection strings\n"
+                  + "- SQL injection risk (raw FromSqlRaw with string interpolation)\n"
+                  + "- Sensitive data in logs\n"
+                  + "- JWT / token handling problems\n\n"
+                  + "## Code quality\n"
+                  + "- Exception swallowing (empty catch blocks)\n"
+                  + "- Blocking async calls (.Result, .Wait())\n"
+                  + "- Obvious null-reference risks\n\n"
+                  + "Rules:\n"
+                  + "- Omit categories with no real findings.\n"
+                  + "- Use Markdown.\n"
+                  + "- Prefer short bullet points.\n"
+                  + "- For each finding include: severity, file, issue, why it matters, suggested fix.\n"
+                  + "- End with a one-line summary verdict.\n\n"
+                  + "Diff:\n"
+                  + $diff
+                )
+              }
+            ]
           }')
 
-          RESPONSE=$(curl -sf https://api.anthropic.com/v1/messages \
+          response=$(curl -fsS https://api.anthropic.com/v1/messages \
             -H "Content-Type: application/json" \
             -H "x-api-key: $ANTHROPIC_API_KEY" \
             -H "anthropic-version: 2023-06-01" \
-            -d "$PAYLOAD")
+            -d "$payload")
 
-          # Write the review text to a file for the next step
-          echo "$RESPONSE" | jq -r '.content[0].text' > review.txt
+          printf '%s' "$response" | jq -r '.content[] | select(.type == "text") | .text' > review.txt
 
-      # Post the review as a PR comment using the built-in gh CLI.
-      # GITHUB_TOKEN is available automatically — no extra secret needed.
+          if [ ! -s review.txt ]; then
+            echo "Claude returned an empty review."
+            exit 1
+          fi
+
+      - name: Build PR comment
+        if: steps.diff.outputs.lines > 0
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          {
+            echo "## Claude Automated Security Review"
+            echo
+            cat review.txt
+            echo
+            echo "---"
+            echo "*Automated review by Claude Sonnet. Findings are non-deterministic — always verify manually before merging.*"
+          } > comment.md
+
       - name: Post review comment
         if: steps.diff.outputs.lines > 0
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
         run: |
-          REVIEW=$(cat review.txt)
+          set -euo pipefail
 
-          BODY=$(jq -n --arg r "$REVIEW" \
-            '"## \u1f50d Claude Automated Security Review\n\n" + $r
-             + "\n\n---\n*Automated review by Claude Sonnet. Findings are non-deterministic — always verify manually before merging.*"')
-
-          gh pr comment ${{ github.event.pull_request.number }} \
-            --repo ${{ github.repository }} \
-            --body "$BODY"
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --body-file comment.md
