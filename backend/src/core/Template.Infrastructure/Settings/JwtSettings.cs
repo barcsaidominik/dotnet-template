@@ -13,7 +13,7 @@ public sealed class JwtSettings
     {
         get;
         set;
-    } = string.Empty;
+    } = "mysupersecretjwtkey1234567890abc";
 
     [Required]
     public string Issuer
