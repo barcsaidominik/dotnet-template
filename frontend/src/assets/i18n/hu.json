@@ -64,8 +64,19 @@
       "passwordRequired": "A jelszó megadása kötelező.",
       "submit": "Bejelentkezés",
       "register": "Fiók létrehozása",
+      "forgotPassword": "Elfelejtett jelszó?",
       "navigationFailed": "Bejelentkezés sikeres, de a navigáció sikertelen.",
       "invalidCredentials": "Érvénytelen email cím vagy jelszó."
+    },
+    "forgotPassword": {
+      "title": "Elfelejtett jelszó",
+      "email": "Email",
+      "emailRequired": "Az email cím megadása kötelező.",
+      "emailInvalid": "Érvénytelen email cím.",
+      "submit": "Visszaállítási link küldése",
+      "backToLogin": "Vissza a bejelentkezéshez",
+      "successMessage": "Ha az email cím regisztrálva van a rendszerben, hamarosan kap egy jelszó-visszaállítási linket.",
+      "failed": "Valami hiba történt. Kérlek, próbáld újra."
     },
     "register": {
       "title": "Fiók létrehozása",

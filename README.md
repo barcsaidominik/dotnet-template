@@ -149,11 +149,11 @@ dotnet-template/
 
 ## Alapértelmezett bejelentkezési adatok
 
-Az első indítás után egy system admin kerül seedelésre:
-- **Email:** `admin@example.com`
-- **Jelszo:** `Admin123!`
+Az első indítás után egy system admin kerül seedelésre az `admin@template.io` email címre (konfigurálható: `SystemAdmin:Email` appsettings értékkel).
 
-**Production-ben azonnal változtasd meg.**
+Az adminfióknak nincs alapértelmezett jelszava - az alkalmazás az első indításkor jelszó-visszaállítási emailt küld a megadott email címre. A linkre kattintva állítható be a jelszó a `/auth/set-password` oldalon.
+
+**Production-ban:** Állítsd be a `SystemAdmin__Email` környezeti változót (vagy `SystemAdmin:Email` appsettings értéket) a saját email címedre, hogy megkapd a beállítási linket az első indításkor.
 
 ## Licenc
 
