@@ -88,6 +88,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<INotificationChannel, EmailNotificationChannel>();
         services.AddScoped<ISetupInvitationEmailTemplateFactory, SetupInvitationEmailTemplateFactory>();
+        services.AddScoped<IPasswordResetEmailTemplateFactory, PasswordResetEmailTemplateFactory>();
 
         return services;
     }
