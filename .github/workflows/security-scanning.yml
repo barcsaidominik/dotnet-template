@@ -32,20 +32,19 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: "10.x"
+
+      - name: Restore packages
+        run: dotnet restore backend/Template.slnx
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: csharp
-          # security-and-quality includes both the security-extended
-          # query pack and additional code-quality checks.
+          # security-and-quality lefedi: cs/sql-injection, cs/path-injection,
+          # cs/open-redirect, cs/hardcoded-credentials, cs/catch-of-all-exceptions,
+          # cs/empty-catch-block és más High/Critical lekérdezéseket
           queries: security-and-quality
-
-      # Restore must run before build — CodeQL traces the compilation,
-      # not the restore, so these are kept as separate steps.
-      - name: Restore packages
-        run: dotnet restore backend/Template.slnx
 
       # CodeQL requires a successful build to trace the compilation.
       - name: Build (for CodeQL tracing)
@@ -72,7 +71,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: "10.x"
 
       - name: Restore packages
         run: dotnet restore backend/Template.slnx
@@ -80,27 +79,34 @@ jobs:
       - name: Audit NuGet packages
         # --severity high  → only fail on High and Critical advisories
         # --vulnerable     → only list packages with known vulnerabilities
+        shell: bash
         run: |
+          set -euo pipefail
+
+          # --include-transitive: tranzitív függőségek is belekerülnek
+          # A JSON kimenet a ténylegesen feloldott verziókat tartalmazza
           dotnet list backend/Template.slnx package \
             --vulnerable \
             --include-transitive \
             --format json \
-            | tee nuget-audit.json
+            > nuget-audit.json
+
+          cat nuget-audit.json
 
           # Exit non-zero if any HIGH or CRITICAL vulnerability found.
           CRITICAL=$(cat nuget-audit.json \
             | jq '[.. | objects | select(.severity? == "High" or .severity? == "Critical")] | length')
-
+          
           if [ "$CRITICAL" -gt 0 ]; then
             echo "::error::Found $CRITICAL High/Critical NuGet vulnerability(s). See nuget-audit.json."
             exit 1
           fi
 
-      - name: Upload audit report
+      - name: Upload NuGet audit report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: nuget-audit-report
+          name: nuget-audit
           path: nuget-audit.json
 
   # ── 3. Secret scanning (gitleaks) ────────────────────────────────────────
@@ -109,12 +115,12 @@ jobs:
   # GitHub's built-in secret scanning covers the same ground for
   # public repositories and GitHub Advanced Security customers; gitleaks
   # provides the same capability for all repository types in CI.
-  secret-scan:
+  gitleaks:
     name: Secret scanning (gitleaks)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (full history)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0   # full history needed to scan all commits
@@ -123,6 +129,6 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # GITLEAKS_LICENSE is only required for private repositories
-          # on paid gitleaks plans. Public repos run for free.
-          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          # Egyedi szabályfájl: kiterjeszti az alapértelmezett szabályokat
+          # ASP.NET Core-specifikus mintákkal (JWT titok, connection string, stb.)
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.gitleaks.toml
