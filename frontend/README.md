@@ -197,7 +197,8 @@ src/app/
 |---------|-----------|-------|--------|
 | `/auth/login` | AuthLoginComponent | - | Bejelentkező oldal |
 | `/auth/register` | AuthRegisterComponent | - | Regisztrációs oldal |
-| `/auth/set-password` | AuthSetPasswordComponent | - | Jelszóbeállítás (létesítmény felhasználók) |
+| `/auth/set-password` | AuthSetPasswordComponent | - | Jelszóbeállítás (meghívó linkből) |
+| `/auth/forgot-password` | AuthForgotPasswordComponent | - | Elfelejtett jelszó - visszaállítási email kérése |
 | `/admin/users` | AdminUsersPageComponent | authGuard, roleGuard(SystemAdmin) | Felhasználókezelés |
 | `/admin/facilities` | AdminFacilitiesPageComponent | authGuard, roleGuard(SystemAdmin) | Létesítménykezelés |
 | `/admin/audit-log` | AdminAuditLogPageComponent | authGuard, roleGuard(SystemAdmin) | Audit log megjelenítő |
