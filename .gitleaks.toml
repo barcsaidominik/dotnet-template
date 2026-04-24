@@ -18,33 +18,40 @@ tags        = ["jwt", "secret", "csharp"]
 
   [rules.allowlist]
   description = "Ignore empty strings and placeholder values"
-  regexes     = [
+  regexes = [
     '''=\s*["']{2}''',           # üres string
     '''string\.Empty''',          # string.Empty
-    '''placeholder|example|dummy|test|fake''',  # ismert nem-érzékeny értékek
+    '''(?i)(placeholder|example|dummy|test|fake)''',  # ismert nem-érzékeny értékek
   ]
 
 # ─────────────────────────────────────────────────────────────────
-# 2. ASP.NET connection string jelszó
-#    Megtalálja: Password=valami; vagy pwd=valami a connection string-ben
+# 2. ASP.NET connection string jelszó (re2-kompatibilis, lookahead nélkül)
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "dotnet-connection-string-password"
 description = "Password in ASP.NET connection string"
-regex       = '''(?i)(Password|pwd)\s*=\s*(?!(\$\{|@"|<[A-Z_]+>|your[-_ ]|change[-_ ]|replace[-_ ]))[^;"{}\s]{4,}'''
+regex       = '''(?i)(Password|pwd)\s*=\s*[^;"{}\s]{4,}'''
 keywords    = ["Password=", "pwd=", "ConnectionString"]
 tags        = ["database", "connection-string", "csharp"]
 
   [rules.allowlist]
-  description = "Ignore test projects and example configs"
-  paths       = [
+  description = "Ignore placeholders, masked values and test projects"
+  paths = [
     '''.*[Tt]est.*''',
     '''.*[Ee]xample.*''',
     '''appsettings\.Development\.json''',
   ]
   regexes = [
-    '''Password=\*+''',            # jelszó maszkolva
-    '''Password=;''',              # üres jelszó
+    # Dinamikus konfiguráció-referenciák — nem valódi titok
+    '''\$\{''',
+    '''@"''',
+    '''<[A-Z_]+>''',
+    '''(?i)(your|change|replace|placeholder|example|dummy|test|fake)''',
+    # Maszkolva
+    '''Password=\*+''',
+    '''Password=;''',
+    # string.Empty
+    '''string\.Empty''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
@@ -60,8 +67,7 @@ keywords    = ["ApiKey", "api_key", "AuthToken", "AccessToken", "ServiceToken"]
 tags        = ["api-key", "token", "csharp"]
 
   [rules.allowlist]
-  description = "Ignore tests and known non-secret patterns"
-  paths       = [
+  paths = [
     '''.*[Tt]est.*''',
     '''.*[Ss]pec.*''',
   ]
@@ -73,13 +79,12 @@ tags        = ["api-key", "token", "csharp"]
   ]
 
 # ─────────────────────────────────────────────────────────────────
-# 4. Docker Secrets helyett hardcode-olt jelszó
-#    Megtalálja: POSTGRES_PASSWORD=valami típusú Compose/env fájl sort
+# 4. Docker Compose hardcode-olt jelszó
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "docker-compose-hardcoded-password"
 description = "Hardcoded password in Docker Compose or .env file"
-regex       = '''(?i)(POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*(?!\$\{)[^\s$"]{4,}'''
+regex       = '''(?i)(POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*[^\s$"]{4,}'''
 keywords    = ["POSTGRES_PASSWORD", "MYSQL_PASSWORD", "DB_PASSWORD"]
 tags        = ["docker", "database", "password"]
 
@@ -91,7 +96,7 @@ tags        = ["docker", "database", "password"]
   ]
 
 # ─────────────────────────────────────────────────────────────────
-# Globális kizárások — ne jelezzen tesztfájlokra és generált kódra
+# Globális kizárások
 # ─────────────────────────────────────────────────────────────────
 [allowlist]
 description = "Global allowlist for generated and test files"
