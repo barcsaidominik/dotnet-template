@@ -131,4 +131,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Egyedi szabályfájl: kiterjeszti az alapértelmezett szabályokat
           # ASP.NET Core-specifikus mintákkal (JWT titok, connection string, stb.)
-          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_CONFIG: ${{ github.workspace }}/.gitleaks.toml
