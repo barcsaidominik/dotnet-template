@@ -1313,6 +1313,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/Auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ForgotPasswordCommand"];
+                    "text/json": components["schemas"]["ForgotPasswordCommand"];
+                    "application/*+json": components["schemas"]["ForgotPasswordCommand"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/Auth/refresh": {
         parameters: {
             query?: never;
@@ -1866,6 +1905,9 @@ export interface components {
             employeeCount: number | string;
             /** Format: uint32 */
             rowVersion: number | string;
+        };
+        ForgotPasswordCommand: {
+            email: string;
         };
         LoginCommand: {
             email: string;

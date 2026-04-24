@@ -64,8 +64,19 @@
       "passwordRequired": "Password is required.",
       "submit": "Sign In",
       "register": "Create account",
+      "forgotPassword": "Forgot password?",
       "navigationFailed": "Login succeeded, but navigation failed.",
       "invalidCredentials": "Invalid email or password."
+    },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "email": "Email",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Invalid email address.",
+      "submit": "Send Reset Link",
+      "backToLogin": "Back to Sign In",
+      "successMessage": "If an account with that email exists, you will receive a password reset link shortly.",
+      "failed": "Something went wrong. Please try again."
     },
     "register": {
       "title": "Create Account",

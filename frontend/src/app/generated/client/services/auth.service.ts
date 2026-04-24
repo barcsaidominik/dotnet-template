@@ -9,6 +9,8 @@ import { BaseService } from '../base-service';
 import { ApiConfiguration } from '../api-configuration';
 import { StrictHttpResponse } from '../strict-http-response';
 
+import { apiAuthForgotPasswordPost } from '../fn/auth/api-auth-forgot-password-post';
+import { ApiAuthForgotPasswordPost$Params } from '../fn/auth/api-auth-forgot-password-post';
 import { apiAuthLoginPost$Json } from '../fn/auth/api-auth-login-post-json';
 import { ApiAuthLoginPost$Json$Params } from '../fn/auth/api-auth-login-post-json';
 import { apiAuthLoginPost$Plain } from '../fn/auth/api-auth-login-post-plain';
@@ -125,6 +127,31 @@ export class AuthService extends BaseService {
    */
   apiAuthSetPasswordPost(params: ApiAuthSetPasswordPost$Params, context?: HttpContext): Promise<void> {
     const resp = this.apiAuthSetPasswordPost$Response(params, context);
+    return resp.then((r: StrictHttpResponse<void>): void => r.body);
+  }
+
+  /** Path part for operation `apiAuthForgotPasswordPost()` */
+  static readonly ApiAuthForgotPasswordPostPath = '/api/Auth/forgot-password';
+
+  /**
+   * This method provides access to the full `HttpResponse`, allowing access to response headers.
+   * To access only the response body, use `apiAuthForgotPasswordPost()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAuthForgotPasswordPost$Response(params: ApiAuthForgotPasswordPost$Params, context?: HttpContext): Promise<StrictHttpResponse<void>> {
+    const obs = apiAuthForgotPasswordPost(this.http, this.rootUrl, params, context);
+    return firstValueFrom(obs);
+  }
+
+  /**
+   * This method provides access only to the response body.
+   * To access the full response (for headers, for example), `apiAuthForgotPasswordPost$Response()` instead.
+   *
+   * This method sends `application/*+json` and handles request body of type `application/*+json`.
+   */
+  apiAuthForgotPasswordPost(params: ApiAuthForgotPasswordPost$Params, context?: HttpContext): Promise<void> {
+    const resp = this.apiAuthForgotPasswordPost$Response(params, context);
     return resp.then((r: StrictHttpResponse<void>): void => r.body);
   }
 
