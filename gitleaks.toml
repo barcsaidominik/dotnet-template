@@ -1,0 +1,103 @@
+title = "dotnet-template Gitleaks Configuration"
+
+# Az alapértelmezett Gitleaks szabályokat megtartjuk és kiegészítjük
+[extend]
+useDefault = true
+
+# ─────────────────────────────────────────────────────────────────
+# 1. JWT Secret alapérték C# property-ben
+#    Megtalálja: public string Secret { get; set; } = "valami..."
+#    Alacsony entrópiájú, de változónév alapján egyértelműen érzékeny
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-jwt-secret-default-value"
+description = "Hardcoded JWT secret as C# property default value"
+regex       = '''(?i)(Secret|JwtSecret|TokenSecret|SigningKey)\s*\{[^}]*\}\s*=\s*["'][A-Za-z0-9!@#$%^&*\-_=+]{8,}["']'''
+keywords    = ["Secret", "JwtSecret", "TokenSecret", "SigningKey"]
+tags        = ["jwt", "secret", "csharp"]
+
+  [rules.allowlist]
+  description = "Ignore empty strings and placeholder values"
+  regexes     = [
+    '''=\s*["']{2}''',           # üres string
+    '''string\.Empty''',          # string.Empty
+    '''placeholder|example|dummy|test|fake''',  # ismert nem-érzékeny értékek
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 2. ASP.NET connection string jelszó
+#    Megtalálja: Password=valami; vagy pwd=valami a connection string-ben
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-connection-string-password"
+description = "Password in ASP.NET connection string"
+regex       = '''(?i)(Password|pwd)\s*=\s*(?!(\$\{|@"|<[A-Z_]+>|your[-_ ]|change[-_ ]|replace[-_ ]))[^;"{}\s]{4,}'''
+keywords    = ["Password=", "pwd=", "ConnectionString"]
+tags        = ["database", "connection-string", "csharp"]
+
+  [rules.allowlist]
+  description = "Ignore test projects and example configs"
+  paths       = [
+    '''.*[Tt]est.*''',
+    '''.*[Ee]xample.*''',
+    '''appsettings\.Development\.json''',
+  ]
+  regexes = [
+    '''Password=\*+''',            # jelszó maszkolva
+    '''Password=;''',              # üres jelszó
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 3. Hardcode-olt API kulcs / token C# kódban
+#    Megtalálja: ApiKey = "...", Token = "..."  típusú értékadásokat
+#    ahol az érték nem üres és nem environment variable referencia
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-hardcoded-api-key-property"
+description = "Hardcoded API key or token assigned to C# property"
+regex       = '''(?i)(ApiKey|api_key|AuthToken|AccessToken|ServiceToken)\s*(=|:)\s*["'][A-Za-z0-9\-_\.]{16,}["']'''
+keywords    = ["ApiKey", "api_key", "AuthToken", "AccessToken", "ServiceToken"]
+tags        = ["api-key", "token", "csharp"]
+
+  [rules.allowlist]
+  description = "Ignore tests and known non-secret patterns"
+  paths       = [
+    '''.*[Tt]est.*''',
+    '''.*[Ss]pec.*''',
+  ]
+  regexes = [
+    '''string\.Empty''',
+    '''Environment\.GetEnvironmentVariable''',
+    '''configuration\[''',
+    '''_configuration\[''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 4. Docker Secrets helyett hardcode-olt jelszó
+#    Megtalálja: POSTGRES_PASSWORD=valami típusú Compose/env fájl sort
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "docker-compose-hardcoded-password"
+description = "Hardcoded password in Docker Compose or .env file"
+regex       = '''(?i)(POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*(?!\$\{)[^\s$"]{4,}'''
+keywords    = ["POSTGRES_PASSWORD", "MYSQL_PASSWORD", "DB_PASSWORD"]
+tags        = ["docker", "database", "password"]
+
+  [rules.allowlist]
+  paths = [
+    '''.*\.example''',
+    '''.*\.sample''',
+    '''.*[Tt]est.*''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# Globális kizárások — ne jelezzen tesztfájlokra és generált kódra
+# ─────────────────────────────────────────────────────────────────
+[allowlist]
+description = "Global allowlist for generated and test files"
+paths = [
+  '''.*\.g\.cs$''',
+  '''.*\.designer\.cs$''',
+  '''.*[Mm]igration.*\.cs$''',
+  '''.*[Gg]enerated.*''',
+]

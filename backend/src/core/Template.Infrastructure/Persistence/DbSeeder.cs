@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Template.Application.Common.Interfaces;
+using Template.Application.Common.Notifications;
 using Template.Domain.Constants;
 using Template.Infrastructure.Identity;
 
@@ -26,6 +28,8 @@ public static class DbSeeder
     public static async Task SeedSystemAdminAsync(IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+        var notificationService = serviceProvider.GetRequiredService<INotificationService>();
+        var frontendSettings = serviceProvider.GetRequiredService<IFrontendSettings>();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DbSeeder));
 
         var systemAdmins = await userManager.GetUsersInRoleAsync(Roles.SYSTEM_ADMIN);
@@ -77,10 +81,23 @@ public static class DbSeeder
         if (user.PasswordHash is null)
         {
             var setupToken = await userManager.GeneratePasswordResetTokenAsync(user);
-            logger.LogWarning(
-                "Initial SystemAdmin created for {Email}. Setup token (one-time use): {SetupToken}",
-                SYSTEM_ADMIN_EMAIL,
-                setupToken);
+            var resetLink = $"{frontendSettings.BaseUrl}/auth/set-password?token={Uri.EscapeDataString(setupToken)}&email={Uri.EscapeDataString(SYSTEM_ADMIN_EMAIL)}";
+
+            var notification = new NotificationRequest(
+                NotificationTemplateKey.PasswordReset,
+                new NotificationRecipient(SYSTEM_ADMIN_EMAIL),
+                new PasswordResetNotificationModel(resetLink),
+                null,
+                [NotificationChannelType.Email]);
+
+            try
+            {
+                await notificationService.SendAsync(notification);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to send setup email for initial SystemAdmin ({Email}). Trigger forgot-password manually.", SYSTEM_ADMIN_EMAIL);
+            }
         }
     }
 }
