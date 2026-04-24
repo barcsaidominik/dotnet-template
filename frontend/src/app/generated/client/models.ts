@@ -7,6 +7,7 @@ export type { CreateFacilityCommand } from './models/create-facility-command';
 export type { CreateFacilityUserRequest } from './models/create-facility-user-request';
 export type { CreateUserResult } from './models/create-user-result';
 export type { FacilityWithCountDto } from './models/facility-with-count-dto';
+export type { ForgotPasswordCommand } from './models/forgot-password-command';
 export type { LoginCommand } from './models/login-command';
 export type { MailboxMessageDto } from './models/mailbox-message-dto';
 export type { MailboxUnreadCountDto } from './models/mailbox-unread-count-dto';

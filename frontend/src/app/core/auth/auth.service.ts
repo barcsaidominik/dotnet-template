@@ -66,6 +66,10 @@ export class AuthService {
     return from(this.authApi.apiAuthSetPasswordPost({ body: { email, token, newPassword } }));
   }
 
+  forgotPassword(email: string) {
+    return from(this.authApi.apiAuthForgotPasswordPost({ body: { email } }));
+  }
+
   logout(): void {
     from(this.authApi.apiAuthLogoutPost()).subscribe({
       error: () => {

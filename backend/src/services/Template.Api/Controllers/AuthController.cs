@@ -2,6 +2,7 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Template.Application.Auth.Commands.ForgotPassword;
 using Template.Application.Auth.Commands.Login;
 using Template.Application.Auth.Commands.Logout;
 using Template.Application.Auth.Commands.Refresh;
@@ -51,6 +52,14 @@ public sealed class AuthController(ISender sender, IWebHostEnvironment environme
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SetPassword([FromBody] SetPasswordCommand command)
+    {
+        return await SendAsync(command).ToActionResultAsync();
+    }
+
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
     {
         return await SendAsync(command).ToActionResultAsync();
     }

@@ -115,6 +115,8 @@ export type { ApiAuthLoginPost$Json$Params as ApiAuthLoginPost$Json$Params } fro
 export { apiAuthLoginPost$Json as apiAuthLoginPost$Json } from './fn/auth/api-auth-login-post-json';
 export type { ApiAuthSetPasswordPost$Params as ApiAuthSetPasswordPost$Params } from './fn/auth/api-auth-set-password-post';
 export { apiAuthSetPasswordPost as apiAuthSetPasswordPost } from './fn/auth/api-auth-set-password-post';
+export type { ApiAuthForgotPasswordPost$Params as ApiAuthForgotPasswordPost$Params } from './fn/auth/api-auth-forgot-password-post';
+export { apiAuthForgotPasswordPost as apiAuthForgotPasswordPost } from './fn/auth/api-auth-forgot-password-post';
 export type { ApiAuthRefreshPost$Plain$Params as ApiAuthRefreshPost$Plain$Params } from './fn/auth/api-auth-refresh-post-plain';
 export { apiAuthRefreshPost$Plain as apiAuthRefreshPost$Plain } from './fn/auth/api-auth-refresh-post-plain';
 export type { ApiAuthRefreshPost$Json$Params as ApiAuthRefreshPost$Json$Params } from './fn/auth/api-auth-refresh-post-json';
