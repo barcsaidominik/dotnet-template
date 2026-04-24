@@ -334,6 +334,17 @@ public sealed class AuthService(
         return Convert.ToHexString(bytes);
     }
 
+    public async Task<string?> ForgotPasswordAsync(string email, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            return null;
+        }
+
+        return await _userManager.GeneratePasswordResetTokenAsync(user);
+    }
+
     private async Task<Dictionary<Guid, IList<string>>> GetRolesByUserIdsAsync(List<Guid> userIds, CancellationToken ct)
     {
         var userRoles = await _dbContext.UserRoles

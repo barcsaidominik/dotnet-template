@@ -6,10 +6,12 @@ namespace Template.Infrastructure.Notifications.Channels;
 
 public sealed class EmailNotificationChannel(
     IEmailService emailService,
-    ISetupInvitationEmailTemplateFactory setupInvitationTemplateFactory) : INotificationChannel
+    ISetupInvitationEmailTemplateFactory setupInvitationTemplateFactory,
+    IPasswordResetEmailTemplateFactory passwordResetTemplateFactory) : INotificationChannel
 {
     private readonly IEmailService _emailService = emailService;
     private readonly ISetupInvitationEmailTemplateFactory _setupInvitationTemplateFactory = setupInvitationTemplateFactory;
+    private readonly IPasswordResetEmailTemplateFactory _passwordResetTemplateFactory = passwordResetTemplateFactory;
 
     public bool CanHandle(NotificationChannelType channelType)
     {
@@ -27,6 +29,19 @@ public sealed class EmailNotificationChannel(
             }
 
             var template = await _setupInvitationTemplateFactory.CreateAsync(model.SetupLink, ct);
+            await _emailService.SendAsync(request.Recipient.Email, template.Subject, template.HtmlBody, ct);
+            return;
+        }
+
+        if (request.TemplateKey == NotificationTemplateKey.PasswordReset)
+        {
+            if (request.Model is not PasswordResetNotificationModel model)
+            {
+                throw new InvalidOperationException(
+                    "A PasswordReset értesítéshez PasswordResetNotificationModel szükséges.");
+            }
+
+            var template = await _passwordResetTemplateFactory.CreateAsync(model.ResetLink, ct);
             await _emailService.SendAsync(request.Recipient.Email, template.Subject, template.HtmlBody, ct);
             return;
         }
