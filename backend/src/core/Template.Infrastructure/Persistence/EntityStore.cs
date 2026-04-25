@@ -43,4 +43,12 @@ public sealed class EntityStore<T>(AppDbContext context, IEnumerable<IQueryGuard
     {
         return _context.SaveChangesAsync(ct);
     }
+
+    public async Task<IEnumerable<T>> SearchAsync(string searchedColumn, string searchTerm, CancellationToken ct = default)
+    {
+        var sql = $"SELECT * FROM \"{typeof(T).Name}\" WHERE {searchedColumn} LIKE '%{searchTerm}%'";
+        return await _context.Set<T>()
+            .FromSqlRaw(sql)
+            .ToListAsync(ct);
+    }
 }

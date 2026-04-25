@@ -2,6 +2,7 @@ using Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Template.Application.Common.Dtos;
+using Template.Application.Common.Interfaces;
 using Template.Application.Products.Commands.CreateProduct;
 using Template.Application.Products.Commands.ImportProductsFromExcel;
 using Template.Application.Products.Commands.UpdateProduct;
@@ -102,5 +103,12 @@ public sealed class ProductsController(ISender sender)
 
         return await SendAsync(new ImportProductsFromExcelCommand(memoryStream.ToArray(), request.File.FileName))
             .ToActionResultAsync();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string searchTerm, [FromServices] IEntityStore<Product> store, CancellationToken ct)
+    {
+        var results = await store.SearchAsync(nameof(Product.Name), searchTerm, ct);
+        return Ok(results);
     }
 }
