@@ -163,8 +163,8 @@ public class Program
             {
                 app.UseRateLimiter();
             }
-            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseAuthentication();
             app.UseIdempotency();
             app.UseTickerQ();
             app.MapControllers();
