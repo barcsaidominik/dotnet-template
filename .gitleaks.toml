@@ -1,69 +1,61 @@
 title = "dotnet-template Gitleaks Configuration"
 
-# Az alapértelmezett Gitleaks szabályokat megtartjuk és kiegészítjük
 [extend]
 useDefault = true
 
 # ─────────────────────────────────────────────────────────────────
 # 1. JWT Secret alapérték C# property-ben
 #    Megtalálja: public string Secret { get; set; } = "valami..."
-#    Alacsony entrópiájú, de változónév alapján egyértelműen érzékeny
+#    FIGYELEM: keywords mező szándékosan hiányzik — Gitleaks 8.x a
+#    keywords-t a kinyert secret VALUE ellen ellenőrzi, nem a sor ellen.
+#    A tényleges secret érték mellett nem feltétlenül lesz ott "Secret" szó, ezért keywords = block.
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "dotnet-jwt-secret-default-value"
 description = "Hardcoded JWT secret as C# property default value"
-regex       = '''(?i)(Secret|JwtSecret|TokenSecret|SigningKey)\s*\{[^}]*\}\s*=\s*["'][A-Za-z0-9!@#$%^&*\-_=+]{8,}["']'''
-keywords    = ["Secret", "JwtSecret", "TokenSecret", "SigningKey"]
+regex       = '''(?i)(?:Secret|JwtSecret|TokenSecret|SigningKey)\s*\{[^}]*\}\s*=\s*["']([A-Za-z0-9!@#$%^&*\-_=+]{8,})["']'''
+secretGroup = 1
 tags        = ["jwt", "secret", "csharp"]
 
   [rules.allowlist]
   description = "Ignore empty strings and placeholder values"
   regexes = [
-    '''=\s*["']{2}''',           # üres string
-    '''string\.Empty''',          # string.Empty
-    '''(?i)(placeholder|example|dummy|test|fake)''',  # ismert nem-érzékeny értékek
+    '''string\.Empty''',
+    '''(?i)(placeholder|example|dummy|test|fake)''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
-# 2. ASP.NET connection string jelszó (re2-kompatibilis, lookahead nélkül)
+# 2. ASP.NET connection string jelszó
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "dotnet-connection-string-password"
 description = "Password in ASP.NET connection string"
-regex       = '''(?i)(Password|pwd)\s*=\s*[^;"{}\s]{4,}'''
-keywords    = ["Password=", "pwd=", "ConnectionString"]
+regex       = '''(?i)(?:Password|pwd)\s*=\s*([^;"{}\s]{4,})'''
+secretGroup = 1
 tags        = ["database", "connection-string", "csharp"]
 
   [rules.allowlist]
-  description = "Ignore placeholders, masked values and test projects"
+  description = "Ignore placeholders and test projects"
   paths = [
     '''.*[Tt]est.*''',
     '''.*[Ee]xample.*''',
     '''appsettings\.Development\.json''',
   ]
   regexes = [
-    # Dinamikus konfiguráció-referenciák — nem valódi titok
     '''\$\{''',
-    '''@"''',
-    '''<[A-Z_]+>''',
-    '''(?i)(your|change|replace|placeholder|example|dummy|test|fake)''',
-    # Maszkolva
-    '''Password=\*+''',
-    '''Password=;''',
-    # string.Empty
     '''string\.Empty''',
+    '''(?i)(your|change|replace|placeholder|example|dummy|test|fake)''',
+    '''\*+''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
 # 3. Hardcode-olt API kulcs / token C# kódban
-#    Megtalálja: ApiKey = "...", Token = "..."  típusú értékadásokat
-#    ahol az érték nem üres és nem environment variable referencia
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "dotnet-hardcoded-api-key-property"
 description = "Hardcoded API key or token assigned to C# property"
-regex       = '''(?i)(ApiKey|api_key|AuthToken|AccessToken|ServiceToken)\s*(=|:)\s*["'][A-Za-z0-9\-_\.]{16,}["']'''
-keywords    = ["ApiKey", "api_key", "AuthToken", "AccessToken", "ServiceToken"]
+regex       = '''(?i)(?:ApiKey|api_key|AuthToken|AccessToken|ServiceToken)\s*(?:=|:)\s*["']([A-Za-z0-9\-_\.]{16,})["']'''
+secretGroup = 1
 tags        = ["api-key", "token", "csharp"]
 
   [rules.allowlist]
@@ -75,7 +67,6 @@ tags        = ["api-key", "token", "csharp"]
     '''string\.Empty''',
     '''Environment\.GetEnvironmentVariable''',
     '''configuration\[''',
-    '''_configuration\[''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
@@ -84,8 +75,8 @@ tags        = ["api-key", "token", "csharp"]
 [[rules]]
 id          = "docker-compose-hardcoded-password"
 description = "Hardcoded password in Docker Compose or .env file"
-regex       = '''(?i)(POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*[^\s$"]{4,}'''
-keywords    = ["POSTGRES_PASSWORD", "MYSQL_PASSWORD", "DB_PASSWORD"]
+regex       = '''(?i)(?:POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*([^\s$"]{4,})'''
+secretGroup = 1
 tags        = ["docker", "database", "password"]
 
   [rules.allowlist]
