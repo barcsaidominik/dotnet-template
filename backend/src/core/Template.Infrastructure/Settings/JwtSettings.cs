@@ -13,7 +13,7 @@ public sealed class JwtSettings
     {
         get;
         set;
-    } = "ROJ2w9108mTCZHqey9LXp0brxR6HbukN8437Tbq978zPpVK0BTtxa1sO23XzUvdF";
+    } = "dQ63amD59e5f8Z2pUmywRH20cPskcd5P691cK38whRr84572kP82Q4Ptf7ob7HcE";
 
     [Required]
     public string Issuer
