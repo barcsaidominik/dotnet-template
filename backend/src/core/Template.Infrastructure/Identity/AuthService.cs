@@ -82,7 +82,7 @@ public sealed class AuthService(
         var roles = await _userManager.GetRolesAsync(user);
 
         var refreshToken = GenerateRefreshToken();
-        user.RefreshToken = HashToken(refreshToken);
+        user.RefreshToken = refreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
@@ -253,8 +253,7 @@ public sealed class AuthService(
 
     public async Task<ErrorOr<LoginResult>> RefreshAsync(string refreshToken, CancellationToken ct = default)
     {
-        var hashedToken = HashToken(refreshToken);
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == hashedToken, ct);
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken, ct);
         if (user is null || user.RefreshTokenExpiry <= DateTime.UtcNow)
         {
             return AuthErrors.InvalidCredentials;
@@ -263,7 +262,7 @@ public sealed class AuthService(
         var roles = await _userManager.GetRolesAsync(user);
 
         var newRefreshToken = GenerateRefreshToken();
-        user.RefreshToken = HashToken(newRefreshToken);
+        user.RefreshToken = newRefreshToken;
         user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
@@ -273,8 +272,7 @@ public sealed class AuthService(
 
     public async Task<ErrorOr<Success>> LogoutAsync(string refreshToken, CancellationToken ct = default)
     {
-        var hashedToken = HashToken(refreshToken);
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == hashedToken, ct);
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshToken == refreshToken, ct);
         if (user is null)
         {
             return Result.Success;
@@ -326,12 +324,6 @@ public sealed class AuthService(
         var bytes = new byte[64];
         RandomNumberGenerator.Fill(bytes);
         return Convert.ToBase64String(bytes);
-    }
-
-    private static string HashToken(string token)
-    {
-        var bytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token));
-        return Convert.ToHexString(bytes);
     }
 
     public async Task<string?> ForgotPasswordAsync(string email, CancellationToken ct = default)
