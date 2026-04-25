@@ -13,7 +13,7 @@ public sealed class JwtSettings
     {
         get;
         set;
-    } = "mysupersecretjwtkey1234567890abc";
+    } = "ROJ2w9108mTCZHqey9LXp0brxR6HbukN8437Tbq978zPpVK0BTtxa1sO23XzUvdF";
 
     [Required]
     public string Issuer
