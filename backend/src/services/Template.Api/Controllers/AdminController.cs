@@ -1,5 +1,4 @@
 using Mediator;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Template.Api.Contracts;
 using Template.Application.Admin.Commands.ApproveUser;
@@ -16,12 +15,10 @@ using Template.Application.Admin.Queries.GetAuditLogs;
 using Template.Application.Common.Dtos;
 using Template.Application.Common.Interfaces;
 using Template.Common.Extensions;
-using Template.Domain.Constants;
 
 namespace Template.Api.Controllers;
 
 [Route("api/[controller]")]
-[Authorize(Roles = Roles.SYSTEM_ADMIN)]
 public sealed class AdminController(ISender sender, IBackgroundJobScheduler backgroundJobScheduler)
     : Template.Common.Controllers.ApiController(sender)
 {
