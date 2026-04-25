@@ -148,4 +148,14 @@ public sealed class AdminController(ISender sender, IBackgroundJobScheduler back
             entityType, entityId, action, userId, from, to, page, pageSize, sortBy, sortDescending))
             .ToActionResultAsync();
     }
+
+    [HttpGet("reports/download")]
+    public async Task<IActionResult> DownloadReport(
+        [FromQuery] string reportName,
+        [FromServices] IReportService reportService,
+        CancellationToken ct)
+    {
+        var content = await reportService.GetReportAsync(reportName, ct);
+        return File(content, "application/octet-stream", reportName);
+    }
 }
