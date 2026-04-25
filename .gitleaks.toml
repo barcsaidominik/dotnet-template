@@ -4,24 +4,26 @@ title = "dotnet-template Gitleaks Configuration"
 useDefault = true
 
 # ─────────────────────────────────────────────────────────────────
-# 1. JWT Secret alapérték C# property-ben
-#    Megtalálja: public string Secret { get; set; } = "valami..."
-#    FIGYELEM: keywords mező szándékosan hiányzik — Gitleaks 8.x a
-#    keywords-t a kinyert secret VALUE ellen ellenőrzi, nem a sor ellen.
-#    A tényleges secret érték mellett nem feltétlenül lesz ott "Secret" szó, ezért keywords = block.
+# 1. JWT Secret / sensitive kulcs JSON konfigurációs fájlban
+#    Kezeli: appsettings.json, appsettings.*.json
+#    "Secret": "értéke" formátum — amit a generic-api-key NEM fog el
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
-id          = "dotnet-jwt-secret-default-value"
-description = "Hardcoded JWT secret as C# property default value"
-regex       = '''(?i)(?:Secret|JwtSecret|TokenSecret|SigningKey)\s*\{[^}]*\}\s*=\s*["']([A-Za-z0-9!@#$%^&*\-_=+]{8,})["']'''
+id          = "dotnet-appsettings-secret"
+description = "Hardcoded secret value in ASP.NET Core appsettings JSON"
+regex       = '''(?i)"(?:Secret|JwtSecret|Password|ApiKey|AccessToken|AuthToken|SigningKey)"\s*:\s*"([A-Za-z0-9+/=_\-]{8,})"'''
 secretGroup = 1
-tags        = ["jwt", "secret", "csharp"]
+tags        = ["json", "appsettings", "secret", "csharp"]
 
   [rules.allowlist]
-  description = "Ignore empty strings and placeholder values"
+  description = "Ignore empty values and placeholder strings"
   regexes = [
-    '''string\.Empty''',
-    '''(?i)(placeholder|example|dummy|test|fake)''',
+    '''^$''',
+    '''(?i)^(your[-_]|change[-_]|replace|placeholder|example|dummy|test)''',
+  ]
+  paths = [
+    '''.*\.example''',
+    '''.*\.sample''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
@@ -35,7 +37,6 @@ secretGroup = 1
 tags        = ["database", "connection-string", "csharp"]
 
   [rules.allowlist]
-  description = "Ignore placeholders and test projects"
   paths = [
     '''.*[Tt]est.*''',
     '''.*[Ee]xample.*''',
@@ -49,28 +50,7 @@ tags        = ["database", "connection-string", "csharp"]
   ]
 
 # ─────────────────────────────────────────────────────────────────
-# 3. Hardcode-olt API kulcs / token C# kódban
-# ─────────────────────────────────────────────────────────────────
-[[rules]]
-id          = "dotnet-hardcoded-api-key-property"
-description = "Hardcoded API key or token assigned to C# property"
-regex       = '''(?i)(?:ApiKey|api_key|AuthToken|AccessToken|ServiceToken)\s*(?:=|:)\s*["']([A-Za-z0-9\-_\.]{16,})["']'''
-secretGroup = 1
-tags        = ["api-key", "token", "csharp"]
-
-  [rules.allowlist]
-  paths = [
-    '''.*[Tt]est.*''',
-    '''.*[Ss]pec.*''',
-  ]
-  regexes = [
-    '''string\.Empty''',
-    '''Environment\.GetEnvironmentVariable''',
-    '''configuration\[''',
-  ]
-
-# ─────────────────────────────────────────────────────────────────
-# 4. Docker Compose hardcode-olt jelszó
+# 3. Docker Compose hardcode-olt jelszó
 # ─────────────────────────────────────────────────────────────────
 [[rules]]
 id          = "docker-compose-hardcoded-password"
