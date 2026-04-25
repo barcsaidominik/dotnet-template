@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Template.Application.Auth.Commands.Login;
 using Template.Application.Common.Dtos;
@@ -10,12 +11,14 @@ namespace Template.Tests;
 public class LoginCommandHandlerTests
 {
     private readonly IAuthService _authService;
+    private readonly ILogger<LoginCommandHandler> _logger;
     private readonly LoginCommandHandler _handler;
 
     public LoginCommandHandlerTests()
     {
         _authService = Substitute.For<IAuthService>();
-        _handler = new LoginCommandHandler(_authService);
+        _logger = Substitute.For<ILogger<LoginCommandHandler>>();
+        _handler = new LoginCommandHandler(_authService, _logger);
     }
 
     [Fact]
