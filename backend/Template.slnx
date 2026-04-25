@@ -19,6 +19,10 @@
     <Project Path="src/services/Template.Products.Api/Template.Products.Api.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
+    <File Path="../.env" />
+    <File Path="../.gitattributes" />
+    <File Path="../.gitignore" />
+    <File Path="../.gitleaks.toml" />
     <File Path=".dockerignore" />
     <File Path=".editorconfig" />
     <File Path="Api.json" />
