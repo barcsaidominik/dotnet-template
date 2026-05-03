@@ -15,12 +15,11 @@ public static class DbSeeder
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<AppRole>>();
 
-        foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER })
+        var existingRoles = roleManager.Roles.Select(r => r.Name!).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER }
+            .Where(r => !existingRoles.Contains(r)))
         {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new AppRole(role));
-            }
+            await roleManager.CreateAsync(new AppRole(role));
         }
     }
 
@@ -97,7 +96,7 @@ public static class DbSeeder
             }
             catch (Exception ex)
             {
-                logger.LogWarning(ex, "Failed to send setup email for initial SystemAdmin ({Email}). Trigger forgot-password manually.", systemAdminEmail);
+                logger.LogWarning(ex, "Failed to send setup email for initial SystemAdmin. Trigger forgot-password manually.");
             }
         }
     }

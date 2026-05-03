@@ -9,6 +9,7 @@ public static class DependencyInjection
     public static IServiceCollection AddCommonMiddleware(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<CriticalLoadState>();
+        services.AddSingleton<CircuitBreakerState>();
         services.Configure<ResourceGuardOptions>(configuration.GetSection(ResourceGuardOptions.SECTION_NAME));
         services.Configure<RequestTelemetryOptions>(configuration.GetSection(RequestTelemetryOptions.SECTION_NAME));
         return services;

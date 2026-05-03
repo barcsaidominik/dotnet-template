@@ -73,7 +73,8 @@ public sealed class IdempotencyMiddleware(
             await _next(context);
 
             memStream.Seek(0, SeekOrigin.Begin);
-            var responseBody = await new StreamReader(memStream).ReadToEndAsync();
+            using var reader = new StreamReader(memStream, leaveOpen: true);
+            var responseBody = await reader.ReadToEndAsync();
 
             var cachedResponse = new CachedResponse(
                 context.Response.StatusCode,

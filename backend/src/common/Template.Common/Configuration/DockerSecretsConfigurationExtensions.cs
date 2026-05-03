@@ -15,6 +15,8 @@ public static class DockerSecretsConfigurationExtensions
         this IConfigurationBuilder builder,
         string secretsPath = "/run/secrets")
     {
+        secretsPath = Path.GetFullPath(secretsPath);
+
         if (!Directory.Exists(secretsPath))
         {
             return builder;
