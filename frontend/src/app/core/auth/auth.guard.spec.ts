@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import type { UrlTree } from '@angular/router';

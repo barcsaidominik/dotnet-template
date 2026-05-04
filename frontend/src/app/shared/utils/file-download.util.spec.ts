@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { HttpHeaders } from '@angular/common/http';
 import { downloadBlobFile } from './file-download.util';
 

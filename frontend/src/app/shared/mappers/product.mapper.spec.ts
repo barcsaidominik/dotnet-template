@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { mapProductDto } from './product.mapper';
 
 describe('mapProductDto', () => {

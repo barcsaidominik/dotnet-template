@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';

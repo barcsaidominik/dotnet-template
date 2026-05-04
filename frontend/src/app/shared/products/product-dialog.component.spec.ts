@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ProductDialogComponent } from './product-dialog.component';

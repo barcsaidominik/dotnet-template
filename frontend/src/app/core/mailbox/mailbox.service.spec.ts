@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { TestBed } from '@angular/core/testing';
 import { MailboxService as GeneratedMailboxService } from '../../generated/client/services/mailbox.service';
 import { MailboxService } from './mailbox.service';

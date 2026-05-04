@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { NavigationEnd, type Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { createViewRefresh$ } from './view-refresh.util';
