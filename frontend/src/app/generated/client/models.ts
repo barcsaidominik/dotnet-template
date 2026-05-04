@@ -16,7 +16,6 @@ export type { ProblemDetails } from './models/problem-details';
 export type { QueuedBackgroundJobResult } from './models/queued-background-job-result';
 export type { RegisterCommand } from './models/register-command';
 export type { SetPasswordCommand } from './models/set-password-command';
-export type { TickerType } from './models/ticker-type';
 export type { TokenResponse } from './models/token-response';
 export type { UpdateFacilityRequest } from './models/update-facility-request';
 export type { UpdateLanguageRequest } from './models/update-language-request';
