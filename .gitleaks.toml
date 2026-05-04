@@ -1,0 +1,79 @@
+title = "dotnet-template Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+# ─────────────────────────────────────────────────────────────────
+# 1. JWT Secret / sensitive kulcs JSON konfigurációs fájlban
+#    Kezeli: appsettings.json, appsettings.*.json
+#    "Secret": "értéke" formátum — amit a generic-api-key NEM fog el
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-appsettings-secret"
+description = "Hardcoded secret value in ASP.NET Core appsettings JSON"
+regex       = '''(?i)"(?:Secret|JwtSecret|Password|ApiKey|AccessToken|AuthToken|SigningKey)"\s*:\s*"([A-Za-z0-9+/=_\-]{8,})"'''
+secretGroup = 1
+tags        = ["json", "appsettings", "secret", "csharp"]
+
+  [rules.allowlist]
+  description = "Ignore empty values and placeholder strings"
+  regexes = [
+    '''^$''',
+    '''(?i)^(your[-_]|change[-_]|replace|placeholder|example|dummy|test)''',
+  ]
+  paths = [
+    '''.*\.example''',
+    '''.*\.sample''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 2. ASP.NET connection string jelszó
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-connection-string-password"
+description = "Password in ASP.NET connection string"
+regex       = '''(?i)(?:Password|pwd)\s*=\s*([^;"{}\s]{4,})'''
+secretGroup = 1
+tags        = ["database", "connection-string", "csharp"]
+
+  [rules.allowlist]
+  paths = [
+    '''.*[Tt]est.*''',
+    '''.*[Ee]xample.*''',
+    '''appsettings\.Development\.json''',
+  ]
+  regexes = [
+    '''\$\{''',
+    '''string\.Empty''',
+    '''(?i)(your|change|replace|placeholder|example|dummy|test|fake)''',
+    '''\*+''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 3. Docker Compose hardcode-olt jelszó
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "docker-compose-hardcoded-password"
+description = "Hardcoded password in Docker Compose or .env file"
+regex       = '''(?i)(?:POSTGRES_PASSWORD|MYSQL_PASSWORD|MSSQL_SA_PASSWORD|DB_PASSWORD)\s*=\s*([^\s$"]{4,})'''
+secretGroup = 1
+tags        = ["docker", "database", "password"]
+
+  [rules.allowlist]
+  paths = [
+    '''.*\.example''',
+    '''.*\.sample''',
+    '''.*[Tt]est.*''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# Globális kizárások
+# ─────────────────────────────────────────────────────────────────
+[allowlist]
+description = "Global allowlist for generated and test files"
+paths = [
+  '''.*\.g\.cs$''',
+  '''.*\.designer\.cs$''',
+  '''.*[Mm]igration.*\.cs$''',
+  '''.*[Gg]enerated.*''',
+]

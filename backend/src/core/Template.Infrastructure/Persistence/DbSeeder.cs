@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Template.Application.Common.Interfaces;
+using Template.Application.Common.Notifications;
 using Template.Domain.Constants;
 using Template.Infrastructure.Identity;
 
@@ -8,25 +11,26 @@ namespace Template.Infrastructure.Persistence;
 
 public static class DbSeeder
 {
-    private const string SYSTEM_ADMIN_EMAIL = "admin@template.io";
-
     public static async Task SeedRolesAsync(IServiceProvider serviceProvider)
     {
         var roleManager = serviceProvider.GetRequiredService<RoleManager<AppRole>>();
 
-        foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER })
+        var existingRoles = roleManager.Roles.Select(r => r.Name!).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER }
+            .Where(r => !existingRoles.Contains(r)))
         {
-            if (!await roleManager.RoleExistsAsync(role))
-            {
-                await roleManager.CreateAsync(new AppRole(role));
-            }
+            await roleManager.CreateAsync(new AppRole(role));
         }
     }
 
     public static async Task SeedSystemAdminAsync(IServiceProvider serviceProvider)
     {
         var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+        var notificationService = serviceProvider.GetRequiredService<INotificationService>();
+        var frontendSettings = serviceProvider.GetRequiredService<IFrontendSettings>();
         var logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(DbSeeder));
+        var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+        var systemAdminEmail = configuration.GetValue<string>("SystemAdmin:Email") ?? "admin@template.io";
 
         var systemAdmins = await userManager.GetUsersInRoleAsync(Roles.SYSTEM_ADMIN);
         if (systemAdmins.Count > 0)
@@ -34,13 +38,13 @@ public static class DbSeeder
             return;
         }
 
-        var user = await userManager.FindByEmailAsync(SYSTEM_ADMIN_EMAIL);
+        var user = await userManager.FindByEmailAsync(systemAdminEmail);
         if (user is null)
         {
             user = new AppUser
             {
-                UserName = SYSTEM_ADMIN_EMAIL,
-                Email = SYSTEM_ADMIN_EMAIL,
+                UserName = systemAdminEmail,
+                Email = systemAdminEmail,
                 IsApproved = true,
                 RequiresPasswordChange = true,
                 FacilityId = null
@@ -77,10 +81,23 @@ public static class DbSeeder
         if (user.PasswordHash is null)
         {
             var setupToken = await userManager.GeneratePasswordResetTokenAsync(user);
-            logger.LogWarning(
-                "Initial SystemAdmin created for {Email}. Setup token (one-time use): {SetupToken}",
-                SYSTEM_ADMIN_EMAIL,
-                setupToken);
+            var resetLink = $"{frontendSettings.BaseUrl}/auth/set-password?token={Uri.EscapeDataString(setupToken)}&email={Uri.EscapeDataString(systemAdminEmail)}";
+
+            var notification = new NotificationRequest(
+                NotificationTemplateKey.PasswordReset,
+                new NotificationRecipient(systemAdminEmail),
+                new PasswordResetNotificationModel(resetLink),
+                null,
+                [NotificationChannelType.Email]);
+
+            try
+            {
+                await notificationService.SendAsync(notification);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Failed to send setup email for initial SystemAdmin. Trigger forgot-password manually.");
+            }
         }
     }
 }

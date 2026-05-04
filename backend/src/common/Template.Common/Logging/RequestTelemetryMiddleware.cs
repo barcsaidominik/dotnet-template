@@ -33,11 +33,11 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
         });
 
         using (LogContext.PushProperty("TraceId", context.TraceIdentifier))
-        using (LogContext.PushProperty("RequestMethod", context.Request.Method))
-        using (LogContext.PushProperty("RequestPath", context.Request.Path.Value ?? "/"))
+        using (LogContext.PushProperty("RequestMethod", SanitizeLogValue(context.Request.Method)))
+        using (LogContext.PushProperty("RequestPath", SanitizeLogValue(context.Request.Path.Value ?? "/")))
         using (LogContext.PushProperty("QueryString", RedactQueryString(context.Request.QueryString.Value)))
         using (LogContext.PushProperty("RemoteIp", context.Connection.RemoteIpAddress?.ToString()))
-        using (LogContext.PushProperty("UserAgent", context.Request.Headers.UserAgent.ToString()))
+        using (LogContext.PushProperty("UserAgent", SanitizeLogValue(context.Request.Headers.UserAgent.ToString())))
         using (LogContext.PushProperty("UserId", context.User.FindFirst("sub")?.Value ?? context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value))
         using (LogContext.PushProperty("UserRole", context.User.FindFirst("role")?.Value ?? context.User.FindFirst(ClaimTypes.Role)?.Value))
         {
@@ -80,8 +80,8 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
                     _logger.Log(
                         logLevel,
                         "HTTP {Method} {Path} responded {StatusCode} in {ElapsedMs} ms (Endpoint: {Endpoint}, CpuMs: {CpuMs}, WorkingSetMb: {WorkingSetMb:0.00})",
-                        context.Request.Method,
-                        context.Request.Path,
+                        SanitizeLogValue(context.Request.Method),
+                        SanitizeLogValue(context.Request.Path.Value),
                         statusCode,
                         elapsedMs,
                         endpointName,
@@ -94,8 +94,8 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
                         logLevel,
                         exception,
                         "HTTP {Method} {Path} canceled with {StatusCode} in {ElapsedMs} ms (Endpoint: {Endpoint}, CpuMs: {CpuMs}, WorkingSetMb: {WorkingSetMb:0.00})",
-                        context.Request.Method,
-                        context.Request.Path,
+                        SanitizeLogValue(context.Request.Method),
+                        SanitizeLogValue(context.Request.Path.Value),
                         statusCode,
                         elapsedMs,
                         endpointName,
@@ -108,8 +108,8 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
                         logLevel,
                         exception,
                         "HTTP {Method} {Path} failed with {StatusCode} in {ElapsedMs} ms (Endpoint: {Endpoint}, CpuMs: {CpuMs}, WorkingSetMb: {WorkingSetMb:0.00})",
-                        context.Request.Method,
-                        context.Request.Path,
+                        SanitizeLogValue(context.Request.Method),
+                        SanitizeLogValue(context.Request.Path.Value),
                         statusCode,
                         elapsedMs,
                         endpointName,
@@ -175,5 +175,10 @@ public sealed class RequestTelemetryMiddleware(RequestDelegate next, ILogger<Req
             || key.Equals("access_token", StringComparison.OrdinalIgnoreCase)
             || key.Equals("code", StringComparison.OrdinalIgnoreCase)
             || key.Equals("password", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string SanitizeLogValue(string? value)
+    {
+        return (value ?? string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
     }
 }

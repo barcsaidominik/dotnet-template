@@ -200,6 +200,7 @@ OpenAPI specifikációk a frontend által használva:
 | `InternalServiceAuth__Token` | Szolgáltatás-közötti auth token (min. 32 karakter) | - |
 | `ProductsService__GrpcBaseUrl` | Products gRPC endpoint (Proxy mod) | - |
 | `ASPNETCORE_ENVIRONMENT` | Környezet: Development, Staging, Production | `Development` |
+| `SystemAdmin__Email` | Első indításkor seedelt system admin email | `admin@template.io` |
 
 Lásd [.env.example](../.env.example) a Docker Compose konfigurációkhoz.
 
@@ -346,7 +347,7 @@ builder.Services.AddBackgroundJobs<AppDbContext>(
 
 **Seeding:**
 - Szerepkörök: SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer
-- Alapértelmezett admin: `admin@example.com` / `Admin123!`
+- Alapértelmezett admin: `admin@template.io` (konfigurálható: `SystemAdmin:Email`) - jelszó-visszaállítási email küldve az első indításkor
 
 ## Cache
 

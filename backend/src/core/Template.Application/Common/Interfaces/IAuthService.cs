@@ -21,4 +21,5 @@ public interface IAuthService
     Task<ErrorOr<Updated>> UpdatePreferredLanguageAsync(Guid userId, string language, CancellationToken ct = default);
     Task<string?> GetUserPreferredLanguageAsync(Guid userId, CancellationToken ct = default);
     Task<IReadOnlyDictionary<Guid, int>> GetUserCountsByFacilityAsync(CancellationToken ct = default);
+    Task<string?> ForgotPasswordAsync(string email, CancellationToken ct = default);
 }

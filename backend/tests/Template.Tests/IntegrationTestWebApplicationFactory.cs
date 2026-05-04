@@ -142,12 +142,11 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
             await dbContext.Database.EnsureDeletedAsync(ct);
             await dbContext.Database.EnsureCreatedAsync(ct);
 
-            foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER })
+            var existingRoles = roleManager.Roles.Select(r => r.Name!).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            foreach (var role in new[] { Roles.SYSTEM_ADMIN, Roles.FACILITY_ADMIN, Roles.FACILITY_EDITOR, Roles.FACILITY_VIEWER }
+                .Where(r => !existingRoles.Contains(r)))
             {
-                if (!await roleManager.RoleExistsAsync(role))
-                {
-                    await roleManager.CreateAsync(new AppRole(role));
-                }
+                await roleManager.CreateAsync(new AppRole(role));
             }
 
             var facility = Facility.Create("Integration Facility");

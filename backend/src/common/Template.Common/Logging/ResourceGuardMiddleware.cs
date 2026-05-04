@@ -19,20 +19,16 @@ public sealed class ResourceGuardMiddleware(
     RequestDelegate next,
     ILogger<ResourceGuardMiddleware> logger,
     IOptions<ResourceGuardOptions> options,
-    CriticalLoadState criticalLoadState)
+    CriticalLoadState criticalLoadState,
+    CircuitBreakerState circuitBreakerState)
 {
-    private static int _inFlightRequests;
-
-    private static readonly Lock _circuitLock = new();
-    private static CircuitState _circuitState = CircuitState.Closed;
-    private static DateTime? _openedAt;
-    private static TimeSpan _lastTotalProcessorTime = TimeSpan.Zero;
-    private static DateTime _lastCpuCheckTime = DateTime.UtcNow;
+    private static readonly Process _currentProcess = Process.GetCurrentProcess();
 
     private readonly RequestDelegate _next = next;
     private readonly ILogger<ResourceGuardMiddleware> _logger = logger;
     private readonly ResourceGuardOptions _options = options.Value;
     private readonly CriticalLoadState _criticalLoadState = criticalLoadState;
+    private readonly CircuitBreakerState _circuitBreakerState = circuitBreakerState;
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -52,7 +48,7 @@ public sealed class ResourceGuardMiddleware(
             return;
         }
 
-        var currentInFlight = Interlocked.Increment(ref _inFlightRequests);
+        var currentInFlight = _circuitBreakerState.IncrementInFlight();
         var effectiveRequestToken = _criticalLoadState.CreateLinkedToken(context.RequestAborted, out var linkedCts);
         context.RequestAborted = effectiveRequestToken;
 
@@ -105,69 +101,38 @@ public sealed class ResourceGuardMiddleware(
         finally
         {
             linkedCts.Dispose();
-            Interlocked.Decrement(ref _inFlightRequests);
+            _circuitBreakerState.DecrementInFlight();
         }
     }
 
     private (bool ShouldReject, int RetryAfterSeconds, bool WasHalfOpen) EvaluateCircuitBreaker(double cpuPercent, double memoryPercent)
     {
-        lock (_circuitLock)
+        var (shouldReject, retryAfterSeconds, wasHalfOpen, justOpened) = _circuitBreakerState.EvaluateCircuit(
+            cpuPercent, memoryPercent,
+            _options.CpuThresholdPercent, _options.MemoryThresholdPercent,
+            _options.CircuitBreakerDurationSeconds);
+
+        if (justOpened)
         {
-            var now = DateTime.UtcNow;
-
-            switch (_circuitState)
-            {
-                case CircuitState.Closed:
-                    if (cpuPercent > _options.CpuThresholdPercent || memoryPercent > _options.MemoryThresholdPercent)
-                    {
-                        _circuitState = CircuitState.Open;
-                        _openedAt = now;
-                        _logger.LogWarning("Circuit breaker opened: CPU={Cpu}%, RAM={Ram}%", cpuPercent, memoryPercent);
-                        return (true, _options.CircuitBreakerDurationSeconds, false);
-                    }
-                    return (false, 0, false);
-
-                case CircuitState.Open:
-                    if (_openedAt.HasValue && (now - _openedAt.Value).TotalSeconds >= _options.CircuitBreakerDurationSeconds)
-                    {
-                        _circuitState = CircuitState.HalfOpen;
-                        return (false, 0, true);
-                    }
-                    var remainingSeconds = _openedAt.HasValue
-                        ? Math.Max(1, (int)Math.Ceiling(_options.CircuitBreakerDurationSeconds - (now - _openedAt.Value).TotalSeconds))
-                        : _options.CircuitBreakerDurationSeconds;
-                    return (true, remainingSeconds, false);
-
-                case CircuitState.HalfOpen:
-                    return (true, _options.CircuitBreakerDurationSeconds, false);
-
-                default:
-                    return (false, 0, false);
-            }
+            _logger.LogWarning("Circuit breaker opened: CPU={Cpu}%, RAM={Ram}%", cpuPercent, memoryPercent);
         }
+
+        return (shouldReject, retryAfterSeconds, wasHalfOpen);
     }
 
     private void TransitionFromHalfOpen(double cpuPercent, double memoryPercent)
     {
-        lock (_circuitLock)
-        {
-            if (_circuitState != CircuitState.HalfOpen)
-            {
-                return;
-            }
+        var result = _circuitBreakerState.TryTransitionFromHalfOpen(
+            cpuPercent, memoryPercent,
+            _options.CpuThresholdPercent, _options.MemoryThresholdPercent);
 
-            if (cpuPercent <= _options.CpuThresholdPercent && memoryPercent <= _options.MemoryThresholdPercent)
-            {
-                _circuitState = CircuitState.Closed;
-                _openedAt = null;
-                _logger.LogInformation("Circuit breaker closed");
-            }
-            else
-            {
-                _circuitState = CircuitState.Open;
-                _openedAt = DateTime.UtcNow;
-                _logger.LogWarning("Circuit breaker reopened: CPU={Cpu}%, RAM={Ram}%", cpuPercent, memoryPercent);
-            }
+        if (result is true)
+        {
+            _logger.LogInformation("Circuit breaker closed");
+        }
+        else if (result is false)
+        {
+            _logger.LogWarning("Circuit breaker reopened: CPU={Cpu}%, RAM={Ram}%", cpuPercent, memoryPercent);
         }
     }
 
@@ -187,41 +152,28 @@ public sealed class ResourceGuardMiddleware(
         await context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 
-    private static double GetCpuUsagePercent()
+    private double GetCpuUsagePercent()
     {
-        var process = Process.GetCurrentProcess();
-        var currentTotalProcessorTime = process.TotalProcessorTime;
-        var currentTime = DateTime.UtcNow;
+        var currentTotalProcessorTime = _currentProcess.TotalProcessorTime;
+        var now = DateTime.UtcNow;
 
-        TimeSpan lastProcessorTime;
-        DateTime lastCheckTime;
-
-        lock (_circuitLock)
-        {
-            lastProcessorTime = _lastTotalProcessorTime;
-            lastCheckTime = _lastCpuCheckTime;
-            _lastTotalProcessorTime = currentTotalProcessorTime;
-            _lastCpuCheckTime = currentTime;
-        }
+        var (lastProcessorTime, lastCheckTime) = _circuitBreakerState.SnapshotCpuMeasurement(currentTotalProcessorTime, now);
 
         var cpuUsedMs = (currentTotalProcessorTime - lastProcessorTime).TotalMilliseconds;
-        var elapsedMs = (currentTime - lastCheckTime).TotalMilliseconds;
+        var elapsedMs = (now - lastCheckTime).TotalMilliseconds;
 
         if (elapsedMs <= 0)
         {
             return 0;
         }
 
-        var processorCount = Environment.ProcessorCount;
-        var cpuPercent = (cpuUsedMs / (elapsedMs * processorCount)) * 100;
-
+        var cpuPercent = (cpuUsedMs / (elapsedMs * Environment.ProcessorCount)) * 100;
         return Math.Min(100, Math.Max(0, cpuPercent));
     }
 
-    private static double GetMemoryUsagePercent()
+    private double GetMemoryUsagePercent()
     {
-        var process = Process.GetCurrentProcess();
-        var workingSet = process.WorkingSet64;
+        var workingSet = _currentProcess.WorkingSet64;
 
         try
         {
@@ -245,8 +197,7 @@ public sealed class ResourceGuardMiddleware(
     {
         ThreadPool.GetAvailableThreads(out availableWorkerThreads, out _);
 
-        var process = Process.GetCurrentProcess();
-        workingSetMb = process.WorkingSet64 / (1024d * 1024d);
+        workingSetMb = _currentProcess.WorkingSet64 / (1024d * 1024d);
 
         if (_criticalLoadState.IsActive)
         {
