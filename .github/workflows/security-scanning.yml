@@ -45,6 +45,7 @@ jobs:
           # cs/open-redirect, cs/hardcoded-credentials, cs/catch-of-all-exceptions,
           # cs/empty-catch-block és más High/Critical lekérdezéseket
           queries: security-and-quality
+          config-file: ./.github/codeql/codeql-config.yml
 
       # CodeQL requires a successful build to trace the compilation.
       - name: Build (for CodeQL tracing)

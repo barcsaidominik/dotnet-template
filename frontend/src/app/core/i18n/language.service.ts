@@ -1,6 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -15,9 +16,12 @@ export class LanguageService {
   readonly currentLanguage = signal<string>(LanguageService.DEFAULT);
   readonly dateLocale = computed(() => this.currentLanguage());
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     const stored = localStorage.getItem(LanguageService.STORAGE_KEY) ?? LanguageService.DEFAULT;
-    this.applyLanguage(stored);
+    this.currentLanguage.set(stored);
+    localStorage.setItem(LanguageService.STORAGE_KEY, stored);
+    const langCode = stored === 'hu-HU' ? 'hu' : 'en';
+    await firstValueFrom(this.translate.use(langCode));
   }
 
   setLanguage(lang: string, syncToServer = true): void {

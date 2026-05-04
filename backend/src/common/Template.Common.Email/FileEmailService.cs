@@ -11,7 +11,7 @@ public sealed class FileEmailService(ILogger<FileEmailService> logger) : IEmailS
         var emailsDir = Path.Combine(Path.GetTempPath(), "emails");
         Directory.CreateDirectory(emailsDir);
 
-        var fileName = $"{DateTime.UtcNow:yyyyMMdd_HHmmss}_{to}.html";
+        var fileName = $"{DateTime.UtcNow:yyyyMMdd_HHmmss}_{Guid.NewGuid():N}.html";
         var filePath = Path.Combine(emailsDir, fileName);
 
         await File.WriteAllTextAsync(filePath, $"<h2>{subject}</h2>{htmlBody}", ct);

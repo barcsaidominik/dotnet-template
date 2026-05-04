@@ -1,5 +1,5 @@
 import type { ApplicationConfig } from '@angular/core';
-import { APP_INITIALIZER, importProvidersFrom } from '@angular/core';
+import { APP_INITIALIZER } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
 import { provideRouter } from '@angular/router';
@@ -7,7 +7,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { firstValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { TranslateModule } from '@ngx-translate/core';
+import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth/auth.interceptor';
@@ -31,14 +31,12 @@ export const appConfig: ApplicationConfig = {
     provideApiConfiguration(environment.apiUrl),
     provideProductsApiConfiguration(environment.apiUrl),
     provideAnimationsAsync(),
-    importProvidersFrom(
-      TranslateModule.forRoot({
-        defaultLanguage: 'hu',
-      })
-    ),
-    provideTranslateHttpLoader({
-      prefix: './assets/i18n/',
-      suffix: '.json',
+    provideTranslateService({
+      defaultLanguage: 'hu',
+      loader: provideTranslateHttpLoader({
+        prefix: './assets/i18n/',
+        suffix: '.json',
+      }),
     }),
     {
       provide: APP_INITIALIZER,

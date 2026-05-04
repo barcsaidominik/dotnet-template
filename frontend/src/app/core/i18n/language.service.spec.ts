@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { LanguageService } from './language.service';
 
 describe('LanguageService', () => {
@@ -12,7 +13,7 @@ describe('LanguageService', () => {
   beforeEach(() => {
     localStorage.clear();
     translateService = {
-      use: vi.fn(),
+      use: vi.fn().mockReturnValue(of({})),
     };
 
     TestBed.configureTestingModule({
@@ -36,10 +37,10 @@ describe('LanguageService', () => {
     localStorage.clear();
   });
 
-  it('initialize uses stored language when available', () => {
+  it('initialize uses stored language when available', async () => {
     localStorage.setItem('preferredLanguage', 'en-US');
 
-    service.initialize();
+    await service.initialize();
 
     expect(service.currentLanguage()).toBe('en-US');
     expect(translateService.use).toHaveBeenCalledWith('en');
