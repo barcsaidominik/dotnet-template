@@ -1,0 +1,30 @@
+# CodeQL data extension – Mediator 3.x taint-flow model
+# Csomag: Mediator.Abstractions
+# Namespace: Mediator
+
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: summaryModel
+    data:
+      # ISender.Send(IRequest<TResponse> request, CancellationToken ct)
+      - ["Mediator", "ISender", True, "Send", "(Mediator.IRequest<TResponse>,System.Threading.CancellationToken)", "",
+         "Argument[0]", "ReturnValue", "taint", "manual"]
+
+      # ApiController.SendAsync(IRequest<TResponse> request)
+      - ["Template.Common.Controllers", "ApiController", True, "SendAsync", "(Mediator.IRequest<TResponse>)", "",
+         "Argument[0]", "ReturnValue", "taint", "manual"]
+
+      # IRequestHandler<TRequest, TResponse>.Handle(TRequest request, CancellationToken ct)
+      - ["Mediator", "IRequestHandler`2", True, "Handle", "(TRequest,System.Threading.CancellationToken)", "",
+         "Argument[0]", "ReturnValue", "taint", "manual"]
+
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sourceModel
+    data:
+      # Property getters on IRequest classes return user-supplied data (remote source).
+      # Pattern: mark the specific query record's property getter as remote so that
+      # any access to request.Property inside a handler is treated as tainted.
+      - ["Template.Application.Products.Queries.GetProducts", "GetProductsWithSearchQuery", False, "get_SearchTerm", "()", "",
+         "ReturnValue", "remote", "manual"]

@@ -11,7 +11,7 @@ useDefault = true
 [[rules]]
 id          = "dotnet-appsettings-secret"
 description = "Hardcoded secret value in ASP.NET Core appsettings JSON"
-regex       = '''(?i)"(?:Secret|JwtSecret|Password|ApiKey|AccessToken|AuthToken|SigningKey)"\s*:\s*"([A-Za-z0-9+/=_\-]{8,})"'''
+regex       = '''(?i)"(?:Secret|JwtSecret|Password|ApiKey|AccessToken|AuthToken|SigningKey)"\s*:\s*"([A-Za-z0-9+/=_\-\.]{8,})"'''
 secretGroup = 1
 tags        = ["json", "appsettings", "secret", "csharp"]
 
@@ -24,6 +24,7 @@ tags        = ["json", "appsettings", "secret", "csharp"]
   paths = [
     '''.*\.example''',
     '''.*\.sample''',
+    '''.*[Tt]est.*''',
   ]
 
 # ─────────────────────────────────────────────────────────────────
@@ -60,6 +61,30 @@ secretGroup = 1
 tags        = ["docker", "database", "password"]
 
   [rules.allowlist]
+  paths = [
+    '''.*\.example''',
+    '''.*\.sample''',
+    '''.*[Tt]est.*''',
+  ]
+
+# ─────────────────────────────────────────────────────────────────
+# 4. Hardcode-olt API kulcs C# property-ben vagy konstansban
+#    Kezeli: public string ApiKey { get; set; } = "value"
+#            private const string ApiKey = "value"
+# ─────────────────────────────────────────────────────────────────
+[[rules]]
+id          = "dotnet-hardcoded-api-key-property"
+description = "Hardcoded API key value in C# property or constant"
+regex       = '''(?i)\b(?:ApiKey|api_key|ApiSecret|api_secret)\b\s*(?:\{[^}]*\}\s*)?=\s*"([A-Za-z0-9+/=_\-\.]{8,})"'''
+secretGroup = 1
+tags        = ["csharp", "api-key", "hardcoded"]
+
+  [rules.allowlist]
+  description = "Ignore placeholder and test values"
+  regexes = [
+    '''^$''',
+    '''(?i)^(your[-_]|change[-_]|replace|placeholder|example|dummy|test|fake)''',
+  ]
   paths = [
     '''.*\.example''',
     '''.*\.sample''',

@@ -373,3 +373,9 @@ dist/
 
 # Docker secrets (keep folder structure, ignore actual secrets)
 secrets/*.txt
+
+.codeql-db/
+codeql-results.sarif
+nul
+qlconfig.yml
+.vscode/
