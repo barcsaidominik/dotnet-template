@@ -8,6 +8,6 @@
     <ProjectReference Include="..\..\core\Template.Application\Template.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
   </ItemGroup>
 </Project>
