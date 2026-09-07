@@ -25,7 +25,18 @@ jobs:
           set -euo pipefail
 
           git diff "origin/${{ github.base_ref }}...HEAD" \
-            -- 'backend/**/*.cs' 'backend/**/*.csproj' \
+            -- \
+            'backend/**/*.cs' \
+            'backend/**/*.csproj' \
+            '**/*.json' \
+            '**/*.yml' \
+            '**/*.yaml' \
+            '**/Dockerfile*' \
+            '**/*.toml' \
+            ':!frontend/package-lock.json' \
+            ':!backend/Api.json' \
+            ':!backend/ProductsApi.json' \
+            ':!frontend/src/app/generated/**' \
             | head -c 20000 > pr_diff.txt
 
           lines=$(wc -l < pr_diff.txt | tr -d ' ')
@@ -42,9 +53,9 @@ jobs:
           diff_content=$(cat pr_diff.txt)
 
           payload=$(jq -n --arg diff "$diff_content" '{
-            model: "claude-sonnet-4-6",
+            model: "claude-sonnet-5",
             max_tokens: 1500,
-            system: "You are a security-focused code reviewer specialising in ASP.NET Core. Be concise, practical and actionable. Do not repeat the diff.",
+            system: "You are a security-focused code reviewer specialising in ASP.NET Core and its surrounding configuration (appsettings.json, docker-compose.yml, Dockerfiles, GitHub Actions workflows). Be concise, practical and actionable. Do not repeat the diff.",
             messages: [
               {
                 role: "user",
@@ -61,6 +72,11 @@ jobs:
                   + "- Exception swallowing (empty catch blocks)\n"
                   + "- Blocking async calls (.Result, .Wait())\n"
                   + "- Obvious null-reference risks\n\n"
+                  + "## Configuration\n"
+                  + "- Hardcoded secrets, passwords or tokens in appsettings*.json, docker-compose.yml or Dockerfiles\n"
+                  + "- Differences between Development and Production configuration that weaken security (e.g. rate limiting, CORS, cookie flags only active outside Development)\n"
+                  + "- Plaintext passwords or default credentials in compose files (e.g. POSTGRES_PASSWORD fallbacks)\n"
+                  + "- Secrets that should go through Docker Secrets / environment variables / a vault instead of a config file\n\n"
                   + "Rules:\n"
                   + "- Omit categories with no real findings.\n"
                   + "- Use Markdown.\n"

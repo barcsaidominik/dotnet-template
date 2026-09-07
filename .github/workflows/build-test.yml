@@ -1,0 +1,33 @@
+name: Build & Test
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+jobs:
+  build-test:
+    name: dotnet build + test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Restore
+        run: dotnet restore backend/Template.slnx
+
+      - name: Build
+        run: dotnet build backend/Template.slnx --no-restore
+
+      # Template.Tests uses Microsoft.EntityFrameworkCore.InMemory for its
+      # integration tests (see IntegrationTestWebApplicationFactory.cs /
+      # ProductsIntegrationTestWebApplicationFactory.cs) -- no Testcontainers,
+      # no Docker, no external database needed on the runner.
+      - name: Test
+        run: dotnet test backend/tests/Template.Tests/Template.Tests.csproj --no-build

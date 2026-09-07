@@ -49,11 +49,62 @@ jobs:
       - name: Build (for CodeQL tracing)
         run: dotnet build backend/Template.slnx --no-restore
 
+      # NOTE: github/codeql-action/analyze@v4 has no "fail-on" input for
+      # advanced-setup workflows (verified against the v4 action.yml
+      # manifest, 2026-09-07) -- it always exits 0 and only uploads SARIF.
+      # The gate is enforced in the step below by reading the SARIF file
+      # this step produces.
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
         with:
           category: "/language:csharp"
+          output: sarif-results
           # Results are uploaded to the GitHub Security tab as SARIF.
+
+      - name: Enforce error-severity CodeQL threshold
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          SARIF_FILE=$(find sarif-results -name '*.sarif' | head -n 1)
+          if [ -z "$SARIF_FILE" ]; then
+            echo "::error::No SARIF file produced by CodeQL analysis."
+            exit 1
+          fi
+
+          # Threshold: only "error" severity fails the build.
+          # security-and-quality code-quality queries such as
+          # cs/empty-catch-block and cs/catch-of-all-exceptions are
+          # "recommendation" severity (the lowest of error/warning/
+          # recommendation, per https://codeql.github.com/codeql-query-help/csharp/)
+          # and do not reach "error" level, so they do not block the build.
+          # Only High/Critical security findings and @problem.severity=error
+          # quality findings do. A result's level can be set directly on the
+          # result object or fall back to the rule's defaultConfiguration.level.
+          ERROR_COUNT=$(jq '
+            [
+              .runs[] as $run
+              | $run.results[]
+              | . as $result
+              | ($result.level // ($run.tool.driver.rules[] | select(.id == $result.ruleId) | .defaultConfiguration.level) // "warning") as $level
+              | select($level == "error")
+            ] | length
+          ' "$SARIF_FILE")
+
+          echo "Found $ERROR_COUNT error-severity CodeQL finding(s) in $SARIF_FILE."
+
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            jq -r '
+              .runs[] as $run
+              | $run.results[]
+              | . as $result
+              | ($result.level // ($run.tool.driver.rules[] | select(.id == $result.ruleId) | .defaultConfiguration.level) // "warning") as $level
+              | select($level == "error")
+              | "  - " + $result.ruleId + " @ " + ($result.locations[0].physicalLocation.artifactLocation.uri // "unknown")
+            ' "$SARIF_FILE"
+            echo "::error::CodeQL found $ERROR_COUNT error-severity finding(s). Failing the build."
+            exit 1
+          fi
 
   # ── 2. NuGet vulnerability audit (SCA) ───────────────────────────────────
   # Uses the built-in dotnet CLI audit command -- no third-party action
