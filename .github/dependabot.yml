@@ -4,8 +4,9 @@ version: 2
 #
 #   patch + minor version updates -> batched into one PR each, to keep the
 #     review load low for changes that rarely break anything.
-#   major version updates         -> deliberately NOT grouped, so each one
-#     gets its own PR.
+#   major version updates         -> grouped per lockstep package family
+#     (Angular toolchain, EF Core provider set, test tooling); anything else
+#     gets its own PR, so one breaking bump cannot block every other update.
 #
 # The reason for the split: a single "everything" group lets a breaking major
 # bump block every other update in the same PR. That is exactly what happened
@@ -14,23 +15,97 @@ version: 2
 # half months inside a 27-package group that also carried an NSubstitute 5 -> 6
 # major bump.
 #
-# Security updates opened by Dependabot Security Updates are unaffected by
-# grouping and always arrive as their own PRs.
+# Why the per-family major groups: packages such as the Angular toolchain or
+# the EF Core provider set must cross a major boundary in lockstep. Left
+# ungrouped, each package gets its own PR and every one of those PRs fails CI,
+# because it bumps one half of a set that has to move together.
+#
+# What grouping deliberately does NOT cover: Dependabot Security Updates.
+# `applies-to` defaults to version-updates, so no group here touches them --
+# every security fix arrives as its own PR and none of them count against
+# open-pull-requests-limit. That is the intended design, not an oversight:
+# batching security fixes would recreate the Scriban failure mode, where one
+# unmergeable bump holds back every advisory in the same PR. The consequence
+# is that a repository with many vulnerable transitive dependencies will see a
+# burst of individual PRs after the first run. Those are the fixes; merge
+# them, do not group them away.
+#
+# Note on cooldown: GitHub applies a default 3-day cooldown to version
+# updates, so a release that lands late in the week is not picked up until the
+# following Monday run at the earliest. Security updates ignore cooldown.
+# Uncomment the `cooldown` blocks below to tighten or loosen this.
+#
+# Note on `allow`: with no `allow` key, version updates cover only the
+# dependencies declared in a manifest. Transitive packages are bumped solely
+# by security updates (or as a side effect of a direct bump), which is why
+# lockfile-only PRs are always security PRs here.
 
 updates:
-  # NuGet -- backend C# packages
+  # NuGet -- backend C# packages (.NET 10)
   - package-ecosystem: "nuget"
     directory: "/backend"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "06:00"
-    open-pull-requests-limit: 10
+      # Without this, `time` is interpreted as UTC (08:00 local in summer).
+      timezone: "Europe/Budapest"
+    # Grouped PRs count against this limit; version updates arriving on the
+    # same run past the limit are withheld with no warning in the PR list.
+    open-pull-requests-limit: 15
+    # `labels` overrides Dependabot's defaults rather than adding to them, so
+    # the ecosystem label has to be restated here. Every label listed must
+    # already exist in the repository -- Dependabot only creates its own
+    # default labels, and PR creation fails on a label it cannot find.
+    # Verified present in this repository: dependencies, nuget, npm,
+    # github-actions, ci.
+    #
     # Note: no blanket "security" label here. Labelling every dependency PR
     # as security-related erases the distinction that matters when triaging.
     labels:
       - "dependencies"
+      - "nuget"
+    # cooldown:
+    #   default-days: 3
+    #   semver-major-days: 7
+    #   semver-minor-days: 3
+    #   semver-patch-days: 1
     groups:
+      # --- lockstep major families (must be listed before the catch-all
+      # --- patch/minor groups: a dependency only joins the first group it
+      # --- matches, in file order)
+      #
+      # EF Core and its providers share a major line. Listed before the
+      # ASP.NET group so that Microsoft.EntityFrameworkCore.* lands here.
+      nuget-efcore-major:
+        applies-to: version-updates
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+          - "Npgsql*"
+        update-types:
+          - "major"
+      # The ASP.NET Core / Extensions packages ship on the .NET release
+      # cadence and move together (currently 10.0.x).
+      nuget-aspnetcore-major:
+        applies-to: version-updates
+        patterns:
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.Extensions.*"
+        update-types:
+          - "major"
+      # Test-only majors cannot break shipped code, so batching them keeps the
+      # NSubstitute-style bumps out of the way of application dependencies.
+      # xunit.v3 and xunit.runner.visualstudio share a major line.
+      nuget-test-major:
+        applies-to: version-updates
+        patterns:
+          - "xunit*"
+          - "NSubstitute*"
+          - "coverlet.*"
+          - "Microsoft.NET.Test.Sdk"
+        update-types:
+          - "major"
+      # --- everything else
       nuget-patch:
         applies-to: version-updates
         update-types:
@@ -39,18 +114,73 @@ updates:
         applies-to: version-updates
         update-types:
           - "minor"
+    ignore:
+      # Microsoft.OpenApi is pinned to 2.7.x on purpose: 2.7.5 closed
+      # GHSA-v5pm-xwqc-g5wc / CVE-2026-49451, and 3.x is a breaking API
+      # rewrite that the generated Api.json contract has not been ported to.
+      # Patch and minor bumps inside 2.x still come through.
+      - dependency-name: "Microsoft.OpenApi"
+        update-types:
+          - "version-update:semver-major"
 
-  # npm -- Angular frontend packages
+  # npm -- Angular frontend packages (Angular 21)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "06:00"
-    open-pull-requests-limit: 10
+      timezone: "Europe/Budapest"
+    open-pull-requests-limit: 15
     labels:
       - "dependencies"
+      - "npm"
+    # cooldown:
+    #   default-days: 3
+    #   semver-major-days: 7
+    #   semver-minor-days: 3
+    #   semver-patch-days: 1
     groups:
+      # The Angular toolchain has to cross a major boundary in one commit --
+      # framework, CLI, build tooling, the lint plugin that tracks the Angular
+      # major, and the TypeScript/RxJS/zone.js versions the release pins.
+      # `angular-eslint` is spelled without the @angular/ scope, so it needs
+      # its own pattern or it drops out of the lockstep set.
+      npm-angular-major:
+        applies-to: version-updates
+        patterns:
+          - "@angular/*"
+          - "@angular-devkit/*"
+          - "@ngtools/*"
+          - "@schematics/*"
+          - "angular-eslint"
+          - "@ngx-translate/*"
+          - "typescript"
+          - "zone.js"
+          - "rxjs"
+        update-types:
+          - "major"
+      # Lint/format/test tooling: majors here are churn, not risk to the app.
+      # Patterns match this project's actual devDependencies -- the test stack
+      # is vitest + jsdom, not karma/jasmine.
+      npm-tooling-major:
+        applies-to: version-updates
+        patterns:
+          - "eslint*"
+          - "@eslint/*"
+          - "typescript-eslint"
+          - "@typescript-eslint/*"
+          - "prettier*"
+          - "vitest"
+          - "@vitest/*"
+          - "jsdom"
+          - "lint-staged"
+          - "simple-git-hooks"
+          - "openapi-typescript"
+          - "ng-openapi-gen"
+          - "@types/*"
+        update-types:
+          - "major"
       npm-patch:
         applies-to: version-updates
         update-types:
@@ -65,10 +195,20 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+      timezone: "Europe/Budapest"
+    # Was previously unset, which meant the default of 5.
+    open-pull-requests-limit: 10
     labels:
       - "dependencies"
+      - "github-actions"
       - "ci"
     groups:
+      # Action majors are independent of each other and are almost always a
+      # tag bump, so one PR for all of them is fine.
+      actions-major:
+        applies-to: version-updates
+        update-types:
+          - "major"
       actions-patch:
         applies-to: version-updates
         update-types:
