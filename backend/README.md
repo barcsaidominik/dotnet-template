@@ -176,7 +176,7 @@ Products külön `Template.Products.Api` szolgáltatás.
 dotnet test tests/Template.Tests/Template.Tests.csproj
 ```
 
-**Aktuális állapot:** 133/133 sikeres (unit + integration)
+**Aktuális állapot:** 146/146 sikeres (unit + integration)
 
 ### OpenAPI kliens generálás
 

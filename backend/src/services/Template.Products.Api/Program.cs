@@ -1,6 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using Serilog;
@@ -73,17 +74,19 @@ public class Program
                 options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             });
 
-            var jwtSettings = builder.Configuration
-                .GetRequiredSection(JwtSettings.SECTION_NAME)
-                .Get<JwtSettings>() ?? throw new InvalidOperationException("JwtSettings configuration is missing.");
             builder.Services
                 .AddAuthentication(options =>
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(options =>
+                .AddJwtBearer();
+
+            builder.Services
+                .AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+                .Configure<IOptions<JwtSettings>>((options, jwtSettingsAccessor) =>
                 {
+                    var jwtSettings = jwtSettingsAccessor.Value;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
