@@ -14,6 +14,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.21.0" />
+    <!-- Transitive pin: Microsoft.AspNetCore.OpenApi 10.0.10 pulls Microsoft.OpenApi 2.0.0,
+         which is vulnerable to GHSA-v5pm-xwqc-g5wc (CVE-2026-49451). First patched: 2.7.5.
+         Every project in the solution reaches Microsoft.OpenApi through this project, so the
+         single pin here clears NU1903 solution-wide. Remove once Microsoft.AspNetCore.OpenApi
+         ships a version that depends on >= 2.7.5. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
     <PackageReference Include="Polly" Version="8.7.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.16" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
