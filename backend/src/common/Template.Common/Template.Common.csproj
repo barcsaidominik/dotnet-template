@@ -19,7 +19,7 @@
          Every project in the solution reaches Microsoft.OpenApi through this project, so the
          single pin here clears NU1903 solution-wide. Remove once Microsoft.AspNetCore.OpenApi
          ships a version that depends on >= 2.7.5. -->
-    <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.10.2" />
     <PackageReference Include="Polly" Version="8.7.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.16" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
