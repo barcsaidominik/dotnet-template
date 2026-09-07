@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -118,6 +119,13 @@ public sealed class IntegrationTestWebApplicationFactory : WebApplicationFactory
             {
                 services.Remove(descriptor);
             }
+
+            // Program.cs persists the Data Protection key ring to "/app/keys", a path that only
+            // exists inside the container image. Out of process (dotnet test) the host cannot create
+            // it -- on a Linux CI runner it fails with UnauthorizedAccessException on "/app". ASP.NET
+            // Core Identity derives its password reset / setup tokens from that key ring, so every
+            // GeneratePasswordResetTokenAsync call would blow up. Keep the keys in memory instead.
+            services.AddDataProtection().UseEphemeralDataProtectionProvider();
 
             // Replace gRPC FacilityProductUsageService with the local implementation for testing
             services.RemoveAll<IFacilityProductUsageService>();
