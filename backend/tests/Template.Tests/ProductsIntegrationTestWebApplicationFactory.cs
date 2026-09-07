@@ -56,7 +56,10 @@ public sealed class ProductsIntegrationTestWebApplicationFactory : WebApplicatio
         {
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=products_tests;Username=test;Password=test",
+                // Only has to be non-empty: DatabaseSettings requires it via ValidateOnStart(),
+                // while the DbContext is replaced with the InMemory provider below. No credentials
+                // belong here -- nothing ever opens this connection.
+                ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=products_tests",
                 ["JwtSettings:Secret"] = TEST_JWT_SECRET,
                 ["InternalServiceAuth:Token"] = TEST_INTERNAL_SERVICE_TOKEN,
                 ["ResourceGuard:Enabled"] = "false"
