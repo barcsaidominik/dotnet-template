@@ -21,6 +21,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(FacilityScopeBehavior<,>));
         services.AddScoped<IQueryGuard<Product>, FacilityProductGuard>();
 
         return services;

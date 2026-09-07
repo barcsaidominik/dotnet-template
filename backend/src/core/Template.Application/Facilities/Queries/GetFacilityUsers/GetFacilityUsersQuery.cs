@@ -1,6 +1,7 @@
 using ErrorOr;
 using Mediator;
 using Template.Application.Common.Dtos;
+using Template.Application.Common.Interfaces;
 
 namespace Template.Application.Facilities.Queries.GetFacilityUsers;
 
@@ -8,4 +9,4 @@ public sealed record GetFacilityUsersQuery(
     Guid FacilityId,
     string? Search = null,
     string? SortBy = null,
-    bool SortDescending = false) : IRequest<ErrorOr<IReadOnlyList<UserDto>>>;
+    bool SortDescending = false) : IRequest<ErrorOr<IReadOnlyList<UserDto>>>, IFacilityScopedRequest;
