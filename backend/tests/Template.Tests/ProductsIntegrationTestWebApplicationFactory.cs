@@ -56,6 +56,7 @@ public sealed class ProductsIntegrationTestWebApplicationFactory : WebApplicatio
         {
             configBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
+                ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=products_tests;Username=test;Password=test",
                 ["JwtSettings:Secret"] = TEST_JWT_SECRET,
                 ["InternalServiceAuth:Token"] = TEST_INTERNAL_SERVICE_TOKEN,
                 ["ResourceGuard:Enabled"] = "false"
