@@ -1,5 +1,22 @@
 version: 2
 
+# Grouping strategy (applies to every ecosystem below):
+#
+#   patch + minor version updates -> batched into one PR each, to keep the
+#     review load low for changes that rarely break anything.
+#   major version updates         -> deliberately NOT grouped, so each one
+#     gets its own PR.
+#
+# The reason for the split: a single "everything" group lets a breaking major
+# bump block every other update in the same PR. That is exactly what happened
+# with Scriban 7.1.0 -> 7.2.5, which closed two High-severity advisories
+# (GHSA-24c8-4792-22hx, GHSA-7jvp-hj45-2f2m) but sat unmerged for three and a
+# half months inside a 27-package group that also carried an NSubstitute 5 -> 6
+# major bump.
+#
+# Security updates opened by Dependabot Security Updates are unaffected by
+# grouping and always arrive as their own PRs.
+
 updates:
   # NuGet -- backend C# packages
   - package-ecosystem: "nuget"
@@ -9,16 +26,19 @@ updates:
       day: "monday"
       time: "06:00"
     open-pull-requests-limit: 10
+    # Note: no blanket "security" label here. Labelling every dependency PR
+    # as security-related erases the distinction that matters when triaging.
     labels:
       - "dependencies"
-      - "security"
-    # Group all non-security updates into a single weekly PR
-    # to reduce noise; security fixes always get individual PRs.
     groups:
-      non-security-updates:
+      nuget-patch:
         applies-to: version-updates
-        patterns:
-          - "*"
+        update-types:
+          - "patch"
+      nuget-minor:
+        applies-to: version-updates
+        update-types:
+          - "minor"
 
   # npm -- Angular frontend packages
   - package-ecosystem: "npm"
@@ -30,6 +50,15 @@ updates:
     open-pull-requests-limit: 10
     labels:
       - "dependencies"
+    groups:
+      npm-patch:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      npm-minor:
+        applies-to: version-updates
+        update-types:
+          - "minor"
 
   # GitHub Actions -- keep workflow action versions up to date
   - package-ecosystem: "github-actions"
@@ -39,3 +68,12 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    groups:
+      actions-patch:
+        applies-to: version-updates
+        update-types:
+          - "patch"
+      actions-minor:
+        applies-to: version-updates
+        update-types:
+          - "minor"
