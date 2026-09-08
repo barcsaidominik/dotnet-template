@@ -23,14 +23,18 @@ jobs:
         run: dotnet restore backend/Template.slnx
 
       - name: Build
-        run: dotnet build backend/Template.slnx --no-restore
+        run: dotnet build backend/Template.slnx --no-restore -warnaserror
 
       # Template.Tests uses Microsoft.EntityFrameworkCore.InMemory for its
       # integration tests (see IntegrationTestWebApplicationFactory.cs /
       # ProductsIntegrationTestWebApplicationFactory.cs) -- no Testcontainers,
       # no Docker, no external database needed on the runner.
+      # global.json opts `dotnet test` into Microsoft.Testing.Platform (MTP)
+      # mode, which xunit.v3 4.x requires. In MTP mode the project path must be
+      # passed via `--project`, not positionally:
+      # https://learn.microsoft.com/dotnet/core/testing/unit-testing-with-dotnet-test#migrate-to-mtp-mode-of-dotnet-test
       - name: Test
-        run: dotnet test backend/tests/Template.Tests/Template.Tests.csproj --no-build
+        run: dotnet test --project backend/tests/Template.Tests/Template.Tests.csproj --no-build
 
   # Until now the frontend had no CI gate at all: no `npm ci`, no lint, no
   # build, no test. That let a peer-dependency conflict and an Angular

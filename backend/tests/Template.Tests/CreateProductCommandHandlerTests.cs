@@ -40,7 +40,7 @@ public class CreateProductCommandHandlerTests
         result.Value.Should().NotBeEmpty();
 
         await _store.Received(1).AddAsync(Arg.Is<Product>(p =>
-            p.Name == command.Name && p.Price == command.Price && p.FacilityId == _facilityId), Arg.Any<CancellationToken>());
+            p!.Name == command.Name && p.Price == command.Price && p.FacilityId == _facilityId), Arg.Any<CancellationToken>());
         await _store.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
