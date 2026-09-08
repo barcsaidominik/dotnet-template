@@ -31,3 +31,44 @@ jobs:
       # no Docker, no external database needed on the runner.
       - name: Test
         run: dotnet test backend/tests/Template.Tests/Template.Tests.csproj --no-build
+
+  # Until now the frontend had no CI gate at all: no `npm ci`, no lint, no
+  # build, no test. That let a peer-dependency conflict and an Angular
+  # version split land on master unnoticed.
+  frontend:
+    name: npm ci + lint + build + test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # simple-git-hooks' `prepare` script installs local git hooks, which
+      # is documented (SKIP_INSTALL_SIMPLE_GIT_HOOKS) as skippable for CI:
+      # https://github.com/toplenboren/simple-git-hooks#i-want-to-skip-git-hooks
+      # This is preferred over `npm ci --ignore-scripts`, which would also
+      # skip esbuild's postinstall (needed for its native binary that
+      # @angular/build relies on) and break the subsequent build step.
+      - name: Install
+        run: npm ci
+        env:
+          SKIP_INSTALL_SIMPLE_GIT_HOOKS: "1"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm run test:run

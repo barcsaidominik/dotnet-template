@@ -157,9 +157,13 @@ describe('AdminFacilitiesPageComponent', () => {
     expect(component.facilities()).toHaveLength(0);
   });
 
+  const mockImplementation = () => {
+    // Intentionally left blank
+  };
+
   it('shows generic error when deletion fails', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(mockImplementation);
     adminApi.apiAdminFacilitiesFacilityIdDelete.mockRejectedValue({
       error: {
         detail: 'Facility cannot be deleted while products still reference it.',
@@ -180,11 +184,9 @@ describe('AdminFacilitiesPageComponent', () => {
     await Promise.resolve();
 
     expect(consoleSpy).toHaveBeenCalledWith('Failed to delete facility:', expect.any(Object));
-    expect(snackBar.open).toHaveBeenCalledWith(
-      'errors.Error.Unexpected',
-      'common.close',
-      { duration: 4000 }
-    );
+    expect(snackBar.open).toHaveBeenCalledWith('errors.Error.Unexpected', 'common.close', {
+      duration: 4000,
+    });
     consoleSpy.mockRestore();
   });
 
