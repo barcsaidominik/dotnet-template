@@ -42,7 +42,7 @@ backend/src/
     └── Template.Gateway.Api/      <- YARP reverse proxy gateway
 
 backend/tests/
-└── Template.Tests/                <- 133 teszt (unit + integration)
+└── Template.Tests/                <- 149 teszt (unit + integration)
 ```
 
 ## Szolgáltatások
@@ -147,6 +147,7 @@ Products külön `Template.Products.Api` szolgáltatás.
 1. **Függőségek visszaállítása:**
    ```bash
    dotnet restore
+   dotnet tool restore
    ```
 
 2. **Migrációk alkalmazása:**
@@ -176,7 +177,7 @@ Products külön `Template.Products.Api` szolgáltatás.
 dotnet test tests/Template.Tests/Template.Tests.csproj
 ```
 
-**Aktuális állapot:** 146/146 sikeres (unit + integration)
+**Aktuális állapot:** 149/149 sikeres (unit + integration)
 
 ### OpenAPI kliens generálás
 
@@ -342,6 +343,7 @@ builder.Services.AddBackgroundJobs<AppDbContext>(
 7. AddAuditLog
 8. HashRefreshToken (plaintext tokenek SHA-256 hash-re migráció)
 9. AddOptimisticConcurrency (PostgreSQL xmin oszlop EF Core mapping)
+10. AddTickerQIsSystemPaused (TickerQ `CronTickers.IsSystemPaused` oszlop)
 
 **Auto-migráció:** Development módban induláskor aktív
 

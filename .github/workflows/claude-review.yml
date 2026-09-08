@@ -37,13 +37,36 @@ jobs:
             ':!backend/Api.json' \
             ':!backend/ProductsApi.json' \
             ':!frontend/src/app/generated/**' \
-            | head -c 20000 > pr_diff.txt
+            > full_diff.txt
+
+          # Truncate via a file instead of piping straight into `head -c`:
+          # once `head` hits its byte limit it closes the pipe, `git diff`
+          # gets SIGPIPE and exits 141, and `pipefail` then fails this step
+          # before the review even runs. Writing to a file first keeps
+          # `pipefail` protecting the rest of the step without the SIGPIPE.
+          head -c 60000 full_diff.txt > pr_diff.txt
 
           lines=$(wc -l < pr_diff.txt | tr -d ' ')
           echo "lines=$lines" >> "$GITHUB_OUTPUT"
 
-      - name: Run Claude security review
+      - name: Check API key availability
+        id: preflight
         if: steps.diff.outputs.lines > 0
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No API key available (Dependabot or fork PR) — skipping review."
+          fi
+
+      - name: Run Claude security review
+        if: steps.diff.outputs.lines > 0 && steps.preflight.outputs.run == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         shell: bash
@@ -104,7 +127,7 @@ jobs:
           fi
 
       - name: Build PR comment
-        if: steps.diff.outputs.lines > 0
+        if: steps.diff.outputs.lines > 0 && steps.preflight.outputs.run == 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -119,7 +142,7 @@ jobs:
           } > comment.md
 
       - name: Post review comment
-        if: steps.diff.outputs.lines > 0
+        if: steps.diff.outputs.lines > 0 && steps.preflight.outputs.run == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash

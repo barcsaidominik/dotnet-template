@@ -4,7 +4,7 @@ Ez a rövid útmutató azt írja le, hogyan dolgozzunk a backend OpenAPI specifi
 
 ## Forrás és cél
 
-- Swagger forrás (frontendből nézve): `../backend/src/Template.Api/Template.Api.json`
+- Swagger forrás (frontendből nézve): `../backend/Api.json`
 - Típusok: `src/app/generated/api.types.ts`
 - Generált Angular kliens: `src/app/generated/client/`
 
@@ -12,8 +12,8 @@ Ez a rövid útmutató azt írja le, hogyan dolgozzunk a backend OpenAPI specifi
 
 - Frontend API base URL: `/api` (`environment.ts` és `environment.development.ts`)
 - Angular dev proxy: `proxy.conf.json`
-- Proxy target: `https://localhost:7133` (backend launchSettings szerint)
-- Backend launchSettings példa: `https://localhost:7133;http://localhost:5279`
+- Proxy target: `https://localhost:7133` — a **Template.Gateway.Api** (nem a Template.Api/core-api!) launchSettings szerint, mert a frontend a gateway-en keresztül éri el a backendet (lásd `docker-compose.yml` / `nginx.conf`)
+- Template.Gateway.Api launchSettings (`https` profil): `https://localhost:7133;http://localhost:5279`
 
 Megjegyzés: a dev proxy csak `ng serve` újraindítás után töltődik be.
 

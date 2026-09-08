@@ -55,7 +55,9 @@
         </ng-container>
 
         <ng-container matColumnDef="employeeCount">
-          <th mat-header-cell *matHeaderCellDef>{{ 'admin.facilities.employeeCount' | translate }}</th>
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'admin.facilities.employeeCount' | translate }}
+          </th>
           <td mat-cell *matCellDef="let row">{{ getEmployeeCount(row.facility.id) }}</td>
         </ng-container>
 

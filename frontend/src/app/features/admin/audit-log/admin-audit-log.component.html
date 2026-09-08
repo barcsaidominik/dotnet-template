@@ -7,7 +7,10 @@
     <div class="filters">
       <mat-form-field appearance="outline">
         <mat-label>{{ 'admin.auditLog.entityType' | translate }}</mat-label>
-        <mat-select [value]="entityTypeFilter()" (selectionChange)="entityTypeFilter.set($event.value); applyFilters()">
+        <mat-select
+          [value]="entityTypeFilter()"
+          (selectionChange)="entityTypeFilter.set($event.value); applyFilters()"
+        >
           <mat-option value="">{{ 'admin.auditLog.allTypes' | translate }}</mat-option>
           @for (type of entityTypes; track type) {
             <mat-option [value]="type">{{ type }}</mat-option>
@@ -17,10 +20,15 @@
 
       <mat-form-field appearance="outline">
         <mat-label>{{ 'admin.auditLog.action' | translate }}</mat-label>
-        <mat-select [value]="actionFilter()" (selectionChange)="actionFilter.set($event.value); applyFilters()">
+        <mat-select
+          [value]="actionFilter()"
+          (selectionChange)="actionFilter.set($event.value); applyFilters()"
+        >
           <mat-option value="">{{ 'admin.auditLog.allActions' | translate }}</mat-option>
           @for (action of actions; track action) {
-            <mat-option [value]="action">{{ 'admin.auditLog.actions.' + action | translate }}</mat-option>
+            <mat-option [value]="action">{{
+              'admin.auditLog.actions.' + action | translate
+            }}</mat-option>
           }
         </mat-select>
       </mat-form-field>
@@ -104,7 +112,8 @@
                 class="changes-text"
                 [matTooltip]="entry.changesJson"
                 matTooltipClass="changes-tooltip"
-              >{{ truncateChanges(entry.changesJson) }}</span>
+                >{{ truncateChanges(entry.changesJson) }}</span
+              >
             } @else {
               <span>-</span>
             }

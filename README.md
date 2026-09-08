@@ -12,7 +12,7 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 | Réteg | Technológia |
 |-------|-------------|
 | **Backend** | .NET 10, ASP.NET Core Web API |
-| **Frontend** | Angular 20, Standalone Components, Signals |
+| **Frontend** | Angular 22, Standalone Components, Signals |
 | **Architektúra** | Clean Architecture, CQRS (Mediator) |
 | **Adatbázis** | PostgreSQL 17, EF Core |
 | **Hitelesítés** | ASP.NET Core Identity, JWT + Refresh Tokens |
@@ -128,15 +128,15 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 - FluentValidation pipeline behavior-ral
 - OpenAPI/Scalar dokumentáció
 - Hot reload támogatás
-- 133 backend teszt (unit + integration)
-- 88 frontend Vitest teszt
+- 149 backend teszt (unit + integration)
+- 89 frontend Vitest teszt
 
 ## Projekt struktura
 
 ```
 dotnet-template/
 ├── backend/              <- .NET 10 backend szolgáltatások
-├── frontend/             <- Angular 20 frontend
+├── frontend/             <- Angular 22 frontend
 ├── docker-compose.yml    <- Multi-container orchestration
 ├── .env.example          <- Környezeti változó sablon
 └── secrets/              <- Docker secrets (kézi létrehozás)

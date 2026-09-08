@@ -89,7 +89,14 @@ describe('ProductsPageComponent', () => {
     productsApi.apiProductsGet$Json.mockResolvedValue({
       totalCount: 2,
       items: [
-        { id: '1', name: 'Widget', price: 10, quantity: 0, facilityId: 'f1', createdAt: '2026-04-19T18:00:00Z' },
+        {
+          id: '1',
+          name: 'Widget',
+          price: 10,
+          quantity: 0,
+          facilityId: 'f1',
+          createdAt: '2026-04-19T18:00:00Z',
+        },
       ],
     });
     const component = TestBed.runInInjectionContext(() => new ProductsPageComponent());
