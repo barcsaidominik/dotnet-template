@@ -77,7 +77,7 @@ jobs:
 
           payload=$(jq -n --arg diff "$diff_content" '{
             model: "claude-sonnet-5",
-            max_tokens: 1500,
+            max_tokens: 4096,
             system: "You are a security-focused code reviewer specialising in ASP.NET Core and its surrounding configuration (appsettings.json, docker-compose.yml, Dockerfiles, GitHub Actions workflows). Be concise, practical and actionable. Do not repeat the diff.",
             messages: [
               {
@@ -113,16 +113,30 @@ jobs:
             ]
           }')
 
-          response=$(curl -fsS https://api.anthropic.com/v1/messages \
+          http_code=$(curl -sS -o response.json -w "%{http_code}" https://api.anthropic.com/v1/messages \
             -H "Content-Type: application/json" \
             -H "x-api-key: $ANTHROPIC_API_KEY" \
             -H "anthropic-version: 2023-06-01" \
             -d "$payload")
 
-          printf '%s' "$response" | jq -r '.content[] | select(.type == "text") | .text' > review.txt
+          # `-f` was dropped so we can inspect the response body on failure too;
+          # that means curl no longer aborts the script on an HTTP error, so we
+          # have to check the status code explicitly.
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Anthropic API returned HTTP $http_code"
+            jq -r '.error.type + ": " + .error.message' response.json 2>/dev/null || head -c 500 response.json
+            exit 1
+          fi
+
+          stop_reason=$(jq -r '.stop_reason // "n/a"' response.json)
+          echo "stop_reason: $stop_reason"
+          echo "content types: $(jq -r '[.content[]?.type] | join(",")' response.json)"
+          echo "usage: $(jq -c '.usage // {}' response.json)"
+
+          jq -r '.content[] | select(.type == "text") | .text' response.json > review.txt
 
           if [ ! -s review.txt ]; then
-            echo "Claude returned an empty review."
+            echo "Claude returned an empty review. stop_reason: $stop_reason"
             exit 1
           fi
 
