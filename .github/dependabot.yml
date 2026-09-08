@@ -4,9 +4,10 @@ version: 2
 #
 #   patch + minor version updates -> batched into one PR each, to keep the
 #     review load low for changes that rarely break anything.
-#   major version updates         -> grouped per lockstep package family
-#     (Angular toolchain, EF Core provider set, test tooling); anything else
-#     gets its own PR, so one breaking bump cannot block every other update.
+#   major version updates         -> grouped per lockstep package family in
+#     npm (the Angular toolchain); in nuget and github-actions each major
+#     instead arrives as its own PR, so one breaking bump cannot block every
+#     other update.
 #
 # The reason for the split: a single "everything" group lets a breaking major
 # bump block every other update in the same PR. That is exactly what happened
@@ -15,22 +16,29 @@ version: 2
 # half months inside a 27-package group that also carried an NSubstitute 5 -> 6
 # major bump.
 #
-# Why the per-family major groups: packages such as the Angular toolchain or
-# the EF Core provider set must cross a major boundary in lockstep. Left
-# ungrouped, each package gets its own PR and every one of those PRs fails CI,
-# because it bumps one half of a set that has to move together.
+# Why the major groups exist only for npm: packages such as the Angular
+# toolchain must cross a major boundary in lockstep, and grouping is the only
+# way to get them into one reviewable PR. Grouping majors was measured to be
+# actively harmful in the other two ecosystems here:
 #
-# Measured on the 2026-09-08 run: major-type groups are not equally reliable
-# across ecosystems. The npm groups produced their PRs. The nuget group did
-# not: its group phase logged "No updatable version found for xunit.v3" while
-# the same job later downloaded xunit.v3 4.0.0 and logged "skipped for
-# ungrouped updates because it's a member of the following groups:
-# nuget-test-major" -- no PR, no error, no explanation. The github-actions
-# group crashed outright: all five actions failed with "No files changed!" in
-# GithubActions::FileUpdater and nothing was opened. A missing update here
-# therefore shows up as an absence, not as a failure. Check the Dependabot job
-# logs (Insights -> Dependency graph -> Dependabot) before concluding that a
-# dependency is up to date.
+#   2026-09-07, no major groups configured: every major arrived as its own PR
+#     (Microsoft.OpenApi, the two xunit packages, four GitHub Actions).
+#   2026-09-08, major groups configured: none of them arrived. The nuget group
+#     phase logged "No updatable version found for xunit.v3" while the same job
+#     later downloaded xunit.v3 4.0.0 (HTTP 200) and skipped it as a group
+#     member -- no PR, no error, no explanation. The github-actions group
+#     crashed outright: all five actions failed with "No files changed!" in
+#     GithubActions::FileUpdater, exit code 1, nothing opened. Reproduced on
+#     two consecutive runs with an unchanged config.
+#
+# So nuget and github-actions keep patch/minor groups only, and their majors go
+# back to arriving as individual PRs, which demonstrably works. The cost is
+# that the two xunit packages, which share a major line, arrive as two PRs that
+# have to be merged together. Two PRs that exist beat one PR that does not.
+#
+# A missing update in those two ecosystems shows up as an absence, not as a
+# failure. Check the Dependabot job logs (Insights -> Dependency graph ->
+# Dependabot) before concluding that a dependency is up to date.
 #
 # What grouping deliberately does NOT cover: Dependabot Security Updates.
 # `applies-to` defaults to version-updates, so no group here touches them --
@@ -83,41 +91,6 @@ updates:
     #   semver-minor-days: 3
     #   semver-patch-days: 1
     groups:
-      # --- lockstep major families (must be listed before the catch-all
-      # --- patch/minor groups: a dependency only joins the first group it
-      # --- matches, in file order)
-      #
-      # EF Core and its providers share a major line. Listed before the
-      # ASP.NET group so that Microsoft.EntityFrameworkCore.* lands here.
-      nuget-efcore-major:
-        applies-to: version-updates
-        patterns:
-          - "Microsoft.EntityFrameworkCore*"
-          - "Npgsql*"
-        update-types:
-          - "major"
-      # The ASP.NET Core / Extensions packages ship on the .NET release
-      # cadence and move together (currently 10.0.x).
-      nuget-aspnetcore-major:
-        applies-to: version-updates
-        patterns:
-          - "Microsoft.AspNetCore.*"
-          - "Microsoft.Extensions.*"
-        update-types:
-          - "major"
-      # Test-only majors cannot break shipped code, so batching them keeps the
-      # NSubstitute-style bumps out of the way of application dependencies.
-      # xunit.v3 and xunit.runner.visualstudio share a major line.
-      nuget-test-major:
-        applies-to: version-updates
-        patterns:
-          - "xunit*"
-          - "NSubstitute*"
-          - "coverlet.*"
-          - "Microsoft.NET.Test.Sdk"
-        update-types:
-          - "major"
-      # --- everything else
       nuget-patch:
         applies-to: version-updates
         update-types:
@@ -240,12 +213,6 @@ updates:
       - "github-actions"
       - "ci"
     groups:
-      # Action majors are independent of each other and are almost always a
-      # tag bump, so one PR for all of them is fine.
-      actions-major:
-        applies-to: version-updates
-        update-types:
-          - "major"
       actions-patch:
         applies-to: version-updates
         update-types:
