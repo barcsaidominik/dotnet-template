@@ -20,7 +20,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
@@ -39,7 +39,7 @@ import { downloadBlobFile } from '../../../shared/utils/file-download.util';
     MatFormFieldModule,
     MatSelectModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './user-approve-dialog.component.html',
   styleUrls: ['./user-approve-dialog.component.scss'],
@@ -71,7 +71,7 @@ export class UserApproveDialogComponent {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './create-facility-user-dialog.component.html',
   styleUrls: ['./create-facility-user-dialog.component.scss'],
@@ -103,7 +103,7 @@ export class CreateFacilityUserDialogComponent {
 @NgComponent({
   selector: 'app-admin-token-setup-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './token-setup-dialog.component.html',
   styleUrls: ['./token-setup-dialog.component.scss'],
 })
@@ -122,7 +122,7 @@ export class AdminTokenSetupDialogComponent {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './user-update-dialog.component.html',
   styleUrls: ['./user-update-dialog.component.scss'],
@@ -158,7 +158,7 @@ export class UserUpdateDialogComponent {
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.scss'],
@@ -316,7 +316,9 @@ export class AdminUsersPageComponent implements OnInit {
           next: (response) => {
             this.loadData();
             const setupLink = `${window.location.origin}/auth/set-password?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(response.setupToken)}`;
-            const tokenDialog = this.dialog.open(AdminTokenSetupDialogComponent, { width: '480px' });
+            const tokenDialog = this.dialog.open(AdminTokenSetupDialogComponent, {
+              width: '480px',
+            });
             tokenDialog.componentInstance.setupLink = setupLink;
           },
           error: () =>
@@ -360,26 +362,24 @@ export class AdminUsersPageComponent implements OnInit {
         if (!result) {
           return;
         }
-        this.http
-          .put(`/api/Admin/users/${user.id}`, { email: result.email })
-          .subscribe({
-            next: () => {
-              this.snackBar.open(
-                this.translate.instant('admin.users.userUpdated'),
-                this.translate.instant('common.close'),
-                { duration: 3000 }
-              );
-              this.users.update((list) =>
-                list.map((u) => (u.id === user.id ? { ...u, email: result.email } : u))
-              );
-            },
-            error: () =>
-              this.snackBar.open(
-                this.translate.instant('admin.users.failedToUpdate'),
-                this.translate.instant('common.close'),
-                { duration: 4000 }
-              ),
-          });
+        this.http.put(`/api/Admin/users/${user.id}`, { email: result.email }).subscribe({
+          next: () => {
+            this.snackBar.open(
+              this.translate.instant('admin.users.userUpdated'),
+              this.translate.instant('common.close'),
+              { duration: 3000 }
+            );
+            this.users.update((list) =>
+              list.map((u) => (u.id === user.id ? { ...u, email: result.email } : u))
+            );
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant('admin.users.failedToUpdate'),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
   }
 

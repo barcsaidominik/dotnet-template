@@ -17,7 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { AdminService } from '../../../generated/client/services/admin.service';
@@ -34,7 +34,7 @@ import { downloadBlobFile } from '../../../shared/utils/file-download.util';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './facility-create-dialog.component.html',
   styleUrls: ['./facility-create-dialog.component.scss'],
@@ -63,7 +63,7 @@ export class FacilityCreateDialogComponent {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './facility-update-dialog.component.html',
   styleUrls: ['./facility-update-dialog.component.scss'],
@@ -85,8 +85,7 @@ export class FacilityUpdateDialogComponent {
 }
 
 type FacilityTableRow =
-  | { kind: 'facility'; facility: Facility }
-  | { kind: 'detail'; facility: Facility };
+  { kind: 'facility'; facility: Facility } | { kind: 'detail'; facility: Facility };
 
 @Component({
   selector: 'app-admin-facilities',
@@ -102,7 +101,7 @@ type FacilityTableRow =
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './admin-facilities.component.html',
   styleUrls: ['./admin-facilities.component.scss'],
@@ -209,7 +208,8 @@ export class AdminFacilitiesPageComponent implements OnInit {
     return this.sortDescending() ? 'south' : 'north';
   }
 
-  readonly isFacilityRow = (_index: number, row: FacilityTableRow): boolean => row.kind === 'facility';
+  readonly isFacilityRow = (_index: number, row: FacilityTableRow): boolean =>
+    row.kind === 'facility';
   readonly isDetailRow = (_index: number, row: FacilityTableRow): boolean => row.kind === 'detail';
 
   toggleExpand(facility: Facility): void {
@@ -321,7 +321,9 @@ export class AdminFacilitiesPageComponent implements OnInit {
 
   exportFacilities(): void {
     this.isExporting.set(true);
-    from(this.adminApi.apiAdminFacilitiesExportGet$Response(this.buildFacilitiesQueryParams())).subscribe({
+    from(
+      this.adminApi.apiAdminFacilitiesExportGet$Response(this.buildFacilitiesQueryParams())
+    ).subscribe({
       next: (response) => {
         downloadBlobFile(response.body as Blob, response.headers, 'facilities.xlsx');
         this.isExporting.set(false);
@@ -337,7 +339,11 @@ export class AdminFacilitiesPageComponent implements OnInit {
     });
   }
 
-  private buildFacilitiesQueryParams(): { search?: string; sortBy?: string; sortDescending?: boolean } {
+  private buildFacilitiesQueryParams(): {
+    search?: string;
+    sortBy?: string;
+    sortDescending?: boolean;
+  } {
     const params: { search?: string; sortBy?: string; sortDescending?: boolean } = {};
 
     if (this.searchTerm()) {

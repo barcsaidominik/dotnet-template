@@ -9,7 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { timer } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { MailboxService } from '../../core/mailbox/mailbox.service';
@@ -36,7 +36,7 @@ interface NavItem {
     MatIconModule,
     MatButtonModule,
     MatSnackBarModule,
-    TranslateModule,
+    TranslatePipe,
     LanguageSwitcherComponent,
   ],
   templateUrl: './shell.component.html',

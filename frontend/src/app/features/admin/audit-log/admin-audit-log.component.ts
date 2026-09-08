@@ -14,7 +14,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import type { PageEvent } from '@angular/material/paginator';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdminService } from '../../../generated/client/services/admin.service';
 import type { ApiAdminAuditGet$Json$Params } from '../../../generated/client/fn/admin/api-admin-audit-get-json';
 import type { AuditEntryDto } from '../../../generated/client/models/audit-entry-dto';
@@ -37,7 +37,7 @@ import type { AuditEntryDto } from '../../../generated/client/models/audit-entry
     MatCardModule,
     MatTooltipModule,
     MatPaginatorModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './admin-audit-log.component.html',
   styleUrls: ['./admin-audit-log.component.scss'],
@@ -59,7 +59,14 @@ export class AdminAuditLogPageComponent implements OnInit {
   readonly fromFilter = signal('');
   readonly toFilter = signal('');
 
-  readonly displayedColumns = ['occurredAt', 'entityType', 'entityId', 'action', 'userEmail', 'changes'];
+  readonly displayedColumns = [
+    'occurredAt',
+    'entityType',
+    'entityId',
+    'action',
+    'userEmail',
+    'changes',
+  ];
   readonly entityTypes = ['Facility', 'Product'];
   readonly actions = ['Created', 'Updated', 'Deleted'];
 

@@ -12,7 +12,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { mapProductDto } from '../../shared/mappers/product.mapper';
@@ -35,7 +35,7 @@ import { ProductsBaseComponent } from '../../shared/products/products-base.compo
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss'],

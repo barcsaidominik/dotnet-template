@@ -7,11 +7,7 @@ import { LanguageService } from '../../core/i18n/language.service';
   standalone: true,
   imports: [MatButtonModule],
   template: `
-    <button
-      mat-flat-button
-      class="language-toggle"
-      (click)="toggle()"
-    >
+    <button mat-flat-button class="language-toggle" (click)="toggle()">
       {{ lang.currentLanguage() === 'hu-HU' ? 'EN' : 'HU' }}
     </button>
   `,

@@ -393,7 +393,7 @@ docker compose up -d --build
 
 **Volume-ok:**
 - `dataprotection-keys` - Megosztott DataProtection kulcsok konténetek között
-- `C:\DB\postgres-data` - PostgreSQL adat perzisztencia
+- `postgres-data` - PostgreSQL adat perzisztencia (named volume; `docker compose down -v` reseteli)
 
 **Secrets:**
 - `secrets/jwt_secret.txt`
