@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface ProductDialogData {
   mode: 'create' | 'update';
@@ -24,7 +24,7 @@ export interface ProductDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './product-dialog.component.html',
   styleUrls: ['./product-dialog.component.scss'],

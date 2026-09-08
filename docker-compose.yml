@@ -9,7 +9,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - C:\DB\postgres-data:/var/lib/postgresql/data
+      # named volume (nem host bind mount), hogy a `docker compose down -v` valóban
+      # reseteljen és a compose ne tartalmazzon gépspecifikus abszolút útvonalat
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -21,6 +23,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile.GatewayApi
     restart: unless-stopped
+    ports:
+      - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
       ReverseProxy__Clusters__core-api__Destinations__destination1__Address: "http://core-api:8080/"
@@ -86,6 +90,7 @@ services:
 
 volumes:
   dataprotection-keys:
+  postgres-data:
 
 secrets:
   jwt_secret:

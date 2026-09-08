@@ -3,7 +3,7 @@ import { APP_INITIALIZER } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeHu from '@angular/common/locales/hu';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { firstValueFrom, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -27,15 +27,20 @@ function initializeAuth(auth: AuthService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor])),
     provideApiConfiguration(environment.apiUrl),
     provideProductsApiConfiguration(environment.apiUrl),
     provideAnimationsAsync(),
     provideTranslateService({
-      defaultLanguage: 'hu',
+      fallbackLang: 'hu',
+      // useHttpBackend bypasses the HttpClient interceptor chain (authInterceptor),
+      // which otherwise re-enters AuthService -> LanguageService -> TranslateService
+      // construction and triggers NG0200 (circular DI). The i18n JSON assets are
+      // static and unauthenticated, so they have no business going through auth.
       loader: provideTranslateHttpLoader({
         prefix: './assets/i18n/',
         suffix: '.json',
+        useHttpBackend: true,
       }),
     }),
     {

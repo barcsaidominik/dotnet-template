@@ -148,19 +148,20 @@ public class Program
 
             var app = builder.Build();
 
-            try
+            using (var scope = app.Services.CreateScope())
             {
-                using (var scope = app.Services.CreateScope())
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                // Migrations and seeding are deliberately not wrapped in a try/catch: a failed
+                // migration must abort startup instead of leaving the app running against an
+                // inconsistent schema. The integration tests swap in the EF InMemory provider,
+                // which has no migration history, hence the provider check.
+                if (context.Database.IsRelational())
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     await context.Database.MigrateAsync();
                     await DbSeeder.SeedRolesAsync(scope.ServiceProvider);
                     await DbSeeder.SeedSystemAdminAsync(scope.ServiceProvider);
                 }
-            }
-            catch (Exception ex)
-            {
-                Log.Warning(ex, "Database initialization skipped - ensure database is available in production");
             }
 
             app.UseMiddleware<RequestTelemetryMiddleware>();

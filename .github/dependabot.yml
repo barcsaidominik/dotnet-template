@@ -108,7 +108,7 @@ updates:
         update-types:
           - "version-update:semver-major"
 
-  # npm -- Angular frontend packages (Angular 21)
+  # npm -- Angular frontend packages (Angular 22)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:

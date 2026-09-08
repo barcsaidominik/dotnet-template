@@ -31,7 +31,9 @@
               <div class="message-title">
                 {{ message.titleKey | translate: message.parameters }}
               </div>
-              <div class="message-date">{{ message.createdAt | date: 'short' : '' : lang.dateLocale() }}</div>
+              <div class="message-date">
+                {{ message.createdAt | date: 'short' : '' : lang.dateLocale() }}
+              </div>
             </div>
             @if (!message.isRead) {
               <span class="unread-pill">{{ 'mailbox.unread' | translate }}</span>

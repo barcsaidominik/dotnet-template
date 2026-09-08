@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Component as NgComponent, inject as ngInject } from '@angular/core';
 import { from } from 'rxjs';
 import { FacilityUsersService } from '../../../generated/client/services/facility-users.service';
@@ -38,7 +38,7 @@ const FACILITY_ROLES = [
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './facility-user-create-dialog.component.html',
   styleUrls: ['./facility-user-create-dialog.component.scss'],
@@ -64,7 +64,7 @@ export class FacilityUserCreateDialogComponent {
 @NgComponent({
   selector: 'app-token-setup-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, TranslateModule],
+  imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './token-setup-dialog.component.html',
   styleUrls: ['./token-setup-dialog.component.scss'],
 })
@@ -90,7 +90,7 @@ export class TokenSetupDialogComponent {
     MatSelectModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './facility-users.component.html',
   styleUrls: ['./facility-users.component.scss'],
@@ -127,22 +127,22 @@ export class FacilityUsersPageComponent implements OnInit {
       return;
     }
     this.isLoading.set(true);
-    from(this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json(this.buildQueryParams())).subscribe(
-      {
-        next: (users) => {
-          this.users.set(users);
-          this.isLoading.set(false);
-        },
-        error: () => {
-          this.isLoading.set(false);
-          this.snackBar.open(
-            this.translate.instant('facility.users.failedToLoad'),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          );
-        },
-      }
-    );
+    from(
+      this.facilityUsersApi.apiFacilitiesFacilityIdUsersGet$Json(this.buildQueryParams())
+    ).subscribe({
+      next: (users) => {
+        this.users.set(users);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.snackBar.open(
+          this.translate.instant('facility.users.failedToLoad'),
+          this.translate.instant('common.close'),
+          { duration: 4000 }
+        );
+      },
+    });
   }
 
   onSearchChange(value: string): void {

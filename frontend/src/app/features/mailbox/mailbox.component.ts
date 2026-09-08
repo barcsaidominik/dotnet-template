@@ -8,7 +8,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { filter, pairwise } from 'rxjs';
 import type { MailboxMessageDto } from '../../generated/client/models/mailbox-message-dto';
 import { MailboxService } from '../../core/mailbox/mailbox.service';
@@ -24,7 +24,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     MatIconModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './mailbox.component.html',
   styleUrls: ['./mailbox.component.scss'],
@@ -47,7 +47,7 @@ export class MailboxPageComponent implements OnInit {
       .pipe(
         pairwise(),
         filter(([prev, curr]) => curr > prev),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe(() => void this.mailbox.loadMessages());
   }

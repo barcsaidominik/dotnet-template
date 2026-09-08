@@ -12,7 +12,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import type { Product } from '../../../core/models/product.model';
 import { mapProductDto } from '../../../shared/mappers/product.mapper';
@@ -37,7 +37,7 @@ import { ProductsBaseComponent } from '../../../shared/products/products-base.co
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
-    TranslateModule,
+    TranslatePipe,
   ],
   templateUrl: './facility-products.component.html',
   styleUrls: ['./facility-products.component.scss'],
@@ -92,31 +92,38 @@ export class FacilityProductsPageComponent extends ProductsBaseComponent {
       } as ProductDialogData,
     });
 
-    ref.afterClosed().subscribe((result: { name: string; price: number; quantity: number } | undefined) => {
-      if (!result) {
-        return;
-      }
-      from(
-        this.productsApi.apiProductsIdPut({
-          id: product.id,
-          body: { name: result.name, price: result.price, quantity: result.quantity, rowVersion: product.rowVersion },
-        })
-      ).subscribe({
-        next: () => {
-          this.loadProducts();
-          this.snackBar.open(
-            this.translate.instant(`${this.i18nPrefix}.productUpdated`),
-            this.translate.instant('common.close'),
-            { duration: 3000 }
-          );
-        },
-        error: () =>
-          this.snackBar.open(
-            this.translate.instant(`${this.i18nPrefix}.failedToUpdate`),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          ),
+    ref
+      .afterClosed()
+      .subscribe((result: { name: string; price: number; quantity: number } | undefined) => {
+        if (!result) {
+          return;
+        }
+        from(
+          this.productsApi.apiProductsIdPut({
+            id: product.id,
+            body: {
+              name: result.name,
+              price: result.price,
+              quantity: result.quantity,
+              rowVersion: product.rowVersion,
+            },
+          })
+        ).subscribe({
+          next: () => {
+            this.loadProducts();
+            this.snackBar.open(
+              this.translate.instant(`${this.i18nPrefix}.productUpdated`),
+              this.translate.instant('common.close'),
+              { duration: 3000 }
+            );
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant(`${this.i18nPrefix}.failedToUpdate`),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
-    });
   }
 }

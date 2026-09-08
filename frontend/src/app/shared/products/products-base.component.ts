@@ -90,31 +90,33 @@ export abstract class ProductsBaseComponent implements OnInit {
       data: { mode: 'create', prefix: this.i18nPrefix } as ProductDialogData,
     });
 
-    ref.afterClosed().subscribe((result: { name: string; price: number; quantity: number } | undefined) => {
-      if (!result) {
-        return;
-      }
-      from(
-        this.productsApi.apiProductsPost$Json({
-          body: { name: result.name, price: result.price, quantity: result.quantity },
-        })
-      ).subscribe({
-        next: () => {
-          this.loadProducts();
-          this.snackBar.open(
-            this.translate.instant(`${this.i18nPrefix}.productCreated`),
-            this.translate.instant('common.close'),
-            { duration: 3000 }
-          );
-        },
-        error: () =>
-          this.snackBar.open(
-            this.translate.instant(`${this.i18nPrefix}.failedToCreate`),
-            this.translate.instant('common.close'),
-            { duration: 4000 }
-          ),
+    ref
+      .afterClosed()
+      .subscribe((result: { name: string; price: number; quantity: number } | undefined) => {
+        if (!result) {
+          return;
+        }
+        from(
+          this.productsApi.apiProductsPost$Json({
+            body: { name: result.name, price: result.price, quantity: result.quantity },
+          })
+        ).subscribe({
+          next: () => {
+            this.loadProducts();
+            this.snackBar.open(
+              this.translate.instant(`${this.i18nPrefix}.productCreated`),
+              this.translate.instant('common.close'),
+              { duration: 3000 }
+            );
+          },
+          error: () =>
+            this.snackBar.open(
+              this.translate.instant(`${this.i18nPrefix}.failedToCreate`),
+              this.translate.instant('common.close'),
+              { duration: 4000 }
+            ),
+        });
       });
-    });
   }
 
   exportProducts(): void {
