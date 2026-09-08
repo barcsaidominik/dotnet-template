@@ -20,6 +20,18 @@ version: 2
 # ungrouped, each package gets its own PR and every one of those PRs fails CI,
 # because it bumps one half of a set that has to move together.
 #
+# Measured on the 2026-09-08 run: major-type groups are not equally reliable
+# across ecosystems. The npm groups produced their PRs. The nuget group did
+# not: its group phase logged "No updatable version found for xunit.v3" while
+# the same job later downloaded xunit.v3 4.0.0 and logged "skipped for
+# ungrouped updates because it's a member of the following groups:
+# nuget-test-major" -- no PR, no error, no explanation. The github-actions
+# group crashed outright: all five actions failed with "No files changed!" in
+# GithubActions::FileUpdater and nothing was opened. A missing update here
+# therefore shows up as an absence, not as a failure. Check the Dependabot job
+# logs (Insights -> Dependency graph -> Dependabot) before concluding that a
+# dependency is up to date.
+#
 # What grouping deliberately does NOT cover: Dependabot Security Updates.
 # `applies-to` defaults to version-updates, so no group here touches them --
 # every security fix arrives as its own PR and none of them count against
@@ -142,10 +154,20 @@ updates:
     #   semver-patch-days: 1
     groups:
       # The Angular toolchain has to cross a major boundary in one commit --
-      # framework, CLI, build tooling, the lint plugin that tracks the Angular
-      # major, and the TypeScript/RxJS/zone.js versions the release pins.
-      # `angular-eslint` is spelled without the @angular/ scope, so it needs
-      # its own pattern or it drops out of the lockstep set.
+      # framework, CLI, build tooling, and the lint plugin that tracks the
+      # Angular major. `angular-eslint` is spelled without the @angular/
+      # scope, so it needs its own pattern or it drops out of the set.
+      #
+      # Treat the PR this group opens as a signal that a new Angular major is
+      # out, not as a mergeable change: an Angular major is a migration, done
+      # with `ng update @angular/core @angular/cli`, which also moves
+      # TypeScript to the version the release pins and runs the schematics.
+      #
+      # `typescript` is deliberately not in this list. With a bare `typescript`
+      # pattern the 2026-09-08 run pulled it to ~7.0.2, while @angular/build
+      # 22.1.7 in the same PR pins typescript >=6.0 <6.1 -- the group's own two
+      # bumps were incompatible and `npm ci` failed with ERESOLVE (PR #128).
+      # See the ignore block below.
       npm-angular-major:
         applies-to: version-updates
         patterns:
@@ -155,14 +177,17 @@ updates:
           - "@schematics/*"
           - "angular-eslint"
           - "@ngx-translate/*"
-          - "typescript"
           - "zone.js"
           - "rxjs"
         update-types:
           - "major"
       # Lint/format/test tooling: majors here are churn, not risk to the app.
-      # Patterns match this project's actual devDependencies -- the test stack
-      # is vitest + jsdom, not karma/jasmine.
+      # Patterns match this project's actual devDependencies.
+      #
+      # `vitest` is deliberately not in this list: @angular/build pins the
+      # vitest major it works with (peerOptional vitest ^4.0.8 on 21.2.x), so
+      # a standalone vitest 5 bump fails `npm ci`. It moves with the Angular
+      # build tooling instead. See the ignore block below.
       npm-tooling-major:
         applies-to: version-updates
         patterns:
@@ -171,8 +196,6 @@ updates:
           - "typescript-eslint"
           - "@typescript-eslint/*"
           - "prettier*"
-          - "vitest"
-          - "@vitest/*"
           - "jsdom"
           - "lint-staged"
           - "simple-git-hooks"
@@ -189,6 +212,20 @@ updates:
         applies-to: version-updates
         update-types:
           - "minor"
+    ignore:
+      # @angular/build dictates the major version of both of these: Angular
+      # 22.1.7 pins typescript >=6.0 <6.1, and @angular/build 21.2.x pins
+      # peerOptional vitest ^4.0.8. Dependabot cannot express "whatever the
+      # Angular release allows", and both were verified to break `npm ci` with
+      # ERESOLVE when bumped on their own (PRs #128 and #129, 2026-09-08).
+      # They move with `ng update`, not as standalone bumps. Patch and minor
+      # bumps inside the current major still come through.
+      - dependency-name: "typescript"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "vitest"
+        update-types:
+          - "version-update:semver-major"
 
   # GitHub Actions -- keep workflow action versions up to date
   - package-ecosystem: "github-actions"
