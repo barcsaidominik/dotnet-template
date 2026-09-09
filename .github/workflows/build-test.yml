@@ -19,6 +19,18 @@ jobs:
         with:
           dotnet-version: "10.x"
 
+      # Directory.Packages.props (CPM) closes off per-csproj `Version="…"` on
+      # PackageReference — that's an NU1008 build error. `VersionOverride`
+      # is not: it's a legal, silent, per-project escape hatch back to the
+      # same drift CPM exists to prevent, so it needs its own gate here.
+      - name: No package versions in csproj (CPM)
+        shell: bash
+        run: |
+          if grep -rn -E 'PackageReference[^>]*(Version|VersionOverride)=' --include='*.csproj' backend/; then
+            echo "::error::Verziószám a csprojban — a verziók a Directory.Packages.props-ba tartoznak (CPM). VersionOverride sem megengedett."
+            exit 1
+          fi
+
       - name: Restore
         run: dotnet restore backend/Template.slnx
 

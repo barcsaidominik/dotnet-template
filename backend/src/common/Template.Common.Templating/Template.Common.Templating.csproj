@@ -5,6 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Scriban" Version="7.2.7" />
+    <PackageReference Include="Scriban" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ WORKDIR /src
 COPY ["src/services/Template.Gateway.Api/Template.Gateway.Api.csproj", "src/services/Template.Gateway.Api/"]
 COPY ["src/common/Template.Common/Template.Common.csproj", "src/common/Template.Common/"]
 COPY NuGet.Config ./
+COPY Directory.Packages.props ./
 RUN dotnet restore "src/services/Template.Gateway.Api/Template.Gateway.Api.csproj"
 COPY . .
 WORKDIR "/src/src/services/Template.Gateway.Api"

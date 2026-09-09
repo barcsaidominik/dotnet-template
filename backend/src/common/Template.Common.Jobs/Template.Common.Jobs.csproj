@@ -8,9 +8,9 @@
     <ProjectReference Include="..\..\core\Template.Application\Template.Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="TickerQ" Version="10.4.0" />
-    <PackageReference Include="TickerQ.Dashboard" Version="10.4.0" />
-    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="10.4.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
+    <PackageReference Include="TickerQ" />
+    <PackageReference Include="TickerQ.Dashboard" />
+    <PackageReference Include="TickerQ.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
   </ItemGroup>
 </Project>

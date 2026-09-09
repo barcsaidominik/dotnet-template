@@ -1,0 +1,53 @@
+name: Docker Build
+
+# Directory.Packages.props (CPM) broke all three backend Docker builds
+# without a single existing CI gate catching it: `dotnet build` in
+# build-test.yml restores against the full checked-out worktree, but the
+# Docker restore layer only sees what's COPYed in before `RUN dotnet
+# restore` -- a strictly smaller surface. Same source, two different
+# inputs. This workflow builds the actual Docker images (no push) so a
+# broken restore/build layer fails CI instead of surfacing at deploy time.
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: core-api
+            dockerfile: backend/Dockerfile
+          - image: gateway-api
+            dockerfile: backend/Dockerfile.GatewayApi
+          - image: products-api
+            dockerfile: backend/Dockerfile.ProductsApi
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      # context is ./backend to match docker-compose.yml exactly -- the
+      # restore-layer bug only reproduces with this context, not with the
+      # repo root or a wider COPY surface.
+      - name: Build ${{ matrix.image }}
+        uses: docker/build-push-action@v7
+        with:
+          context: ./backend
+          file: ${{ matrix.dockerfile }}
+          push: false
+          # Per-image cache scope: each image's restore layer is keyed by
+          # its own csproj/Directory.Packages.props subset, so a change to
+          # one image's dependencies must not reuse another image's cache.
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
