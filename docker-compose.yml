@@ -27,13 +27,25 @@ services:
       - "8080:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ReverseProxy__Clusters__core-api__Destinations__destination1__Address: "http://core-api:8080/"
-      ReverseProxy__Clusters__products-api__Destinations__destination1__Address: "http://products-api:8080/"
     depends_on:
       core-api:
         condition: service_started
       products-api:
         condition: service_started
+
+  db-migrator:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.Migrator
+    # "no", nem "unless-stopped": ez egyszer lefutó job, service_completed_successfully
+    # csak akkor működik, ha a konténer tényleg leáll a sikeres futás után és nem indul
+    # újra. Ne másold ide a többi service restart policy-ját.
+    restart: "no"
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${TEMPLATE_DB_NAME:-template_db};Username=${TEMPLATE_DB_USER:-postgres};Password=${TEMPLATE_DB_PASSWORD:-postgres}"
+    depends_on:
+      db:
+        condition: service_healthy
 
   core-api:
     build:
@@ -54,8 +66,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      products-api:
-        condition: service_started
+      db-migrator:
+        condition: service_completed_successfully
 
   products-api:
     build:
@@ -77,6 +89,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-migrator:
+        condition: service_completed_successfully
 
   frontend:
     build:

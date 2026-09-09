@@ -16,6 +16,7 @@
   <Folder Name="/services/">
     <Project Path="src/services/Template.Api/Template.Api.csproj" />
     <Project Path="src/services/Template.Gateway.Api/Template.Gateway.Api.csproj" />
+    <Project Path="src/services/Template.Migrator/Template.Migrator.csproj" />
     <Project Path="src/services/Template.Products.Api/Template.Products.Api.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">

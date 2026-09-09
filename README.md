@@ -42,6 +42,12 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
    docker compose up -d --build
    ```
 
+   A `db-migrator` egy önálló, egyszer lefutó konténer: alkalmazza az EF Core migrációkat,
+   majd sikeres futás (exit 0) után leáll. A `core-api` és a `products-api` a
+   `service_completed_successfully` feltétellel várja meg ezt a konténert, így egyik API sem
+   fut neki egy még nem migrált sémának. A séma tulajdonlása explicit: egyik alkalmazás sem
+   migrál saját magától induláskor.
+
 4. **Alkalmazás elérése:**
    - Frontend: http://localhost
    - API dokumentáció (Scalar): http://localhost:8080/scalar/v1

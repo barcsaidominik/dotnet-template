@@ -29,6 +29,8 @@ jobs:
             dockerfile: backend/Dockerfile.GatewayApi
           - image: products-api
             dockerfile: backend/Dockerfile.ProductsApi
+          - image: db-migrator
+            dockerfile: backend/Dockerfile.Migrator
 
     steps:
       - name: Checkout
