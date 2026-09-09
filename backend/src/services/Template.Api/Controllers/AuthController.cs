@@ -113,4 +113,18 @@ public sealed class AuthController(ISender sender, IWebHostEnvironment environme
         };
         Response.Cookies.Append(REFRESH_TOKEN_COOKIE, refreshToken, options);
     }
+
+    [HttpGet("complete-login")]
+    [AllowAnonymous]
+    public IActionResult CompleteLogin(
+        [FromQuery] string returnUrl,
+        [FromQuery] string token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            return BadRequest();
+        }
+
+        return Redirect(returnUrl);
+    }
 }
