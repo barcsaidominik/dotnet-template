@@ -45,8 +45,20 @@ jobs:
       # mode, which xunit.v3 4.x requires. In MTP mode the project path must be
       # passed via `--project`, not positionally:
       # https://learn.microsoft.com/dotnet/core/testing/unit-testing-with-dotnet-test#migrate-to-mtp-mode-of-dotnet-test
+      #
+      # MTP is strict by default about the two ways this step could silently
+      # stop testing anything: a `--project` path that no longer resolves to a
+      # test project (rename, typo) is exit 1, and a run that discovers no test
+      # at all is exit 8. Neither needs an extra gate here.
+      # What is *not* covered is a suite where every test is skipped: the
+      # default `--zero-tests-policy allow-skipped` counts a skipped test as
+      # run, so putting `[Fact(Skip = "...")]` on everything is a green build
+      # with zero assertions executed. `strict` turns that into exit 8, while a
+      # run with only *some* tests skipped still passes -- so this asserts that
+      # the suite really ran, without pinning a test count that needs upkeep.
+      # https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-troubleshooting#exit-codes
       - name: Test
-        run: dotnet test --project backend/tests/Template.Tests/Template.Tests.csproj --no-build
+        run: dotnet test --project backend/tests/Template.Tests/Template.Tests.csproj --no-build --zero-tests-policy strict
 
   # Until now the frontend had no CI gate at all: no `npm ci`, no lint, no
   # build, no test. That let a peer-dependency conflict and an Angular

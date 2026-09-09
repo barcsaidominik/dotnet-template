@@ -17,7 +17,13 @@ permissions:
 
 jobs:
   docker-build:
-    name: Docker build
+    # Explicit name with only `matrix.image` -- required checks in the branch
+    # ruleset are registered as "Docker build (core-api)" etc. A static job
+    # name (e.g. just "Docker build") makes GitHub append every matrix value
+    # to the check name instead (here both `image` and `dockerfile`), which
+    # produces a name the ruleset never matches -- required checks then wait
+    # forever. Do not "simplify" this back to a static name.
+    name: Docker build (${{ matrix.image }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -29,6 +35,8 @@ jobs:
             dockerfile: backend/Dockerfile.GatewayApi
           - image: products-api
             dockerfile: backend/Dockerfile.ProductsApi
+          - image: db-migrator
+            dockerfile: backend/Dockerfile.Migrator
 
     steps:
       - name: Checkout

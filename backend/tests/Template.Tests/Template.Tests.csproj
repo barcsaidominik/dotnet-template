@@ -36,6 +36,7 @@
     <ProjectReference Include="..\..\src\services\Template.Api\Template.Api.csproj" />
     <ProjectReference Include="..\..\src\core\Template.Infrastructure\Template.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\services\Template.Products.Api\Template.Products.Api.csproj" />
+    <ProjectReference Include="..\..\src\services\Template.Migrator\Template.Migrator.csproj" />
     <ProjectReference Include="..\..\src\common\Template.Common.Excel\Template.Common.Excel.csproj" />
     <ProjectReference Include="..\..\src\common\Template.Common.Templating\Template.Common.Templating.csproj" />
   </ItemGroup>
