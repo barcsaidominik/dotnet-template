@@ -58,7 +58,7 @@ public static class DependencyInjection
 
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
             options
-                .UseNpgsql(serviceProvider.GetRequiredService<IOptions<DatabaseSettings>>().Value.DefaultConnection)
+                .UseNpgsql("Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=postgres")
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditInterceptor>()));
 
         services.AddIdentity<AppUser, AppRole>(options =>
