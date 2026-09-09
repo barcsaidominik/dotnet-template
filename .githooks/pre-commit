@@ -1,6 +1,12 @@
 #!/usr/bin/env sh
 set -e
 
+echo "Checking for package versions in csproj (CPM)..."
+if grep -rn -E 'PackageReference[^>]*(Version|VersionOverride)=' --include='*.csproj' backend/; then
+  echo "Verziószám a csprojban — a verziók a Directory.Packages.props-ba tartoznak (CPM). VersionOverride sem megengedett."
+  exit 1
+fi
+
 echo "Running style verification..."
 dotnet restore backend/Template.slnx
 dotnet format backend/Template.slnx --verify-no-changes --severity error --no-restore

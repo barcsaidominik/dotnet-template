@@ -18,6 +18,7 @@ COPY ["src/common/Template.Common.Jobs/Template.Common.Jobs.csproj", "src/common
 COPY ["src/common/Template.Common.Pdf/Template.Common.Pdf.csproj", "src/common/Template.Common.Pdf/"]
 COPY ["src/common/Template.Common.Templating/Template.Common.Templating.csproj", "src/common/Template.Common.Templating/"]
 COPY NuGet.Config ./
+COPY Directory.Packages.props ./
 RUN dotnet restore "src/services/Template.Products.Api/Template.Products.Api.csproj"
 COPY . .
 WORKDIR "/src/src/services/Template.Products.Api"
