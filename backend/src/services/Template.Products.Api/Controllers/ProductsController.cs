@@ -103,4 +103,10 @@ public sealed class ProductsController(ISender sender)
         return await SendAsync(new ImportProductsFromExcelCommand(memoryStream.ToArray(), request.File.FileName))
             .ToActionResultAsync();
     }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string searchTerm, CancellationToken ct)
+    {
+        return Ok(await SendAsync(new GetProductsWithSearchQuery(searchTerm)));
+    }
 }
