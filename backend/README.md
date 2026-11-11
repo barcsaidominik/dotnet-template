@@ -150,10 +150,15 @@ Products külön `Template.Products.Api` szolgáltatás.
    dotnet tool restore
    ```
 
-2. **Migrációk alkalmazása:**
+2. **Migrációk alkalmazása** (a `Template.Migrator` csak környezeti változóból olvassa a kapcsolatot; a `Template.Api` induláskor már nem migrál, migrálatlan sémán leáll):
    ```bash
-   cd src/services/Template.Api
-   dotnet ef database update
+   ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=your-db-password" \
+     dotnet run --project src/services/Template.Migrator
+   ```
+   PowerShell:
+   ```powershell
+   $env:ConnectionStrings__DefaultConnection = "Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=your-db-password"
+   dotnet run --project src/services/Template.Migrator
    ```
 
 3. **Core API indítása:**
@@ -212,7 +217,8 @@ A Docker secrets felülírja a környezeti változókat ha mindkettő létezik.
 **Támogatott secretek:**
 - `jwt_secret` -> `JwtSettings:Secret`
 - `internal_service_token` -> `InternalServiceAuth:Token`
-- `db_password` -> `Database:Password`
+
+Az adatbázis-kapcsolat nem Docker secretből, hanem a `ConnectionStrings:DefaultConnection` értékből (környezeti változó vagy user-secrets) jön.
 
 **Használat:**
 ```yaml
@@ -345,7 +351,7 @@ builder.Services.AddBackgroundJobs<AppDbContext>(
 9. AddOptimisticConcurrency (PostgreSQL xmin oszlop EF Core mapping)
 10. AddTickerQIsSystemPaused (TickerQ `CronTickers.IsSystemPaused` oszlop)
 
-**Auto-migráció:** Development módban induláskor aktív
+**Migráció:** kizárólag a `Template.Migrator` (Docker Compose alatt a `db-migrator` konténer) alkalmazza. A `Template.Api` induláskor csak seedel (szerepkörök, system admin); migrálatlan sémán a seedelés kivételt dob, és az alkalmazás leáll.
 
 **Seeding:**
 - Szerepkörök: SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer

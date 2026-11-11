@@ -100,7 +100,7 @@ Production build a `dist/` könyvtárba kerül.
 npm run test
 ```
 
-**Aktuális állapot:** 89/89 sikeres (Vitest unit tesztek, 21 teszt fájl)
+**Aktuális állapot:** 88 Vitest unit teszt, 21 teszt fájl (a pass/fail státuszt a CI `build-test.yml` futása mutatja)
 
 **Egyszeri futtatás:**
 

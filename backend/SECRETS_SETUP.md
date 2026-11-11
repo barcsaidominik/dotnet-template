@@ -7,30 +7,30 @@ The backend now supports two primary configuration paths:
 
 ## Local Development
 
-Both backend hosts share the same `UserSecretsId`, so one set of commands is enough.
+`Template.Api`, `Template.Products.Api` and `Template.Gateway.Api` share the same `UserSecretsId`, so one set of commands (run from the repository root) is enough.
 
 Set the required values:
 
 ```powershell
-dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=postgres" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "JwtSettings:Secret" "replace-with-a-long-random-secret-at-least-32-characters" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "InternalServiceAuth:Token" "replace-with-a-long-random-internal-service-token" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "Frontend:BaseUrl" "http://localhost:4200" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=your-db-password" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "JwtSettings:Secret" "replace-with-a-long-random-secret-at-least-32-characters" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "InternalServiceAuth:Token" "replace-with-a-long-random-internal-service-token" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "Frontend:BaseUrl" "http://localhost:4200" --project backend/src/services/Template.Api/Template.Api.csproj
 ```
 
 Optional SMTP settings for non-file email delivery:
 
 ```powershell
-dotnet user-secrets set "Email:SmtpHost" "smtp.example.com" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "Email:SmtpPort" "587" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "Email:From" "noreply@example.com" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "Email:Username" "smtp-user" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
-dotnet user-secrets set "Email:Password" "smtp-password" --project C:\Projects\dotnet-template\backend\src\services\Template.Api\Template.Api.csproj
+dotnet user-secrets set "Email:SmtpHost" "smtp.example.com" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "Email:SmtpPort" "587" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "Email:From" "noreply@example.com" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "Email:Username" "smtp-user" --project backend/src/services/Template.Api/Template.Api.csproj
+dotnet user-secrets set "Email:Password" "smtp-password" --project backend/src/services/Template.Api/Template.Api.csproj
 ```
 
 ## Docker Compose
 
-Copy [.env.example](C:\Projects\dotnet-template\.env.example) to `.env`, then adjust the values before starting compose.
+Copy [.env.example](../.env.example) to `.env`, then adjust the values before starting compose.
 
 ```powershell
 docker compose up -d --build

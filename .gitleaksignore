@@ -1,0 +1,19 @@
+# Historical Gitleaks findings on master that were reviewed and confirmed to be non-secrets.
+# Each entry is a commit:file:rule:line fingerprint, so it only suppresses that exact finding;
+# new commits are still scanned with the full rule set.
+# Reviewed 2026-11-11: default dev values (postgres), readable placeholder JWT secrets that were
+# removed from appsettings.json, i18n "Password" labels and a TypeScript form field match.
+# Do not add fingerprints here without verifying the value first.
+
+d96345c0ae0fa43104249d3bf71296ecc28898af:backend/SECRETS_SETUP.md:dotnet-connection-string-password:15
+d96345c0ae0fa43104249d3bf71296ecc28898af:scripts/Refresh-OpenApi.ps1:dotnet-connection-string-password:66
+dce79efaf4b8ea6997ba6ad7c8d9a078a89752a4:backend/SECRETS_SETUP.md:dotnet-connection-string-password:15
+dce79efaf4b8ea6997ba6ad7c8d9a078a89752a4:backend/src/Template.Api/appsettings.json:dotnet-appsettings-secret:6
+dce79efaf4b8ea6997ba6ad7c8d9a078a89752a4:backend/src/Template.Infrastructure/Settings/DatabaseSettings.cs:dotnet-connection-string-password:14
+dce79efaf4b8ea6997ba6ad7c8d9a078a89752a4:backend/src/Template.Products.Api/appsettings.json:dotnet-appsettings-secret:6
+dce79efaf4b8ea6997ba6ad7c8d9a078a89752a4:backend/src/Template.Products.Api/appsettings.json:dotnet-connection-string-password:3
+4bab15fb44bd467e7eb031558f61d65152d25fe0:frontend/src/assets/i18n/en.json:dotnet-appsettings-secret:25
+4bab15fb44bd467e7eb031558f61d65152d25fe0:frontend/src/assets/i18n/en.json:dotnet-appsettings-secret:36
+458b3d846f6c9a4bd6d05cb3cea7ba4e2beb4621:docker-compose.yml:dotnet-connection-string-password:27
+70d500393f09d39e511402156944b4179612f665:frontend/src/app/features/auth/set-password/set-password.component.ts:dotnet-connection-string-password:14
+89d4015e311ecd2b6f82f404663db678bbdcf54b:src/Template.Api/appsettings.json:dotnet-connection-string-password:3

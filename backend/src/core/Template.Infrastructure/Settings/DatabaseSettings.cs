@@ -11,5 +11,5 @@ public sealed class DatabaseSettings
     {
         get;
         set;
-    } = "Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=postgres";
+    } = string.Empty;
 }
