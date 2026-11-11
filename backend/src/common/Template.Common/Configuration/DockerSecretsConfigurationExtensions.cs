@@ -7,8 +7,7 @@ public static class DockerSecretsConfigurationExtensions
     private static readonly Dictionary<string, string> _secretMappings = new()
     {
         ["jwt_secret"] = "JwtSettings:Secret",
-        ["internal_service_token"] = "InternalServiceAuth:Token",
-        ["db_password"] = "Database:Password"
+        ["internal_service_token"] = "InternalServiceAuth:Token"
     };
 
     public static IConfigurationBuilder AddDockerSecrets(
