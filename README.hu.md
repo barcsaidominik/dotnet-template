@@ -1,9 +1,8 @@
 # .NET Template Projekt
 
-> **Megjegyzés:** Ez a projekt jelenleg nem rendelkezik nyílt forráskódú licenccel.
-> Minden jog fenntartva. Használat, másolás, módosítás kizárólag a szerző írásbeli engedélyével engedélyezett.
+[English](README.md) | **Magyar**
 
-Egy production-ready full-stack sablon, ami modern .NET és Angular fejlesztési mintákat mutat be valós funkcionalitással.
+Egy full-stack referencia-sablon, ami production-orientált .NET és Angular fejlesztési mintákat mutat be valós funkcionalitással. A mellékelt Docker Compose konfiguráció lokális fejlesztésre készült (`ASPNETCORE_ENVIRONMENT=Development`), nem éles telepítésre.
 
 Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enterprise-szintű implementációs mintákat mutat be: hitelesítés, jogosultságkezelés, háttérfeladatok, PDF/Excel generálás, microservice-ek, gRPC és még sok más.
 
@@ -25,17 +24,23 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 
 1. **Repo klónozása és környezet konfigurálása:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/barcsaidominik/dotnet-template.git
    cd dotnet-template
    cp .env.example .env
    ```
 
-2. **Docker secrets létrehozása:**
+2. **Docker secrets létrehozása (véletlen értékekkel, mindkettő min. 32 karakter):**
    ```bash
-   mkdir -p secrets
-   echo "your-jwt-secret-at-least-32-characters-long" > secrets/jwt_secret.txt
-   echo "your-internal-service-token-here" > secrets/internal_service_token.txt
+   openssl rand -base64 48 > secrets/jwt_secret.txt
+   openssl rand -base64 48 > secrets/internal_service_token.txt
    ```
+   PowerShell alatt:
+   ```powershell
+   [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)) | Set-Content -NoNewline secrets/jwt_secret.txt
+   [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48)) | Set-Content -NoNewline secrets/internal_service_token.txt
+   ```
+   A két fájlnak a `docker compose up` előtt léteznie kell. Ha egy korábbi futás könyvtárat
+   hozott létre ezeken a neveken (`secrets/jwt_secret.txt/`), töröld a könyvtárat, és hozd létre fájlként.
 
 3. **Összes szolgáltatás indítása:**
    ```bash
@@ -45,8 +50,9 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
    A `db-migrator` egy önálló, egyszer lefutó konténer: alkalmazza az EF Core migrációkat,
    majd sikeres futás (exit 0) után leáll. A `core-api` és a `products-api` a
    `service_completed_successfully` feltétellel várja meg ezt a konténert, így egyik API sem
-   fut neki egy még nem migrált sémának. A séma tulajdonlása explicit: egyik alkalmazás sem
-   migrál saját magától induláskor.
+   fut neki egy még nem migrált sémának. A séma tulajdonlása explicit: egyik API sem migrál
+   induláskor. A `Template.Api` csak seedel (szerepkörök, system admin), és migrálatlan sémán
+   leáll. Compose nélkül a migrátort kézzel kell futtatni, lásd [backend/README.md](backend/README.md).
 
 4. **Alkalmazás elérése:**
    - Frontend: http://localhost
@@ -95,8 +101,9 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 
 ### Docker secrets
 - `AddDockerSecrets("/run/secrets/")` konfigurációs extension
-- Támogatott secretek: `jwt_secret`, `internal_service_token`, `db_password`
+- Használt secretek: `jwt_secret`, `internal_service_token`
 - Secretek felülírják a környezeti változókat ha mindkettő létezik
+- Az adatbázis-kapcsolat a `ConnectionStrings:DefaultConnection` értékből jön; ha üres, a szolgáltatások nem indulnak el
 
 ### Microservice-ek és kommunikáció
 - **Proxy mod:** Gateway API YARP routing-gal külön szolgáltatásokhoz
@@ -134,8 +141,8 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
 - FluentValidation pipeline behavior-ral
 - OpenAPI/Scalar dokumentáció
 - Hot reload támogatás
-- 149 backend teszt (unit + integration)
-- 89 frontend Vitest teszt
+- 154 backend teszt (xUnit v3, unit + `WebApplicationFactory`/EF InMemory integrációs tesztek)
+- 88 frontend Vitest teszt (21 teszt fájl)
 
 ## Projekt struktura
 
@@ -163,10 +170,11 @@ Az adminfióknak nincs alapértelmezett jelszava - az alkalmazás az első indí
 
 ## Licenc
 
-Ez a sablon demonstrációs célokat szolgál. A licenszet a felhasználási célodnak megfelelően változtathatod.
+[MIT](LICENSE). A harmadik féltől származó függőségekre a saját licencük vonatkozik (lásd lent: QuestPDF).
 
 ## Megjegyzesek
 
 - **QuestPDF:** Community licensz (ingyenes open-source és kiértékeléshez). Kereskedelmi felhasználáshoz vásárlás szükséges.
 - **Data Protection Keys:** `/app/keys` volume-ra perzisztálva a token konzisztencia érdekében újraindítás után is
-- **Adatbázis migrációk:** Automatikusan alkalmazva induláskor Development módban
+- **Adatbázis migrációk:** kizárólag a `Template.Migrator` (Compose alatt a `db-migrator` konténer) alkalmazza
+- **Diplomamunka-hibaminták:** A lezárt, nem merge-ölt PR-ek (pl. #41) szándékosan sebezhető kódot és kitalált titkokat tartalmaznak egy mérési kísérlethez; ezek nem részei a `master` ágnak
