@@ -6,7 +6,7 @@ namespace Template.Tests;
 
 public class DockerSecretsConfigurationExtensionsTests : IDisposable
 {
-    private readonly string _secretsPath = Path.Combine(Path.GetTempPath(), $"docker-secrets-{Guid.NewGuid()}");
+    private readonly string _secretsPath = Path.Join(Path.GetTempPath(), $"docker-secrets-{Guid.NewGuid()}");
 
     public DockerSecretsConfigurationExtensionsTests()
     {
@@ -21,8 +21,8 @@ public class DockerSecretsConfigurationExtensionsTests : IDisposable
     [Fact]
     public void AddDockerSecrets_MapsSecretFiles_ToConfigurationKeys_AndTrimsThem()
     {
-        File.WriteAllText(Path.Combine(_secretsPath, "jwt_secret"), "jwt-value\n");
-        File.WriteAllText(Path.Combine(_secretsPath, "internal_service_token"), "  token-value  ");
+        File.WriteAllText(Path.Join(_secretsPath, "jwt_secret"), "jwt-value\n");
+        File.WriteAllText(Path.Join(_secretsPath, "internal_service_token"), "  token-value  ");
 
         var configuration = new ConfigurationBuilder()
             .AddDockerSecrets(_secretsPath)
@@ -35,7 +35,7 @@ public class DockerSecretsConfigurationExtensionsTests : IDisposable
     [Fact]
     public void AddDockerSecrets_OverridesEarlierSources()
     {
-        File.WriteAllText(Path.Combine(_secretsPath, "jwt_secret"), "from-secret");
+        File.WriteAllText(Path.Join(_secretsPath, "jwt_secret"), "from-secret");
 
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { ["JwtSettings:Secret"] = "from-env" })
@@ -48,11 +48,11 @@ public class DockerSecretsConfigurationExtensionsTests : IDisposable
     [Fact]
     public void AddDockerSecrets_IgnoresUnmappedFiles_AndMissingDirectory()
     {
-        File.WriteAllText(Path.Combine(_secretsPath, "db_password"), "not-mapped");
+        File.WriteAllText(Path.Join(_secretsPath, "db_password"), "not-mapped");
 
         var configuration = new ConfigurationBuilder()
             .AddDockerSecrets(_secretsPath)
-            .AddDockerSecrets(Path.Combine(_secretsPath, "does-not-exist"))
+            .AddDockerSecrets(Path.Join(_secretsPath, "does-not-exist"))
             .Build();
 
         configuration.AsEnumerable().Should().BeEmpty();
