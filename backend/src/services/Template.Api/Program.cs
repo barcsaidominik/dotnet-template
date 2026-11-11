@@ -152,13 +152,13 @@ public class Program
             {
                 var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                // Migrations and seeding are deliberately not wrapped in a try/catch: a failed
-                // migration must abort startup instead of leaving the app running against an
-                // inconsistent schema. The integration tests swap in the EF InMemory provider,
-                // which has no migration history, hence the provider check.
+                // Schema migration is owned by Template.Migrator (the db-migrator container); this
+                // API only seeds. Seeding is deliberately not wrapped in a try/catch: against a
+                // missing or unmigrated schema it throws and aborts startup instead of leaving the
+                // app running. The integration tests swap in the EF InMemory provider, which has no
+                // schema to seed into, hence the provider check.
                 if (context.Database.IsRelational())
                 {
-                    await context.Database.MigrateAsync();
                     await DbSeeder.SeedRolesAsync(scope.ServiceProvider);
                     await DbSeeder.SeedSystemAdminAsync(scope.ServiceProvider);
                 }
