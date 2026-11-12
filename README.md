@@ -8,20 +8,20 @@ A full-stack reference template that demonstrates security-focused .NET 10 and A
 
 ```
                  ┌──────────────┐
-  browser ──:80─▶│ frontend     │ Angular, served by nginx (CSP, X-Frame-Options)
+  browser ──:80─>│ frontend     │ Angular, served by nginx (CSP, X-Frame-Options)
                  └──────┬───────┘
                         │ /api
-                 ┌──────▼───────┐
-         :8080 ─▶│ api (gateway)│ YARP reverse proxy, CORS
+                 ┌──────v───────┐
+         :8080 ─>│ api (gateway)│ YARP reverse proxy, CORS
                  └──┬────────┬──┘
      /api/products/*│        │ everything else
-          ┌─────────▼──┐  ┌──▼─────────┐
-          │products-api│◀─┤ core-api   │ auth, admin, users, facilities, jobs
+          ┌─────────v──┐  ┌──v─────────┐
+          │products-api│<─┤ core-api   │ auth, admin, users, facilities, jobs
           │ REST + gRPC│  │            │ gRPC client (internal service token)
           └─────┬──────┘  └──┬─────────┘
                 └─────┬──────┘
-               ┌──────▼──────┐   ┌─────────────┐
-               │ PostgreSQL  │◀──┤ db-migrator │ one-shot EF Core migration job
+               ┌──────v──────┐   ┌─────────────┐
+               │ PostgreSQL  │<──┤ db-migrator │ one-shot EF Core migration job
                └─────────────┘   └─────────────┘
 ```
 
