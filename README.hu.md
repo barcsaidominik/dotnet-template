@@ -6,6 +6,37 @@ Egy full-stack referencia-sablon, ami production-orientált .NET és Angular fej
 
 Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enterprise-szintű implementációs mintákat mutat be: hitelesítés, jogosultságkezelés, háttérfeladatok, PDF/Excel generálás, microservice-ek, gRPC és még sok más.
 
+## Architektúra
+
+```
+                 ┌──────────────┐
+  böngésző ─:80─>│ frontend     │ Angular, nginx szolgálja ki (CSP, X-Frame-Options)
+                 └──────┬───────┘
+                        │ /api
+                 ┌──────v───────┐
+         :8080 ─>│ api (gateway)│ YARP reverse proxy, CORS
+                 └──┬────────┬──┘
+     /api/products/*│        │ minden más
+          ┌─────────v──┐  ┌──v─────────┐
+          │products-api│<─┤ core-api   │ auth, admin, felhasználók, létesítmények, jobok
+          │ REST + gRPC│  │            │ gRPC kliens (belső szolgáltatás-token)
+          └─────┬──────┘  └──┬─────────┘
+                └─────┬──────┘
+               ┌──────v──────┐   ┌─────────────┐
+               │ PostgreSQL  │<──┤ db-migrator │ egyszer lefutó EF Core migrációs job
+               └─────────────┘   └─────────────┘
+```
+
+Backend felépítés (`backend/src`):
+
+| Mappa | Projektek |
+|---|---|
+| `services/` | `Template.Api` (core API), `Template.Products.Api` (termékek, gRPC szerver), `Template.Gateway.Api` (YARP), `Template.Migrator` |
+| `core/` | `Template.Application` (CQRS commandok/query-k, FluentValidation), `Template.Domain`, `Template.Infrastructure` (EF Core, Identity, auth, query guardok), `Template.Grpc` |
+| `common/` | middleware-ek, naplózás, konfigurációs extensionök, Email, Excel, Jobs, Pdf, Templating |
+
+Részletek: [backend/README.hu.md](backend/README.hu.md), [frontend/README.hu.md](frontend/README.hu.md).
+
 ## Tech Stack
 
 | Réteg | Technológia |
@@ -52,7 +83,7 @@ Ez egy **demonstrációs sablon**, nem üzleti alkalmazás. Minden feature enter
    `service_completed_successfully` feltétellel várja meg ezt a konténert, így egyik API sem
    fut neki egy még nem migrált sémának. A séma tulajdonlása explicit: egyik API sem migrál
    induláskor. A `Template.Api` csak seedel (szerepkörök, system admin), és migrálatlan sémán
-   leáll. Compose nélkül a migrátort kézzel kell futtatni, lásd [backend/README.md](backend/README.md).
+   leáll. Compose nélkül a migrátort kézzel kell futtatni, lásd [backend/README.hu.md](backend/README.hu.md).
 
 4. **Alkalmazás elérése:**
    - Frontend: http://localhost
@@ -157,8 +188,8 @@ dotnet-template/
 
 ## Dokumentacio
 
-- [Backend README](backend/README.md) - Architektúra, deployment módok, API részletek
-- [Frontend README](frontend/README.md) - Angular setup, i18n, tesztelés
+- [Backend README](backend/README.hu.md) - Architektúra, deployment módok, API részletek
+- [Frontend README](frontend/README.hu.md) - Angular setup, i18n, tesztelés
 
 ## Alapértelmezett bejelentkezési adatok
 

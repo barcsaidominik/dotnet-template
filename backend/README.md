@@ -1,126 +1,129 @@
 # Backend
 
-.NET 10 backend szolgáltatások, Clean Architecture, CQRS, microservice-ek és production-ready minták bemutatása.
+**English** | [Magyar](README.hu.md)
+
+.NET 10 backend services demonstrating Clean Architecture, CQRS, microservices and production-oriented patterns.
 
 ## Tech Stack
 
-| Komponens | Technológia |
-|-----------|-------------|
+| Component | Technology |
+|-----------|------------|
 | **Framework** | .NET 10, ASP.NET Core |
-| **Adatbázis** | PostgreSQL 17, EF Core, Npgsql |
-| **Architektúra** | Clean Architecture, CQRS |
-| **Messaging** | Mediator (nem MediatR) |
-| **Hibakezelés** | ErrorOr |
-| **Validáció** | FluentValidation (pipeline behavior) |
-| **Hitelesítés** | ASP.NET Core Identity, JWT + Refresh Tokens |
+| **Database** | PostgreSQL 17, EF Core, Npgsql |
+| **Architecture** | Clean Architecture, CQRS |
+| **Messaging** | Mediator (not MediatR) |
+| **Error handling** | ErrorOr |
+| **Validation** | FluentValidation (pipeline behavior) |
+| **Authentication** | ASP.NET Core Identity, JWT + Refresh Tokens |
 | **Logging** | Serilog, Syslog RFC 5424, Elastic.Serilog.Sinks (Template.Api) |
-| **Háttérfeladatok** | TickerQ (EF Core store) |
-| **PDF generálás** | QuestPDF + Scriban sablonok |
+| **Background jobs** | TickerQ (EF Core store) |
+| **PDF generation** | QuestPDF + Scriban templates |
 | **Excel** | ClosedXML |
-| **Szolgáltatás-közi** | gRPC + YARP Reverse Proxy |
-| **Rugalmasság** | Polly (retry policy-k) |
+| **Service-to-service** | gRPC + YARP Reverse Proxy |
+| **Resilience** | Polly (retry policies) |
 
-## Projekt struktúra
+## Project structure
 
 ```
 backend/src/
 ├── common/                        <- Cross-cutting concerns
-│   ├── Template.Common/           <- Retry helperek, logging middleware, idempotencia
-│   ├── Template.Common.Email/     <- SMTP email szolgáltatás (Polly retry)
+│   ├── Template.Common/           <- Retry helpers, logging middleware, idempotency
+│   ├── Template.Common.Email/     <- SMTP email service (Polly retry)
 │   ├── Template.Common.Excel/     <- ClosedXML wrapper
-│   ├── Template.Common.Jobs/      <- TickerQ integráció
-│   ├── Template.Common.Pdf/       <- QuestPDF integráció
+│   ├── Template.Common.Jobs/      <- TickerQ integration
+│   ├── Template.Common.Pdf/       <- QuestPDF integration
 │   └── Template.Common.Templating/<- Scriban template engine
-├── core/                          <- Clean Architecture rétegek
-│   ├── Template.Domain/           <- Entitások, enumok, domain logika
-│   ├── Template.Application/      <- Use case-ek, CQRS handlerek, DTO-k
-│   ├── Template.Infrastructure/   <- EF Core, Identity, külső integrációk
-│   └── Template.Grpc/             <- Megosztott proto definíciók
-└── services/                      <- API hostok
+├── core/                          <- Clean Architecture layers
+│   ├── Template.Domain/           <- Entities, enums, domain logic
+│   ├── Template.Application/      <- Use cases, CQRS handlers, DTOs
+│   ├── Template.Infrastructure/   <- EF Core, Identity, external integrations
+│   └── Template.Grpc/             <- Shared proto definitions
+└── services/                      <- API hosts
     ├── Template.Api/              <- Core API (auth, admin, users, mailbox)
     ├── Template.Products.Api/     <- Products microservice (REST + gRPC)
-    └── Template.Gateway.Api/      <- YARP reverse proxy gateway
+    ├── Template.Gateway.Api/      <- YARP reverse proxy gateway
+    └── Template.Migrator/         <- One-shot EF Core migration console app
 
 backend/tests/
-└── Template.Tests/                <- 149 teszt (unit + integration)
+└── Template.Tests/                <- 154 tests (unit + integration)
 ```
 
-## Szolgáltatások
+## Services
 
 ### Template.Api (Core API)
 
-**Felelősségek:**
-- Hitelesítés és jogosultságkezelés (register, login, refresh, approve)
-- Felhasználókezelés (CRUD, szerepkör hozzárendelés, email módosítás)
-- Létesítmény kezelés (CRUD, felhasználó hozzárendelés)
-- Postafiók (alkalmazáson belüli üzenetküldés)
-- Háttérfeladat ütemezés (TickerQ)
-- Admin endpointok (audit log, Excel exportok)
-- Middleware (telemetria, resource guard, idempotencia)
+**Responsibilities:**
+- Authentication and authorization (register, login, refresh, approve)
+- User management (CRUD, role assignment, email change)
+- Facility management (CRUD, user assignment)
+- Mailbox (in-app messaging)
+- Background job scheduling (TickerQ)
+- Admin endpoints (audit log, Excel exports)
+- Middleware (telemetry, resource guard, idempotency)
 
-**Endpointok:**
+**Endpoints:**
 - `/api/Auth` - Register, Login, Refresh, SetPassword
-- `/api/Users` - Aktuális felhasználó, preferencia frissítés
-- `/api/Admin` - Felhasználó/létesítmény CRUD, jóváhagy, audit log, exportok
-- `/api/Admin/users/{userId}` - PUT email módosítás
-- `/api/FacilityUsers` - Létesítmény-szintű felhasználókezelés
-- `/api/Mailbox` - Postafiók üzenetek, olvasatlan darabszám
-- `/health/live`, `/health/ready`, `/health` - Health checkek
-- `/admin/tickerq` - TickerQ dashboard (csak SystemAdmin)
-- `/scalar/v1` - Scalar API dokumentáció
+- `/api/Users` - Current user, preference update
+- `/api/Admin` - User/facility CRUD, approval, audit log, exports
+- `/api/Admin/users/{userId}` - PUT email change
+- `/api/FacilityUsers` - Facility-level user management
+- `/api/Mailbox` - Mailbox messages, unread count
+- `/health/live`, `/health/ready`, `/health` - Health checks
+- `/admin/tickerq` - TickerQ dashboard (SystemAdmin only)
+- `/scalar/v1` - Scalar API reference
 
 ### Template.Products.Api (Products Microservice)
 
-**Felelősségek:**
-- Termék CRUD lapozással, rendezéssel, kereséssel
-- Excel import/export (lokalizált)
-- PDF rendelés generálás (QuestPDF + Scriban)
-- gRPC endpoint létesítmény használat ellenőrzéshez
+**Responsibilities:**
+- Product CRUD with paging, sorting and search
+- Excel import/export (localized)
+- PDF order generation (QuestPDF + Scriban)
+- gRPC endpoint for facility usage checks
 
-**Endpointok:**
-- `/api/Products` - CRUD, lapozás, exportok, importok, PDF generálás
+**Endpoints:**
+- `/api/Products` - CRUD, paging, exports, imports, PDF generation
 - gRPC: `FacilityProductsGrpcService` (port 8081)
 
 ### Template.Gateway.Api (Reverse Proxy)
 
-YARP-alapú gateway ami kéréseket irányít a backend szolgáltatásokhoz.
+YARP-based gateway that routes requests to the backend services.
 
-**Útvonalak:**
+**Routes:**
 - `/api/products/*` -> Products API
-- `/{**catch-all}` -> Core API (minden más)
+- `/{**catch-all}` -> Core API (everything else)
 
-## Hitelesítési folyamat
+## Authentication flow
 
-1. **Regisztráció:**
-   - Felhasználó regisztrál email/jelszóval
-   - `IsApproved = false` alapértelmezetten
-   - Adminnak kell jóváhagy és létesítményt + szerepkört rendelni
+1. **Registration:**
+   - The user registers with email/password
+   - `IsApproved = false` by default
+   - An admin has to approve the user and assign a facility and a role
 
-2. **Jóváhagyás:**
-   - Admin jóváhagy felhasználót a `/api/Admin/users/{id}/approve` endpointon
-   - Hozzárendel létesítményt és szerepkört (SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer)
+2. **Approval:**
+   - The admin approves the user on the `/api/Admin/users/{id}/approve` endpoint
+   - Assigns a facility and a role (SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer)
 
-3. **Bejelentkezés:**
-   - POST `/api/Auth/login` hitelesítő adatokkal
-   - Visszaad JWT-t (15 perces lejárás) + refresh tokent (7 napos lejárás)
-   - Refresh tokenek SHA-256 hash-kent tarolva
-   - `ClockSkew = TimeSpan.Zero` (szigorú JWT lejárás)
+3. **Login:**
+   - POST `/api/Auth/login` with credentials
+   - Returns a JWT (15-minute lifetime) + a refresh token (7-day lifetime)
+   - Refresh tokens are stored as SHA-256 hashes
+   - `ClockSkew = TimeSpan.Zero` (strict JWT expiry)
 
-4. **Token frissítés:**
-   - POST `/api/Auth/refresh` refresh tokennel
-   - Visszaad új JWT-t + új refresh tokent
+4. **Token refresh:**
+   - POST `/api/Auth/refresh` with the refresh token
+   - Returns a new JWT + a new refresh token
 
-5. **Létesítmény felhasználó létrehozás:**
-   - Admin létrehoz létesítmény felhasználót `RequiresPasswordChange = true`-val
-   - Visszaad `setupToken`-t a `/api/Auth/set-password` folyamathoz
+5. **Facility user creation:**
+   - An admin creates a facility user with `RequiresPasswordChange = true`
+   - Returns a `setupToken` for the `/api/Auth/set-password` flow
 
-## Deployment mod
+## Deployment mode
 
-### Proxy (Microservice-ek)
+### Proxy (microservices)
 
-Products külön `Template.Products.Api` szolgáltatás.
+Products run as a separate `Template.Products.Api` service.
 
-**Konfiguráció:**
+**Configuration:**
 ```json
 {
   "ProductsService": {
@@ -131,26 +134,26 @@ Products külön `Template.Products.Api` szolgáltatás.
 ```
 
 **Docker Compose:**
-- Gateway 80-as portot expoze-ol külső klienseknek
-- Core API gRPC-n kommunikál a Products API-val (belső hálózat)
-- Belső szolgáltatás hitelesítés `InternalServiceAuth__Token`-nel
+- The gateway publishes port 8080 to external clients (the frontend nginx publishes port 80)
+- The Core API talks to the Products API over gRPC (internal network)
+- Internal service authentication with `InternalServiceAuth__Token`
 
-## Fejlesztés
+## Development
 
-### Előfeltételek
+### Prerequisites
 - .NET 10 SDK
 - PostgreSQL 17
-- Docker (opcionális, konténeres fejlesztéshez)
+- Docker (optional, for containerized development)
 
-### Lokális fejlesztés
+### Local development
 
-1. **Függőségek visszaállítása:**
+1. **Restore dependencies:**
    ```bash
    dotnet restore
    dotnet tool restore
    ```
 
-2. **Migrációk alkalmazása** (a `Template.Migrator` csak környezeti változóból olvassa a kapcsolatot; a `Template.Api` induláskor már nem migrál, migrálatlan sémán leáll):
+2. **Apply migrations** (`Template.Migrator` reads the connection string from environment variables only; `Template.Api` no longer migrates on startup and exits on an unmigrated schema):
    ```bash
    ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=template_db;Username=postgres;Password=your-db-password" \
      dotnet run --project src/services/Template.Migrator
@@ -161,66 +164,66 @@ Products külön `Template.Products.Api` szolgáltatás.
    dotnet run --project src/services/Template.Migrator
    ```
 
-3. **Core API indítása:**
+3. **Start the Core API:**
    ```bash
    dotnet run --project src/services/Template.Api
    ```
 
-4. **Products API indítása (Proxy módnál):**
+4. **Start the Products API (Proxy mode):**
    ```bash
    dotnet run --project src/services/Template.Products.Api
    ```
 
-5. **Gateway indítása (Proxy módnál):**
+5. **Start the gateway (Proxy mode):**
    ```bash
    dotnet run --project src/services/Template.Gateway.Api
    ```
 
-### Tesztelés
+### Testing
 
 ```bash
 dotnet test tests/Template.Tests/Template.Tests.csproj
 ```
 
-**Aktuális állapot:** 149/149 sikeres (unit + integration)
+**Current state:** 154 tests (unit + integration; pass/fail status is shown by the CI `build-test.yml` run)
 
-### OpenAPI kliens generálás
+### OpenAPI client generation
 
-OpenAPI specifikációk a frontend által használva:
+OpenAPI specifications used by the frontend:
 - `Api.json` - Core API spec
 - `ProductsApi.json` - Products API spec
 
-Újragenerálás:
+Regenerate:
 ```powershell
 .\scripts\Refresh-OpenApi.ps1
 ```
 
-## Környezeti változók
+## Environment variables
 
-| Valtozo | Leírás | Alapérték |
-|---------|--------|-----------|
+| Variable | Description | Default |
+|----------|-------------|---------|
 | `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | - |
-| `JwtSettings__Secret` | JWT aláíró titok (min. 32 karakter) | - |
-| `JwtSettings__Issuer` | JWT kibocsátó | `template-api` |
-| `JwtSettings__Audience` | JWT célközönség | `template-frontend` |
-| `InternalServiceAuth__Token` | Szolgáltatás-közötti auth token (min. 32 karakter) | - |
-| `ProductsService__GrpcBaseUrl` | Products gRPC endpoint (Proxy mod) | - |
-| `ASPNETCORE_ENVIRONMENT` | Környezet: Development, Staging, Production | `Development` |
-| `SystemAdmin__Email` | Első indításkor seedelt system admin email | `admin@template.io` |
+| `JwtSettings__Secret` | JWT signing secret (min. 32 characters) | - |
+| `JwtSettings__Issuer` | JWT issuer | `template-api` |
+| `JwtSettings__Audience` | JWT audience | `template-frontend` |
+| `InternalServiceAuth__Token` | Service-to-service auth token (min. 32 characters) | - |
+| `ProductsService__GrpcBaseUrl` | Products gRPC endpoint (Proxy mode) | - |
+| `ASPNETCORE_ENVIRONMENT` | Environment: Development, Staging, Production | `Development` |
+| `SystemAdmin__Email` | System admin email seeded on first start | `admin@template.io` |
 
-Lásd [.env.example](../.env.example) a Docker Compose konfigurációkhoz.
+See [.env.example](../.env.example) for the Docker Compose configuration.
 
 ## Docker secrets
 
-A Docker secrets felülírja a környezeti változókat ha mindkettő létezik.
+Docker secrets take precedence over environment variables when both exist.
 
-**Támogatott secretek:**
+**Supported secrets:**
 - `jwt_secret` -> `JwtSettings:Secret`
 - `internal_service_token` -> `InternalServiceAuth:Token`
 
-Az adatbázis-kapcsolat nem Docker secretből, hanem a `ConnectionStrings:DefaultConnection` értékből (környezeti változó vagy user-secrets) jön.
+The database connection string does not come from a Docker secret; it is read from `ConnectionStrings:DefaultConnection` (environment variable or user-secrets).
 
-**Használat:**
+**Usage:**
 ```yaml
 secrets:
   jwt_secret:
@@ -229,77 +232,77 @@ secrets:
     file: ./secrets/internal_service_token.txt
 ```
 
-A `AddDockerSecrets()` extension automatikusan betölti a `/run/secrets/` útvonalról.
+The `AddDockerSecrets()` extension loads them from `/run/secrets/` automatically.
 
-## Biztonsági funkciók
+## Security features
 
-### Hitelesítés es jogosultságkezelés
-- SHA-256 hash-elt refresh tokenek (nincs plaintext tárolás)
-- DataProtection kulcsok perzisztálva `/app/keys` volume-ra
-- Rate limiting: 10 kérés/perc auth endpointokon (Development-ben kikapcsolva)
-- Szerepkör alapú jogosultság policy-k
+### Authentication and authorization
+- SHA-256 hashed refresh tokens (no plaintext storage)
+- DataProtection keys persisted to the `/app/keys` volume
+- Rate limiting: 10 requests/minute on auth endpoints (disabled in Development)
+- Role-based authorization policies
 
-### Szolgáltatás-közötti biztonság
-- Belső szolgáltatás hitelesítés token validációval
-- Konstans idejű token összevetés (`CryptographicOperations.FixedTimeEquals`)
-- Minimum 32 karakteres token hossz követelmény
+### Service-to-service security
+- Internal service authentication with token validation
+- Constant-time token comparison (`CryptographicOperations.FixedTimeEquals`)
+- Minimum token length of 32 characters
 
-### Adatvédelem
-- BOLA védelem `QueryGuard<T>`-vel (létesítményen kívüli hozzáférés megakadályozása)
+### Data protection
+- BOLA protection with `QueryGuard<T>` (prevents access outside the user's facility)
 - Query string redaction (passwords, tokens, refresh tokens, access tokens)
-- Kérés telemetria CPU/RAM monitorozással
-- Resource guard middleware (kooperatív megszakítás terhelés alatt)
+- Request telemetry with CPU/RAM monitoring
+- Resource guard middleware (cooperative cancellation under load)
 
 ### Audit
-- Entitás változás követés `AuditInterceptor`-ral (singleton, Facility + Product entitásokra)
-- Audit log szűréssel: entitás tipus, akció (Created/Updated/Deleted), felhasználó, dátumtartomány
-- N+1 query megelőzés (batch lekérdezések, `ExecuteUpdateAsync`)
+- Entity change tracking with `AuditInterceptor` (singleton, for Facility + Product entities)
+- Audit log with filters: entity type, action (Created/Updated/Deleted), user, date range
+- N+1 query prevention (batched queries, `ExecuteUpdateAsync`)
 
 ## Optimistic concurrency
 
-Az optimistic concurrency a PostgreSQL `xmin` rendszeroszlopára épül.
+Optimistic concurrency is built on the PostgreSQL `xmin` system column.
 
-**Működés:**
-1. Minden entitás (Entity base class) tartalmaz `RowVersion` propertyt (`uint`)
-2. EF Core konfig: `.HasColumnName("xmin").HasColumnType("xid").IsRowVersion()`
-3. Update kérésnél a kliens elküldi a korábbról lekérdezett `RowVersion`-t
-4. Ha az adatbázisban más érték van (más változtatta közben), `DbUpdateConcurrencyException` dobódik
-5. Handler 409 Conflict-et ad vissza `ProductErrors.ConcurrencyConflict` vagy hasonló hibaként
+**How it works:**
+1. Every entity (Entity base class) has a `RowVersion` property (`uint`)
+2. EF Core configuration: `.HasColumnName("xmin").HasColumnType("xid").IsRowVersion()`
+3. On update, the client sends the `RowVersion` it read earlier
+4. If the database holds a different value (someone else changed it in the meantime), a `DbUpdateConcurrencyException` is thrown
+5. The handler returns 409 Conflict as `ProductErrors.ConcurrencyConflict` or a similar error
 
-**Érintett entitások:** Facility, Product, MailboxMessage
+**Affected entities:** Facility, Product, MailboxMessage
 
-## Idempotencia (IdempotencyMiddleware)
+## Idempotency (IdempotencyMiddleware)
 
-POST kérések biztonságos újrapróbálhatók az `Idempotency-Key` headerrel.
+POST requests can be retried safely with the `Idempotency-Key` header.
 
-**Működés:**
-1. Kliens küld `Idempotency-Key` headert (egyedi azonosító)
-2. Middleware ellenőrzi az in-memory cache-t
-3. Ha már létező kulcs: visszaadja a cached választ `X-Idempotency-Replayed: true` headerrel
-4. Ha új kulcs: végrehajtja a kérést, cache-eli a választ 24 óráig
+**How it works:**
+1. The client sends an `Idempotency-Key` header (unique identifier)
+2. The middleware checks the in-memory cache
+3. Existing key: returns the cached response with an `X-Idempotency-Replayed: true` header
+4. New key: executes the request and caches the response for 24 hours
 
-**Kizárt útvonalak:** `/health`, `/scalar`, `/openapi`
+**Excluded paths:** `/health`, `/scalar`, `/openapi`
 
-**Megjegyzés:** In-memory implementáció, egyetlen node-ra alkalmas. Többpéldányos deploymenthez Redis vagy más elosztott cache ajánlott.
+**Note:** In-memory implementation, suitable for a single node. For multi-instance deployments use Redis or another distributed cache.
 
 ## Circuit breaker (ResourceGuardMiddleware)
 
-Automatikus terhelés védelem CPU és RAM küszöbértékek alapján.
+Automatic load protection based on CPU and RAM thresholds.
 
-**Állapotok:**
-- **Closed:** Normál működés, kérések feldolgozva
-- **Open:** Küszöb átlépve, összes kérés 503-at kap `Retry-After` headerrel
-- **HalfOpen:** Próba kérés átengedve, siker esetén Closed, különben vissza Open
+**States:**
+- **Closed:** Normal operation, requests are processed
+- **Open:** Threshold exceeded, every request gets 503 with a `Retry-After` header
+- **HalfOpen:** A probe request is let through; on success back to Closed, otherwise back to Open
 
-**Konfiguráció (ResourceGuardOptions):**
-| Beallitas | Alapérték | Leírás |
-|-----------|-----------|--------|
-| `CpuThresholdPercent` | 90 | CPU küszöb az Open állapothoz |
-| `MemoryThresholdPercent` | 95 | RAM küszöb az Open állapothoz |
-| `CircuitBreakerDurationSeconds` | 30 | Open állapot időtartama |
-| `MaxWorkingSetMb` | 1024 | Max munkakészlet MB-ban |
-| `MaxConcurrentRequests` | 200 | Max párhuzamos kérésszám |
-| `MinAvailableWorkerThreads` | 16 | Min szabad worker thread-ek |
+**Configuration (ResourceGuardOptions):**
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `CpuThresholdPercent` | 90 | CPU threshold for the Open state |
+| `MemoryThresholdPercent` | 95 | RAM threshold for the Open state |
+| `CircuitBreakerDurationSeconds` | 30 | Duration of the Open state |
+| `MaxWorkingSetMb` | 1024 | Max working set in MB |
+| `MaxConcurrentRequests` | 200 | Max concurrent requests |
+| `MinAvailableWorkerThreads` | 16 | Min available worker threads |
 
 ## Middleware pipeline
 
@@ -308,7 +311,7 @@ RequestTelemetryMiddleware
 ↓
 ResourceGuardMiddleware
 ↓
-RateLimiter (nem-Development)
+RateLimiter (non-Development)
 ↓
 Authentication
 ↓
@@ -321,15 +324,15 @@ TickerQ
 Controllers
 ```
 
-## Háttérfeladatok (TickerQ)
+## Background jobs (TickerQ)
 
-**Dashboard:** `/admin/tickerq` (SystemAdmin szerepkör szükséges)
+**Dashboard:** `/admin/tickerq` (requires the SystemAdmin role)
 
-**Példák:**
-- `DemoLongRunningOperation` - Manuális trigger demo
-- `Demo.Heartbeat` - Cron-alapú ütemezett feladat
+**Examples:**
+- `DemoLongRunningOperation` - Manually triggered demo
+- `Demo.Heartbeat` - Cron-based scheduled job
 
-**Konfiguráció:**
+**Configuration:**
 ```csharp
 builder.Services.AddBackgroundJobs<AppDbContext>(
     dashboardBasePath: "/admin/tickerq",
@@ -337,9 +340,9 @@ builder.Services.AddBackgroundJobs<AppDbContext>(
 );
 ```
 
-## Adatbázis
+## Database
 
-**Migrációk:**
+**Migrations:**
 1. Init
 2. AddRefreshToken
 3. AddPreferredLanguage
@@ -347,75 +350,76 @@ builder.Services.AddBackgroundJobs<AppDbContext>(
 5. AddMailboxMessages
 6. AddProductQuantity
 7. AddAuditLog
-8. HashRefreshToken (plaintext tokenek SHA-256 hash-re migráció)
-9. AddOptimisticConcurrency (PostgreSQL xmin oszlop EF Core mapping)
-10. AddTickerQIsSystemPaused (TickerQ `CronTickers.IsSystemPaused` oszlop)
+8. HashRefreshToken (migrates plaintext tokens to SHA-256 hashes)
+9. AddOptimisticConcurrency (EF Core mapping of the PostgreSQL xmin column)
+10. AddTickerQIsSystemPaused (TickerQ `CronTickers.IsSystemPaused` column)
 
-**Migráció:** kizárólag a `Template.Migrator` (Docker Compose alatt a `db-migrator` konténer) alkalmazza. A `Template.Api` induláskor csak seedel (szerepkörök, system admin); migrálatlan sémán a seedelés kivételt dob, és az alkalmazás leáll.
+**Migration:** applied only by `Template.Migrator` (the `db-migrator` container under Docker Compose). On startup `Template.Api` only seeds (roles, system admin); on an unmigrated schema the seeding throws and the application exits.
 
 **Seeding:**
-- Szerepkörök: SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer
-- Alapértelmezett admin: `admin@template.io` (konfigurálható: `SystemAdmin:Email`) - jelszó-visszaállítási email küldve az első indításkor
+- Roles: SystemAdmin, FacilityAdmin, FacilityEditor, FacilityViewer
+- Default admin: `admin@template.io` (configurable via `SystemAdmin:Email`) - a password-setup email is sent on first start
 
 ## Cache
 
 **GetProducts:**
-- In-memory cache létesítményenként (`products:facility:{id}`)
-- 5 perces TTL
-- Invalidáció: Create/Update product
-- Rendezés/keresés/lapozás memóriában cache lekérés után
+- In-memory cache per facility (`products:facility:{id}`)
+- 5-minute TTL
+- Invalidation: Create/Update product
+- Sorting/search/paging in memory after the cache read
 
 **GetAllUsers:**
-- In-memory cache (5 perces TTL)
-- Invalidacio: Create/Approve/Delete/UpdateRole
+- In-memory cache (5-minute TTL)
+- Invalidation: Create/Approve/Delete/UpdateRole
 
-## Health checkek
+## Health checks
 
-| Endpoint | Cél |
-|----------|-----|
-| `/health/live` | Liveness probe (mindig 200-at ad vissza) |
-| `/health/ready` | Readiness probe (adatbázis kapcsolat ellenőrzése) |
-| `/health` | Kombinált egészségi állapot |
+| Endpoint | Purpose |
+|----------|---------|
+| `/health/live` | Liveness probe (always returns 200) |
+| `/health/ready` | Readiness probe (checks the database connection) |
+| `/health` | Combined health status |
 
-## Rugalmasság (Polly)
+## Resilience (Polly)
 
-**SMTP Email szolgáltatás:**
-- 3 újrapróbálkozás 2 másodperces késleltetéssel
-- Kihagyja az újrapróbálkozást hitelesítési hibáknál
+**SMTP email service:**
+- 3 retries with a 2-second delay
+- No retry on authentication errors
 
-**gRPC Facility Usage szolgáltatás:**
-- 3 újrapróbálkozás exponenciális backoff-fal (1s alap)
-- Kihagyja az újrapróbálkozást invalid argument hibáknál
+**gRPC facility usage service:**
+- 3 retries with exponential backoff (1s base)
+- No retry on invalid argument errors
 
 ## Docker
 
-**Image-ek:**
+**Images:**
 - `Dockerfile` - Core API
 - `Dockerfile.ProductsApi` - Products API
 - `Dockerfile.GatewayApi` - Gateway API
+- `Dockerfile.Migrator` - Migrator
 
-**Build a repository gyökeréből:**
+**Build from the repository root:**
 ```bash
 docker compose up -d --build
 ```
 
-**Volume-ok:**
-- `dataprotection-keys` - Megosztott DataProtection kulcsok konténetek között
-- `postgres-data` - PostgreSQL adat perzisztencia (named volume; `docker compose down -v` reseteli)
+**Volumes:**
+- `dataprotection-keys` - DataProtection keys shared between containers
+- `postgres-data` - PostgreSQL data persistence (named volume; `docker compose down -v` resets it)
 
 **Secrets:**
 - `secrets/jwt_secret.txt`
 - `secrets/internal_service_token.txt`
 
-## API dokumentáció
+## API reference
 
 **Scalar UI:** http://localhost:8080/scalar/v1
 
-Bearer token hitelesítési séma a hitelesített endpointok teszteléséhez.
+Bearer token authentication scheme for testing authenticated endpoints.
 
-## Megjegyzések
+## Notes
 
-- **Mediator:** `Mediator` NuGet csomagot használ (`using Mediator;`), nem MediatR-t
-- **ErrorOr:** Funkcionális hibakezelési minta (nincs kivétel üzleti logika hibákhoz)
-- **Entity base class:** `Domain/Common/Entity.cs` `Guid Id`, `DateTime CreatedAt` és `uint RowVersion`-nel
-- **QuestPDF:** Community licensz (ingyenes open-source/kiértékeléshez, kereskedelmi felhasználáshoz vásárlás szükséges)
+- **Mediator:** uses the `Mediator` NuGet package (`using Mediator;`), not MediatR
+- **ErrorOr:** functional error handling pattern (no exceptions for business logic errors)
+- **Entity base class:** `Domain/Common/Entity.cs` with `Guid Id`, `DateTime CreatedAt` and `uint RowVersion`
+- **QuestPDF:** Community license (free for open source/evaluation; commercial use above the revenue threshold requires a paid license)

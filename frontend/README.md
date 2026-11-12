@@ -1,90 +1,92 @@
 # Frontend
 
-Angular 22 frontend standalone komponensekkel, signalokkal, Material Design-nal és generált OpenAPI kliensekkel.
+**English** | [Magyar](README.hu.md)
+
+Angular 22 frontend with standalone components, signals, Material Design and generated OpenAPI clients.
 
 ## Tech Stack
 
-| Komponens          | Technológia                            |
-| ------------------ | -------------------------------------- |
-| **Framework**      | Angular 22                             |
-| **UI könyvtár**    | Angular Material 22                    |
-| **Architektúra**   | Standalone komponensek, Signals        |
-| **Állapotkezelés** | RxJS, Angular Signals                  |
-| **Routing**        | Angular Router guardokkal              |
-| **i18n**           | ngx-translate (magyar, angol)          |
-| **API kliens**     | OpenAPI-ból generálva (ng-openapi-gen) |
-| **Tesztelés**      | Vitest 4                               |
-| **Linting**        | ESLint 9 + typescript-eslint           |
-| **Formátás**       | Prettier 3                             |
-| **Git hookok**     | simple-git-hooks + lint-staged         |
+| Component            | Technology                              |
+| -------------------- | --------------------------------------- |
+| **Framework**        | Angular 22                              |
+| **UI library**       | Angular Material 22                     |
+| **Architecture**     | Standalone components, Signals          |
+| **State management** | RxJS, Angular Signals                   |
+| **Routing**          | Angular Router with guards              |
+| **i18n**             | ngx-translate (Hungarian, English)      |
+| **API client**       | Generated from OpenAPI (ng-openapi-gen) |
+| **Testing**          | Vitest 4                                |
+| **Linting**          | ESLint 9 + typescript-eslint            |
+| **Formatting**       | Prettier 3                              |
+| **Git hooks**        | simple-git-hooks + lint-staged          |
 
-## Funkciók
+## Features
 
-### Hitelesítés és felhasználókezelés
+### Authentication and user management
 
-- Bejelentkezés, regisztráció, jelszóbeállítás
-- JWT + refresh token kezelés
-- Auth guard és role guard
-- Automatikus token frissítés 401 esetén
-- Admin felhasználó jóváhagy workflow
+- Login, registration, password setup
+- JWT + refresh token handling
+- Auth guard and role guard
+- Automatic token refresh on 401
+- Admin user approval workflow
 
-### Admin oldalak (SystemAdmin szerepkör)
+### Admin pages (SystemAdmin role)
 
-- **Felhasználók:** Lista, jóváhagy, szerepkör hozzárendelés, törlés, Excel export, email módosítás
-- **Létesítmények:** CRUD, felhasználó hozzárendelés, Excel export
-- **Audit log:** Szűrés entitás típus, akció, dátumtartomány, felhasználó alapján
+- **Users:** list, approval, role assignment, deletion, Excel export, email change
+- **Facilities:** CRUD, user assignment, Excel export
+- **Audit log:** filtering by entity type, action, date range and user
 
-### Létesítmény oldalak (FacilityAdmin szerepkör)
+### Facility pages (FacilityAdmin role)
 
-- **Felhasználók:** Létesítmény felhasználók létrehozása, szerepkör hozzárendelés, eltávolítás, keresés, rendezés
-- **Termékek:** CRUD lapozással, rendezéssel, kereséssel, Excel import/export, PDF generálás
+- **Users:** create facility users, role assignment, removal, search, sorting
+- **Products:** CRUD with paging, sorting, search, Excel import/export, PDF generation
 
-### Termékek (FacilityEditor/FacilityViewer szerepkörök)
+### Products (FacilityEditor/FacilityViewer roles)
 
-- Csak olvasási tereklista lapozással és rendezéssel
+- Read-only product list with paging and sorting
 
-### Postafiók
+### Mailbox
 
-- Alkalmazáson belüli üzenetküldés
-- Olvasatlan darabszám badge
-- Megjelölés olvasott/olvasatlan
-- Valós idejű frissítések
+- In-app messaging
+- Unread count badge
+- Mark as read/unread
+- Real-time updates
 
 ### i18n
 
-- Magyar és angol fordítások
-- Dátum lokalizáció szinkronizálás
-- Backend preferencia szinkron
-- Nyelvváltó a shellben
+- Hungarian and English translations
+- Date localization sync
+- Backend preference sync
+- Language switcher in the shell
 
-### Téma
+### Theme
 
-- Világos és sötét mód
-- Perzisztens felhasználói preferencia
+- Light and dark mode
+- Persistent user preference
 - Material Design 3
 
-## Fejlesztés
+## Development
 
-### Előfeltételek
+### Prerequisites
 
-- Node.js 22.22.3+, 24.15.0+ vagy 26.0.0+
+- Node.js 22.22.3+, 24.15.0+ or 26.0.0+
 - npm 10+
 
-### Függőségek telepítése
+### Install dependencies
 
 ```bash
 npm install
 ```
 
-### Fejlesztői szerver
+### Development server
 
 ```bash
 npm start
 ```
 
-Az alkalmazás a http://localhost:4200 címen fut, proxy-val a backend gateway-hez (http://localhost:8080).
+The app runs at http://localhost:4200 and proxies to the backend gateway (http://localhost:8080).
 
-**Proxy konfiguráció:** [proxy.conf.json](proxy.conf.json)
+**Proxy configuration:** [proxy.conf.json](proxy.conf.json)
 
 ### Build
 
@@ -92,23 +94,23 @@ Az alkalmazás a http://localhost:4200 címen fut, proxy-val a backend gateway-h
 npm run build
 ```
 
-Production build a `dist/` könyvtárba kerül.
+The production build goes to the `dist/` directory.
 
-### Tesztelés
+### Testing
 
 ```bash
 npm run test
 ```
 
-**Aktuális állapot:** 88 Vitest unit teszt, 21 teszt fájl (a pass/fail státuszt a CI `build-test.yml` futása mutatja)
+**Current state:** 88 Vitest unit tests in 21 test files (pass/fail status is shown by the CI `build-test.yml` run)
 
-**Egyszeri futtatás:**
+**Single run:**
 
 ```bash
 npm run test:run
 ```
 
-### Kódminőség
+### Code quality
 
 **Lint:**
 
@@ -117,36 +119,36 @@ npm run lint
 npm run lint:fix
 ```
 
-**Formátás:**
+**Formatting:**
 
 ```bash
 npm run format
 npm run format:check
 ```
 
-**Teljes stílusellenőrzés:**
+**Full style check:**
 
 ```bash
 npm run style:check
 ```
 
-## OpenAPI kliens generálás
+## OpenAPI client generation
 
-A frontend generált TypeScript klienseket használ a backend OpenAPI specifikációkból.
+The frontend uses TypeScript clients generated from the backend OpenAPI specifications.
 
-### Összes kliens generálása
+### Generate all clients
 
 ```bash
 npm run generate:api
 ```
 
-Ez futtatja:
+This runs:
 
-1. `generate:types` - TypeScript típusok generálása az `Api.json`-ból
-2. `generate:client` - Angular szolgáltatások generálása az `Api.json`-ból
-3. `generate:products` - Típusok és szolgáltatások generálása a `ProductsApi.json`-ból
+1. `generate:types` - generates TypeScript types from `Api.json`
+2. `generate:client` - generates Angular services from `Api.json`
+3. `generate:products` - generates types and services from `ProductsApi.json`
 
-### Manuális lépések
+### Manual steps
 
 **Core API:**
 
@@ -161,159 +163,159 @@ npm run generate:client
 npm run generate:products
 ```
 
-**Konfigurációs fájlok:**
+**Configuration files:**
 
-- [ng-openapi-gen.json](ng-openapi-gen.json) - Core API konfig
-- [ng-openapi-gen-products.json](ng-openapi-gen-products.json) - Products API konfig
+- [ng-openapi-gen.json](ng-openapi-gen.json) - Core API config
+- [ng-openapi-gen-products.json](ng-openapi-gen-products.json) - Products API config
 
-**Generált kód helye:**
+**Generated code location:**
 
-- `src/app/generated/client/` - Core API szolgáltatások
-- `src/app/generated/products-client/` - Products API szolgáltatások
-- `src/app/generated/api.types.ts` - Core API típusok
-- `src/app/generated/products.api.types.ts` - Products API típusok
+- `src/app/generated/client/` - Core API services
+- `src/app/generated/products-client/` - Products API services
+- `src/app/generated/api.types.ts` - Core API types
+- `src/app/generated/products.api.types.ts` - Products API types
 
-**Automatizált generálás:**
+**Automated generation:**
 
 ```powershell
 .\scripts\Refresh-OpenApi.ps1
 ```
 
-(Elindítja a backend szolgáltatásokat, letölti a specifikációkat, generálja a klienseket)
+(Starts the backend services, downloads the specifications and generates the clients)
 
-## Projekt struktúra
+## Project structure
 
 ```
 src/app/
-├── core/                   <- Core szolgáltatások és guardok
-│   ├── auth/               <- Auth szolgáltatás, guardok, interceptorok
-│   ├── i18n/               <- Nyelv szolgáltatás
-│   ├── mailbox/            <- Mailbox szolgáltatás
-│   ├── models/             <- Közös modellek
-│   ├── services/           <- Egyéb core szolgáltatások
-│   └── theme/              <- Téma szolgáltatás
-├── features/               <- Feature modulok
-│   ├── admin/              <- Admin oldalak (users, facilities, audit-log)
-│   ├── auth/               <- Auth oldalak (login, register, set-password)
-│   ├── facility/           <- Létesítmény oldalak (users, products)
-│   ├── mailbox/            <- Postafiók oldal
-│   └── products/           <- Termékek oldal (FacilityEditor/Viewer)
-├── generated/              <- Generált OpenAPI kliensek
-│   ├── client/             <- Core API kliens
-│   ├── products-client/    <- Products API kliens
-│   ├── api.types.ts        <- Core API típusok
-│   └── products.api.types.ts  <- Products API típusok
-├── shared/                 <- Megosztott komponensek és segédfüggvények
-│   ├── components/         <- Újrafelhasználható komponensek
-│   ├── shell/              <- Shell layout navigációval
-│   └── utils/              <- Segédfüggvények, mapperek
-└── app.routes.ts           <- Alkalmazás routing
+├── core/                   <- Core services and guards
+│   ├── auth/               <- Auth service, guards, interceptors
+│   ├── i18n/               <- Language service
+│   ├── mailbox/            <- Mailbox service
+│   ├── models/             <- Shared models
+│   ├── services/           <- Other core services
+│   └── theme/              <- Theme service
+├── features/               <- Feature modules
+│   ├── admin/              <- Admin pages (users, facilities, audit-log)
+│   ├── auth/               <- Auth pages (login, register, set-password)
+│   ├── facility/           <- Facility pages (users, products)
+│   ├── mailbox/            <- Mailbox page
+│   └── products/           <- Products page (FacilityEditor/Viewer)
+├── generated/              <- Generated OpenAPI clients
+│   ├── client/             <- Core API client
+│   ├── products-client/    <- Products API client
+│   ├── api.types.ts        <- Core API types
+│   └── products.api.types.ts  <- Products API types
+├── shared/                 <- Shared components and utilities
+│   ├── components/         <- Reusable components
+│   ├── shell/              <- Shell layout with navigation
+│   └── utils/              <- Utility functions, mappers
+└── app.routes.ts           <- Application routing
 ```
 
-## Útvonalak
+## Routes
 
-| Utvonal                 | Komponens                     | Guard                                                | Leírás                                           |
-| ----------------------- | ----------------------------- | ---------------------------------------------------- | ------------------------------------------------ |
-| `/auth/login`           | AuthLoginComponent            | -                                                    | Bejelentkező oldal                               |
-| `/auth/register`        | AuthRegisterComponent         | -                                                    | Regisztrációs oldal                              |
-| `/auth/set-password`    | AuthSetPasswordComponent      | -                                                    | Jelszóbeállítás (meghívó linkből)                |
-| `/auth/forgot-password` | AuthForgotPasswordComponent   | -                                                    | Elfelejtett jelszó - visszaállítási email kérése |
-| `/admin/users`          | AdminUsersPageComponent       | authGuard, roleGuard(SystemAdmin)                    | Felhasználókezelés                               |
-| `/admin/facilities`     | AdminFacilitiesPageComponent  | authGuard, roleGuard(SystemAdmin)                    | Létesítménykezelés                               |
-| `/admin/audit-log`      | AdminAuditLogPageComponent    | authGuard, roleGuard(SystemAdmin)                    | Audit log megjelenítő                            |
-| `/facility/users`       | FacilityUsersPageComponent    | authGuard, roleGuard(FacilityAdmin)                  | Létesítmény felhasználókezelés                   |
-| `/facility/products`    | FacilityProductsPageComponent | authGuard, roleGuard(FacilityAdmin)                  | Létesítmény termékkezelés                        |
-| `/products`             | ProductsPageComponent         | authGuard, roleGuard(FacilityEditor, FacilityViewer) | Tereklista (csak olvasás)                        |
-| `/mailbox`              | MailboxPageComponent          | authGuard                                            | Postafiók üzenetek                               |
+| Route                   | Component                     | Guard                                                | Description                                |
+| ----------------------- | ----------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| `/auth/login`           | AuthLoginComponent            | -                                                    | Login page                                 |
+| `/auth/register`        | AuthRegisterComponent         | -                                                    | Registration page                          |
+| `/auth/set-password`    | AuthSetPasswordComponent      | -                                                    | Password setup (from an invitation link)   |
+| `/auth/forgot-password` | AuthForgotPasswordComponent   | -                                                    | Forgotten password - request a reset email |
+| `/admin/users`          | AdminUsersPageComponent       | authGuard, roleGuard(SystemAdmin)                    | User management                            |
+| `/admin/facilities`     | AdminFacilitiesPageComponent  | authGuard, roleGuard(SystemAdmin)                    | Facility management                        |
+| `/admin/audit-log`      | AdminAuditLogPageComponent    | authGuard, roleGuard(SystemAdmin)                    | Audit log viewer                           |
+| `/facility/users`       | FacilityUsersPageComponent    | authGuard, roleGuard(FacilityAdmin)                  | Facility user management                   |
+| `/facility/products`    | FacilityProductsPageComponent | authGuard, roleGuard(FacilityAdmin)                  | Facility product management                |
+| `/products`             | ProductsPageComponent         | authGuard, roleGuard(FacilityEditor, FacilityViewer) | Product list (read-only)                   |
+| `/mailbox`              | MailboxPageComponent          | authGuard                                            | Mailbox messages                           |
 
-**Útvonal definíciók:** [app.routes.ts](src/app/app.routes.ts)
+**Route definitions:** [app.routes.ts](src/app/app.routes.ts)
 
-## i18n (Nemzetköziesítés)
+## i18n (internationalization)
 
-**Támogatott nyelvek:**
+**Supported languages:**
 
-- Magyar (hu)
-- Angol (en)
+- Hungarian (hu)
+- English (en)
 
-**Fordítás fájlok:**
+**Translation files:**
 
 - [src/assets/i18n/hu.json](src/assets/i18n/hu.json)
 - [src/assets/i18n/en.json](src/assets/i18n/en.json)
 
-**Használat sablonokban:**
+**Usage in templates:**
 
 ```html
 <h1>{{ 'auth.login.title' | translate }}</h1>
 ```
 
-**Használat kódban:**
+**Usage in code:**
 
 ```typescript
 this.translateService.instant('auth.login.success');
 ```
 
-**Nyelvváltás:**
+**Switching languages:**
 
-- Felhasználó válthat a shell legülővel
-- Preferencia mentve backendre
-- Dátum lokalizáció automatikusan szinkronizálva
+- Users switch with the dropdown in the shell
+- The preference is saved to the backend
+- Date localization is synced automatically
 
-## Téma rendszer
+## Theme system
 
 **ThemeService:**
 
-- Világos/sötét mód váltás
-- Perzisztens preferencia (localStorage)
-- Material Design 3 témázás
+- Light/dark mode toggle
+- Persistent preference (localStorage)
+- Material Design 3 theming
 
-**Használat:**
+**Usage:**
 
 ```typescript
 this.themeService.toggleTheme();
 this.themeService.isDark(); // Signal<boolean>
 ```
 
-## Kódstílus és Git hookok
+## Code style and Git hooks
 
-**Konfiguráció:**
+**Configuration:**
 
-- [.editorconfig](.editorconfig) - Editor beállítások
-- [eslint.config.js](eslint.config.js) - ESLint szabályok
-- [.prettierrc.json](.prettierrc.json) - Prettier formátás
+- [.editorconfig](.editorconfig) - Editor settings
+- [eslint.config.js](eslint.config.js) - ESLint rules
+- [.prettierrc.json](.prettierrc.json) - Prettier formatting
 
 **Pre-commit hook:**
 
-- `lint-staged` fut a staged fájlokon
-- ESLint + Prettier `.ts` és `.html` fájlokon
-- Csak Prettier `.scss`, `.css`, `.json`, `.js`, `.md` fájlokon
+- `lint-staged` runs on staged files
+- ESLint + Prettier on `.ts` and `.html` files
+- Prettier only on `.scss`, `.css`, `.json`, `.js`, `.md` files
 
-**Beállítás:**
+**Setup:**
 
 ```bash
 npm run prepare
 ```
 
-## Tesztelési stratégia
+## Testing strategy
 
-**Vitest konfiguráció:** [vitest.config.ts](vitest.config.ts)
+**Vitest configuration:** [vitest.config.ts](vitest.config.ts)
 
-**Teszt lefedettség:**
+**Test coverage:**
 
-- Auth szolgáltatás és guardok
-- Nyelv szolgáltatás
-- Téma szolgáltatás
-- Postafiók komponensek és szolgáltatás
-- Admin oldalak (users, facilities)
-- Létesítmény oldalak (users, products)
-- Termékek oldal
-- Shell komponens
-- Mapperek és segédfüggvények
+- Auth service and guards
+- Language service
+- Theme service
+- Mailbox components and service
+- Admin pages (users, facilities)
+- Facility pages (users, products)
+- Products page
+- Shell component
+- Mappers and utilities
 
-**Tesztek futtatása:**
+**Running tests:**
 
 ```bash
-npm run test          # Watch mod
-npm run test:run      # Egyszeri futtatás
+npm run test          # Watch mode
+npm run test:run      # Single run
 ```
 
 ## Docker
@@ -326,7 +328,7 @@ npm run test:run      # Egyszeri futtatás
 docker build -t template-frontend .
 ```
 
-**Futtatás:**
+**Run:**
 
 ```bash
 docker run -p 80:80 template-frontend
@@ -338,59 +340,59 @@ docker run -p 80:80 template-frontend
 docker compose up -d --build
 ```
 
-A frontend nginx-en keresztül szolgáltatva reverse proxy-val a backend gateway-hez.
+The frontend is served by nginx, which reverse-proxies to the backend gateway.
 
-**nginx konfiguráció:** [nginx.conf](nginx.conf)
+**nginx configuration:** [nginx.conf](nginx.conf)
 
-## Biztonsági headerek (nginx)
+## Security headers (nginx)
 
-- `Content-Security-Policy` - Erőforrás betöltés korlátozás
-- `X-Frame-Options: DENY` - Clickjacking megelőzés
-- `X-Content-Type-Options: nosniff` - MIME sniffing megelőzés
-- `Referrer-Policy: strict-origin-when-cross-origin` - Referrer kontrollás
-- `Permissions-Policy` - Felesleges böngésző funkciók kikapcsolása
+- `Content-Security-Policy` - restricts resource loading
+- `X-Frame-Options: DENY` - clickjacking prevention
+- `X-Content-Type-Options: nosniff` - MIME sniffing prevention
+- `Referrer-Policy: strict-origin-when-cross-origin` - referrer control
+- `Permissions-Policy` - disables unneeded browser features
 
-## Környezet konfiguráció
+## Environment configuration
 
-A frontend az Angular környezeti rendszerét használja.
+The frontend uses the Angular environment system.
 
 **Development:**
 
-- API proxy a `http://localhost:8080` címre
-- Source mapek aktív
-- Development mod
+- API proxy to `http://localhost:8080`
+- Source maps enabled
+- Development mode
 
 **Production:**
 
-- API base URL: `/api` (nginx szolgáltatja)
-- Optimalizált build
-- AOT fordítás
+- API base URL: `/api` (served through nginx)
+- Optimized build
+- AOT compilation
 
-## NPM scriptek
+## NPM scripts
 
-| Script                      | Cél                                        |
+| Script                      | Purpose                                    |
 | --------------------------- | ------------------------------------------ |
-| `npm start`                 | Fejlesztői szerver (http://localhost:4200) |
+| `npm start`                 | Development server (http://localhost:4200) |
 | `npm run build`             | Production build                           |
-| `npm run watch`             | Watch mod build                            |
-| `npm run test`              | Vitest watch mod                           |
-| `npm run test:run`          | Vitest egyszeri futtatás                   |
-| `npm run lint`              | ESLint ellenőrzés                          |
+| `npm run watch`             | Watch mode build                           |
+| `npm run test`              | Vitest watch mode                          |
+| `npm run test:run`          | Vitest single run                          |
+| `npm run lint`              | ESLint check                               |
 | `npm run lint:fix`          | ESLint auto-fix                            |
-| `npm run format`            | Prettier formátás                          |
-| `npm run format:check`      | Prettier ellenőrzés                        |
-| `npm run style:check`       | Teljes stíluskapu (format + lint)          |
-| `npm run generate:api`      | Összes OpenAPI kliens generálása           |
-| `npm run generate:types`    | Core API típusok generálása                |
-| `npm run generate:client`   | Core API szolgáltatások generálása         |
-| `npm run generate:products` | Products API kliens generálása             |
-| `npm run prepare`           | Git hookok beállítása                      |
+| `npm run format`            | Prettier formatting                        |
+| `npm run format:check`      | Prettier check                             |
+| `npm run style:check`       | Full style gate (format + lint)            |
+| `npm run generate:api`      | Generate all OpenAPI clients               |
+| `npm run generate:types`    | Generate Core API types                    |
+| `npm run generate:client`   | Generate Core API services                 |
+| `npm run generate:products` | Generate the Products API client           |
+| `npm run prepare`           | Set up Git hooks                           |
 
-## Megjegyzések
+## Notes
 
-- **Standalone komponensek:** Nincs NgModule, Angular 22 standalone API-kat használ
-- **Signals:** Állapotkezelés Angular Signalokkal ahol alkalmazandó
-- **Material Design 3:** Legújabb Material komponensek és témázás
-- **OpenAPI-first:** Minden API kommunikáció generált klienseken keresztül
-- **Type-safe:** Teljes TypeScript lefedettség strict moddal
-- **Teszt lefedettség:** 89 unit teszt a core funkcionalitás lefedve
+- **Standalone components:** no NgModules, uses the Angular 22 standalone APIs
+- **Signals:** state management with Angular Signals where applicable
+- **Material Design 3:** latest Material components and theming
+- **OpenAPI-first:** all API communication goes through generated clients
+- **Type-safe:** full TypeScript coverage in strict mode
+- **Test coverage:** 88 unit tests covering the core functionality
